@@ -1,6 +1,6 @@
 ### 内容管理模块
 
-##### 安装内容
+##### 安装以下内容（在tp6文件夹下）
 composer require liliuwei/thinkphp-jump
 
 ```
