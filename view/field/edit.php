@@ -59,7 +59,7 @@
                         设置表单相关属性
                     </th>
                     <td>
-                        <div id="setting">{$form_data}</div>
+                        <div id="setting">{$form_data|raw}</div>
                     </td>
                 </tr>
                 <tr>

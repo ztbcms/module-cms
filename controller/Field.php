@@ -167,6 +167,9 @@ class Field extends AdminController
             if (empty($setting['backstagefun_type'])) $setting['backstagefun_type'] = null;
             if (empty($setting['frontfun_type'])) $setting['frontfun_type'] = null;
 
+            // 设置默认值
+            $this->setDefault($setting);
+
             //打开缓冲区
             ob_start();
             // 判断文件是否存在
@@ -209,6 +212,19 @@ class Field extends AdminController
             View::assign("modelinfo", $modeData);
             return View::fetch();
         }
+    }
+
+    /**
+     * 设置默认值
+     * @param $setting
+     */
+    public function setDefault(&$setting){
+        if(empty($setting['width']))  $setting['width'] = '';
+        if(empty($setting['height']))  $setting['height'] = '';
+        if(empty($setting['mbtoolbar']))  $setting['mbtoolbar'] = '';
+        if(empty($setting['defaultvalue']))  $setting['defaultvalue'] = '';
+        if(empty($setting['fieldtype']))  $setting['fieldtype'] = 'mediumtext';
+        if(empty($setting['minnumber']))  $setting['minnumber'] = '';
     }
 
     /***
