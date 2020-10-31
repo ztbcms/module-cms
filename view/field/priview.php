@@ -52,7 +52,7 @@ body fieldset legend {
     <div class="table_full">
       <table width="100%">
 <?php
-if(!empty($forminfos) && is_array($forminfos['senior'])) {
+if(!empty($forminfos['senior']) && is_array($forminfos['senior'])) {
  foreach($forminfos['senior'] as $field=>$info) {
 	if($info['isomnipotent']) continue;
 	if($info['formtype']=='omnipotent') {
@@ -98,7 +98,7 @@ if(!empty($forminfos) && is_array($forminfos['senior'])) {
     <div class="table_full">
       <table width="100%">
             <?php
-if(!empty($forminfos) && is_array($forminfos['base'])) {
+if(!empty($forminfos['base']) && is_array($forminfos['base'])) {
  foreach($forminfos['base'] as $field=>$info) {
 	 if($info['isomnipotent']) continue;
 	 if($info['formtype']=='omnipotent') {

@@ -269,7 +269,7 @@ class ModelModel extends Model
                         return false;
                     }
                     //更新缓存
-                    $this->model_cache(true);
+                    self::model_cache(true);
                     return true;
                 } else {
                     $this->error = '模型更新失败！';
@@ -334,7 +334,7 @@ class ModelModel extends Model
         //删除模型数据
         $this->where("modelid", $modelId)->delete();
         //更新缓存
-        $this->model_cache(true);
+        self::model_cache(true);
         //删除所有和这个模型相关的字段
         ModelFieldModel::where("modelid", $modelId)->delete();
         //删除主表
@@ -487,13 +487,13 @@ class ModelModel extends Model
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function getModelAll($type = null)
+    public static function getModelAll($type = null)
     {
         $where = array('disabled' => 0);
         if (!is_null($type)) {
             $where['type'] = $type;
         }
-        $data = $this->where($where)->select();
+        $data = self::where($where)->select();
         $Cache = array();
         foreach ($data as $v) {
             $Cache[$v['modelid']] = $v;
@@ -503,23 +503,25 @@ class ModelModel extends Model
 
     /**
      * 生成模型缓存，以模型ID为下标的数组
+     * 可用作获取
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    public function model_cache($isForce = false)
+    public static function model_cache($isForce = false)
     {
         // 不强制则检查
         if(!$isForce){
             $check = cache('Model');
             if(empty($check)){
-                $data = $this->getModelAll();
+                $data = self::getModelAll();
                 cache('Model', $data);
                 return $data;
             }
+            return $check;
         }
-        $data = $this->getModelAll();
+        $data = self::getModelAll();
         cache('Model', $data);
         return $data;
     }

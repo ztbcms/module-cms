@@ -178,13 +178,7 @@ class ModelFieldModel extends BaseModel
     protected function getModelTableName($modelid, $issystem = 1)
     {
         //读取模型配置
-        $model_cache = cache("Model");
-        if (empty($model_cache)) {
-            // 生成model 缓存
-            $ModelModel = new ModelModel();
-            $ModelModel->model_cache();
-            $model_cache = cache("Model");
-        }
+        $model_cache = ModelModel::model_cache();
         //表名获取
         $model_table = $model_cache[$modelid]['tablename'];
         //完整表名获取 判断主表 还是副表
@@ -901,15 +895,31 @@ class ModelFieldModel extends BaseModel
         return true;
     }
 
-    //生成模型字段缓存
-    public function model_field_cache()
+    /**
+     * 生成模型字段缓存
+     * @param bool $isForce
+     * @return array|mixed
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function model_field_cache($isForce = false)
     {
+        if(!$isForce){
+            $data = cache('ModelField');
+            if(!empty($data)){
+                return $data;
+            }
+        }
         $cache = array();
-        $modelList = M("Model")->select();
+        $modelList = ModelModel::select();
         foreach ($modelList as $info) {
-            $data = $this->where(array("modelid" => $info['modelid'], "disabled" => 0))->order(" listorder ASC ")->select();
+            $data = self::where([
+                ['modelid','=', $info['modelid']],
+                ['disabled','=', 0],
+            ])->order("listorder","ASC")->select();
             $fieldList = array();
-            if (!empty($data) && is_array($data)) {
+            if (!$data->isEmpty()) {
                 foreach ($data as $rs) {
                     $fieldList[$rs['field']] = $rs;
                 }

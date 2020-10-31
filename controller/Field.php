@@ -173,7 +173,7 @@ class Field extends AdminController
             //打开缓冲区
             ob_start();
             // 判断文件是否存在
-            if(file_exists($fiepath . 'field_edit_form.inc.php')){
+            if (file_exists($fiepath . 'field_edit_form.inc.php')) {
                 include $fiepath . 'field_edit_form.inc.php';
             }
             $form_data = ob_get_contents();
@@ -218,13 +218,18 @@ class Field extends AdminController
      * 设置默认值
      * @param $setting
      */
-    public function setDefault(&$setting){
-        if(empty($setting['width']))  $setting['width'] = '';
-        if(empty($setting['height']))  $setting['height'] = '';
-        if(empty($setting['mbtoolbar']))  $setting['mbtoolbar'] = '';
-        if(empty($setting['defaultvalue']))  $setting['defaultvalue'] = '';
-        if(empty($setting['fieldtype']))  $setting['fieldtype'] = 'mediumtext';
-        if(empty($setting['minnumber']))  $setting['minnumber'] = '';
+    public function setDefault(&$setting)
+    {
+        if (empty($setting['width'])) $setting['width'] = '';
+        if (empty($setting['height'])) $setting['height'] = '';
+        if (empty($setting['mbtoolbar'])) $setting['mbtoolbar'] = '';
+        if (empty($setting['defaultvalue'])) $setting['defaultvalue'] = '';
+        if (empty($setting['fieldtype'])) $setting['fieldtype'] = 'mediumtext';
+        if (empty($setting['minnumber'])) $setting['minnumber'] = '';
+        if (empty($setting['size'])) $setting['size'] = '';
+        if (empty($setting['ispassword'])) $setting['ispassword'] = '';
+        if (empty($setting['relation'])) $setting['relation'] = '';
+        if (empty($setting['decimaldigits'])) $setting['decimaldigits'] = '';
     }
 
     /***
@@ -277,7 +282,7 @@ class Field extends AdminController
             //可使用字段类型
             View::assign("all_field", $all_field);
             //模型数据
-            View::assign("modelinfo", ModelModel::where("modelid" , $modelId)->findOrEmpty());
+            View::assign("modelinfo", ModelModel::where("modelid", $modelId)->findOrEmpty());
             View::assign("modelid", $modelId);
             return View::fetch();
         }
@@ -441,7 +446,7 @@ class Field extends AdminController
         }
     }
 
-    //模型预览
+    //模型预览 TP6
     public function priview()
     {
         //模型ID
@@ -449,6 +454,11 @@ class Field extends AdminController
         if (empty($modelId)) {
             $this->error("请指定模型！");
         }
+        define('IN_ADMIN',true);
+        define('ACTION_NAME',$this->request->action());
+        define('MODULE_NAME','cms');
+        define('CONFIG_SITEURL_MODEL','/');
+
         cache('Model', NULL);
         cache('ModelField', NULL);
         $content_form = new content_form($modelId);

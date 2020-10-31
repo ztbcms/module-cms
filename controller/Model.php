@@ -76,9 +76,8 @@ class Model extends AdminController
      */
     public function getModelsList()
     {
-        $ModelModel = new ModelModel();
-        $ModelModel->model_cache();
-        $data = $ModelModel->where("type", 0)->select();
+        ModelModel::model_cache();
+        $data = ModelModel::where("type", 0)->select();
         return self::makeJsonReturn(true, $data);
     }
 
