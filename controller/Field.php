@@ -169,7 +169,10 @@ class Field extends AdminController
 
             //打开缓冲区
             ob_start();
-            include $fiepath . 'field_edit_form.inc.php';
+            // 判断文件是否存在
+            if(file_exists($fiepath . 'field_edit_form.inc.php')){
+                include $fiepath . 'field_edit_form.inc.php';
+            }
             $form_data = ob_get_contents();
             //关闭缓冲
             ob_end_clean();
@@ -317,7 +320,6 @@ class Field extends AdminController
             ];
         }
     }
-
 
     /**
      * 更新字段排序
