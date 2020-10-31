@@ -17,4 +17,5 @@ composer require liliuwei/thinkphp-jump
 
 暂未处理：
 1、模型管理-字段管理-预览模型
+2、\app\admin\libs\system\Rbac::ableAccess  鉴权失败，暂且直接return true
 
