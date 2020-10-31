@@ -33,7 +33,7 @@
 
                     <el-table-column label="排序" align="center">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.listorder }}</span>
+                            <span><el-input v-model="scope.row.listorder" ></el-input></span>
                         </template>
                     </el-table-column>
 
@@ -233,6 +233,37 @@
                         layer.msg('请选择')
                     }
                 },
+                // 排序批量
+                listOrder: function () {
+                    var that = this;
+                    var formData = [];
+                    this.multipleSelection.forEach(function (val, index) {
+                        formData.push({
+                            fieldid : val.fieldid,
+                            listorder : val.listorder,
+                        })
+                    });
+                    if (formData.length > 0) {
+                        layer.confirm('确认要进行排序?', function () {
+                            $.ajax({
+                                url: "{:api_url('/cms/field/listOrder')}",
+                                type: "post",
+                                data: {
+                                    data:formData
+                                },
+                                dataType: "json",
+                                success: function (res) {
+                                    layer.msg(res.msg)
+                                    if (res.status) {
+                                        that.fetchData();
+                                    }
+                                }
+                            })
+                        });
+                    } else {
+                        layer.msg('请选择')
+                    }
+                },
                 // 启用/禁用
                 changeStatus: function (fieldid, disabled) {
                     var that = this
@@ -281,7 +312,7 @@
                     }
                 },
                 // 编辑字段
-                edit: function (modelid,fieldid) {
+                edit: function (modelid, fieldid) {
                     var that = this
                     var url = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
                     location.href = url

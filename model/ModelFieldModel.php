@@ -168,14 +168,23 @@ class ModelFieldModel extends BaseModel
 
     /**
      * 根据模型ID，返回表名
-     * @param string $modelid
-     * @param string|int $issystem
+     * @param $modelid
+     * @param int $issystem
      * @return string
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     protected function getModelTableName($modelid, $issystem = 1)
     {
-        //读取模型配置 以后优化缓存形式
+        //读取模型配置
         $model_cache = cache("Model");
+        if(empty($model_cache)){
+            // 生成model 缓存
+            $ModelModel = new ModelModel();
+            $ModelModel->model_cache();
+            $model_cache = cache("Model");
+        }
         //表名获取
         $model_table = $model_cache[$modelid]['tablename'];
         //完整表名获取 判断主表 还是副表
@@ -404,11 +413,13 @@ class ModelFieldModel extends BaseModel
         }
     }
 
-
     /**
      * 删除字段
-     * @param string $fieldId 字段id
-     * @return boolean
+     * @param $fieldId 字段id
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     public function deleteField($fieldId)
     {

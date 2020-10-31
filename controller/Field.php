@@ -169,8 +169,8 @@ class Field extends AdminController
             //字段扩展配置
             $setting = unserialize($fieldData['setting']);
             // 填充扩展配置
-            if(empty($setting['backstagefun_type']))  $setting['backstagefun_type'] = null;
-            if(empty($setting['frontfun_type']))  $setting['frontfun_type'] = null;
+            if (empty($setting['backstagefun_type'])) $setting['backstagefun_type'] = null;
+            if (empty($setting['frontfun_type'])) $setting['frontfun_type'] = null;
 
             //打开缓冲区
             ob_start();
@@ -281,9 +281,12 @@ class Field extends AdminController
     }
 
     /**
-     *  删除字段操作
+     * 删除字段操作
      * @param $fieldId
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     private function doDelete($fieldId)
     {
@@ -308,34 +311,31 @@ class Field extends AdminController
         }
     }
 
-    /**
-     * 批量删除字段
-     */
-    public function batchDelete()
-    {
-        $fieldids = I('post.fieldids');
-
-        foreach ($fieldids as $index => $fieldid) {
-            $this->doDelete($fieldid);
-        }
-        $this->success('操作成功');
-    }
-
 
     /**
-     * 字段排序
+     * 更新字段排序
+     * @return \think\response\Json
      */
-    public function listorder()
+    public function listOrder()
     {
-        if (IS_POST) {
-            foreach ($_POST['listorders'] as $id => $listorder) {
-                $this->modelfield->where(array('fieldid' => $id))->save(array('listorder' => $listorder));
+        if ($this->request->isPost()) {
+            $postData = $this->request->post();
+            $res = $this->modelfield->transaction(function () use ($postData) {
+                foreach ($postData['data'] as $item) {
+                    $this->modelfield->where('fieldid', $item['fieldid'])
+                        ->save(['listorder' => $item['listorder']]);
+                }
+                return true;
+            });
+            if ($res) {
+                cache('Model', NULL);
+                cache('ModelField', NULL);
+                return self::makeJsonReturn(true, $res, '排序更新成功!');
+            } else {
+                return self::makeJsonReturn(false, $res, '排序失败!');
             }
-            cache('Model', NULL);
-            cache('ModelField', NULL);
-            $this->success("排序更新成功！");
         } else {
-            $this->error("排序失败！");
+            return self::makeJsonReturn(false, '', '排序失败!');
         }
     }
 
