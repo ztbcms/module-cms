@@ -436,7 +436,7 @@ class Category extends AdminController
             return self::makeJsonReturn(true,[],'缓存更新成功!');
         }
 
-        // 分页处理
+        // 分页处理 TODO 以下需要优化
         $page = $db->page($count, $handlesum);
         echo json_encode($page);die();
 
