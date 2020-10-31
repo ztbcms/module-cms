@@ -37,17 +37,6 @@ class Field extends AdminController
         $this->modelfield = new ModelFieldModel();
         //字段类型存放目录
         $this->fields = app_path() . 'fields/';
-
-//        $modelid = I('get.modelid', 0, 'intval');
-//        //菜单导航
-//        $Custom = array(
-//            array('name' => '字段管理', 'app' => MODULE_NAME, 'controller' => CONTROLLER_NAME, 'action' => 'index', 'parameter' => "modelid={$modelid}"),
-//            array('name' => '添加字段', 'app' => MODULE_NAME, 'controller' => CONTROLLER_NAME, 'action' => 'add', 'parameter' => "modelid={$modelid}"),
-//            array('name' => '预览模型', 'app' => MODULE_NAME, 'controller' => CONTROLLER_NAME, 'action' => 'priview', 'parameter' => "modelid={$modelid}", 'target' => '_blank'),
-//        );
-//        $menuReturn = array('name' => '返回模型管理', 'url' => U('Models/index'));
-//        $this->assign('Custom', $Custom)
-//            ->assign('menuReturn', $menuReturn);
     }
 
     /**
@@ -75,6 +64,10 @@ class Field extends AdminController
 
     /**
      * 获取字段
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     public function getFieldData()
     {
@@ -215,7 +208,10 @@ class Field extends AdminController
         }
     }
 
-    //增加字段
+    /***
+     * 增加字段 TODO
+     * @return string
+     */
     public function add()
     {
         //模型ID
@@ -268,7 +264,13 @@ class Field extends AdminController
         }
     }
 
-    //删除字段 支持批量
+    /**
+     * 删除字段 支持批量
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     public function delFields()
     {
         //字段ID
@@ -380,32 +382,6 @@ class Field extends AdminController
         $settings = array('field_basic_table' => $field_basic_table, 'field_minlength' => $field_minlength, 'field_maxlength' => $field_maxlength, 'field_allow_search' => $field_allow_search, 'field_allow_fulltext' => $field_allow_fulltext, 'field_allow_isunique' => $field_allow_isunique, 'setting' => $data_setting);
         echo json_encode($settings);
         return true;
-    }
-
-    /**
-     * 隐藏字段
-     */
-    public function batchDisable()
-    {
-        $fieldids = I('post.fieldids');
-
-        foreach ($fieldids as $index => $fieldid) {
-            $this->doDisable($fieldid, 1);
-        }
-        $this->success('操作成功');
-    }
-
-    /**
-     * 启用字段
-     */
-    public function batchUndisable()
-    {
-        $fieldids = I('post.fieldids');
-
-        foreach ($fieldids as $index => $fieldid) {
-            $this->doDisable($fieldid, 0);
-        }
-        $this->success('操作成功');
     }
 
     /**
