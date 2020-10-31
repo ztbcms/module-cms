@@ -1,5 +1,7 @@
 <?php
 
+namespace app\cms\fields;
+
 // +----------------------------------------------------------------------
 // | 处理信息录入表单
 // +----------------------------------------------------------------------
@@ -139,26 +141,31 @@ class content_form {
 		return $info;
 	}
 
-	/**
-	 * 转换为validate表单验证相关的json数据
-	 * @param type $ValidateRules
-	 */
+    /**
+     * 转换为validate表单验证相关的json数据
+     * @param $ValidateRules
+     * @param bool $suang
+     * @return array|string
+     */
 	public function ValidateRulesJson($ValidateRules, $suang = false) {
-		foreach ($ValidateRules as $formname => $value) {
-			$va = array();
-			if (is_array($value)) {
-				foreach ($value as $k => $v) {
-					//如果作为消息，消息内容需要加引号，不然会JS报错，是否验证不需要
-					if ($suang) {
-						$va[] = "$k:'$v'";
-					} else {
-						$va[] = "$k:$v";
-					}
-				}
-			}
-			$va = "{" . implode(",", $va) . "}";
-			$formValidateRules[] = "'$formname':$va";
-		}
+        $formValidateRules = [];
+        if(!empty($ValidateRules)){
+            foreach ($ValidateRules as $formname => $value) {
+                $va = array();
+                if (is_array($value)) {
+                    foreach ($value as $k => $v) {
+                        //如果作为消息，消息内容需要加引号，不然会JS报错，是否验证不需要
+                        if ($suang) {
+                            $va[] = "$k:'$v'";
+                        } else {
+                            $va[] = "$k:$v";
+                        }
+                    }
+                }
+                $va = "{" . implode(",", $va) . "}";
+                $formValidateRules[] = "'$formname':$va";
+            }
+        }
 		$formValidateRules = "{" . implode(",", $formValidateRules) . "}";
 		return $formValidateRules;
 	}

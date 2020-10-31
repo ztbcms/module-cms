@@ -7,9 +7,11 @@
 
 namespace app\cms\controller;
 
+use app\cms\fields\content_form;
 use app\cms\model\ModelFieldModel;
 use app\cms\model\ModelModel;
 use app\common\controller\AdminController;
+use app\common\model\ConfigModel;
 use Monolog\Handler\SlackWebhookHandler;
 use think\App;
 use think\facade\Db;
@@ -217,49 +219,52 @@ class Field extends AdminController
     public function add()
     {
         //模型ID
-        $modelid = I('request.modelid', 0, 'intval');
-        if (empty($modelid)) {
+        $modelId = $this->request->param('modelid', 0, 'intval');
+        if (empty($modelId)) {
             $this->error('模型ID不能为空！');
         }
-        if (IS_POST) {
-            $post = $_POST;
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
             if (empty($post)) {
                 $this->error('数据不能为空！');
             }
             if ($this->modelfield->addField($post)) {
                 $field = $post['field'];
-                $params = array("modelid" => $modelid, 'field' => $field);
-                Hook::listen('content_model_edit_field', $params);
-                $this->success("添加成功！", U("Field/index", array("modelid" => $modelid)));
+
+                // TODO 触发钩子
+//                $params = array("modelid" => $modelId, 'field' => $field);
+//                Hook::listen('content_model_edit_field', $params);
+
+                $this->success("添加成功！", api_url("/cms/field/index", array("modelid" => $modelId)));
             } else {
-                $error = $this->modelfield->getError();
+                $error = $this->modelfield->error;
                 $this->error($error ? $error : '添加失败！');
             }
         } else {
             //字段类型过滤
             foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
-                if (!$this->modelfield->isAddField($formtype, $formtype, $modelid)) {
+                if (!$this->modelfield->isAddField($formtype, $formtype, $modelId)) {
                     continue;
                 }
                 $all_field[$formtype] = $name;
             }
 
             //不允许删除的字段，这些字段讲不会在字段添加处显示
-            $this->assign("not_allow_fields", $this->modelfield->not_allow_fields);
+            View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
             //允许添加但必须唯一的字段
-            $this->assign("unique_fields", $this->modelfield->unique_fields);
+            View::assign("unique_fields", $this->modelfield->unique_fields);
             //禁止被禁用的字段列表
-            $this->assign("forbid_fields", $this->modelfield->forbid_fields);
+            View::assign("forbid_fields", $this->modelfield->forbid_fields);
             //禁止被删除的字段列表
-            $this->assign("forbid_delete", $this->modelfield->forbid_delete);
+            View::assign("forbid_delete", $this->modelfield->forbid_delete);
             //可以追加 JS和CSS 的字段
-            $this->assign("att_css_js", $this->modelfield->att_css_js);
+            View::assign("att_css_js", $this->modelfield->att_css_js);
             //可使用字段类型
-            $this->assign("all_field", $all_field);
+            View::assign("all_field", $all_field);
             //模型数据
-            $this->assign("modelinfo", M("Model")->where(array("modelid" => $modelid))->find());
-            $this->assign("modelid", $modelid);
-            $this->display();
+            View::assign("modelinfo", ModelModel::where("modelid" , $modelId)->findOrEmpty());
+            View::assign("modelid", $modelId);
+            return View::fetch();
         }
     }
 
@@ -446,13 +451,13 @@ class Field extends AdminController
     public function priview()
     {
         //模型ID
-        $modelid = I('get.modelid');
-        if (empty($modelid)) {
+        $modelId = $this->request->get('modelid', 0);
+        if (empty($modelId)) {
             $this->error("请指定模型！");
         }
         cache('Model', NULL);
         cache('ModelField', NULL);
-        $content_form = new \content_form($modelid);
+        $content_form = new content_form($modelId);
         //生成对应字段的输入表单
         $forminfos = $content_form->get();
         //生成对应的JS验证规则
@@ -462,13 +467,14 @@ class Field extends AdminController
         //js
         $formJavascript = $content_form->formJavascript;
         //获取当前模型信息
-        $r = M("Model")->where(array("modelid" => $modelid))->find();
-        $this->assign("r", $r);
-        $this->assign("forminfos", $forminfos);
-        $this->assign("formValidateRules", $formValidateRules);
-        $this->assign("formValidateMessages", $formValidateMessages);
-        $this->assign("formJavascript", $formJavascript);
-        $this->display();
+        $r = ModelModel::where("modelid", $modelId)->findOrEmpty();
+        View::assign("r", $r);
+        View::assign("forminfos", $forminfos);
+        View::assign("formValidateRules", $formValidateRules);
+        View::assign("formValidateMessages", $formValidateMessages);
+        View::assign("formJavascript", $formJavascript);
+        View::assign("Config", ConfigModel::getConfigs());
+        return View::fetch();
     }
 
 }

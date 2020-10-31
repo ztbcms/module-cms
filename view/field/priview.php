@@ -1,4 +1,4 @@
- 
+
 <!doctype html>
 <html>
 <head>
@@ -36,7 +36,7 @@ body fieldset legend {
 .list-dot li,.list-dot-othors li{padding:5px 0; border-bottom:1px dotted #c6dde0; font-family:"宋体"; color:#bbb; position:relative;_height:22px}
 .list-dot li span,.list-dot-othors li span{color:#004499}
 .list-dot li a.close span,.list-dot-othors li a.close span{display:none}
-.list-dot li a.close,.list-dot-othors li a.close{ background: url("{$config_siteurl}statics/images/cross.png") no-repeat left 3px; display:block; width:16px; height:16px;position: absolute;outline:none;right:5px; bottom:5px}
+.list-dot li a.close,.list-dot-othors li a.close{ background: url("/statics/images/cross.png") no-repeat left 3px; display:block; width:16px; height:16px;position: absolute;outline:none;right:5px; bottom:5px}
 .list-dot li a.close:hover,.list-dot-othors li a.close:hover{background-position: left -46px}
 .list-dot-othors li{float:left;width:24%;overflow:hidden;}
 </style>
@@ -52,7 +52,7 @@ body fieldset legend {
     <div class="table_full">
       <table width="100%">
 <?php
-if(is_array($forminfos['senior'])) {
+if(!empty($forminfos) && is_array($forminfos['senior'])) {
  foreach($forminfos['senior'] as $field=>$info) {
 	if($info['isomnipotent']) continue;
 	if($info['formtype']=='omnipotent') {
@@ -98,7 +98,7 @@ if(is_array($forminfos['senior'])) {
     <div class="table_full">
       <table width="100%">
             <?php
-if(is_array($forminfos['base'])) {
+if(!empty($forminfos) && is_array($forminfos['base'])) {
  foreach($forminfos['base'] as $field=>$info) {
 	 if($info['isomnipotent']) continue;
 	 if($info['formtype']=='omnipotent') {
@@ -116,7 +116,7 @@ if(is_array($forminfos['base'])) {
  ?>
             <tr>
               <th width="80">
-                <?php echo $info['name'];?> 
+                <?php echo $info['name'];?>
                </th>
               <td><?php if($info['star']){ ?><span class="must_red">*</span><?php } ?><?php echo $info['form'];?> <?php echo $info['tips'];?></td>
             </tr>
@@ -128,7 +128,8 @@ if(is_array($forminfos['base'])) {
     </div>
   </div>
 </div>
-<script type="text/javascript" src="{$config_siteurl}statics/js/common.js"></script>
-<script type="text/javascript" src="{$config_siteurl}statics/js/content_addtop.js"></script>
+<script type="text/javascript" src="/statics/js/common.js"></script>
+<script type="text/javascript" src="/statics/js/content_addtop.js"></script>
+<link href="/statics/css/admin_style.css" rel="stylesheet"/>
 </body>
 </html>

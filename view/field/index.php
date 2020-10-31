@@ -2,6 +2,10 @@
     <el-card>
         <el-col :sm="24" :md="24">
             <div class="filter-container">
+                <el-button @click="runBack" size="small" type="primary">
+                    返回列表
+                </el-button>
+
                 <el-button @click="add" size="small" type="primary">
                     添加字段
                 </el-button>
@@ -33,7 +37,7 @@
 
                     <el-table-column label="排序" align="center">
                         <template slot-scope="scope">
-                            <span><el-input v-model="scope.row.listorder" ></el-input></span>
+                            <span><el-input v-model="scope.row.listorder"></el-input></span>
                         </template>
                     </el-table-column>
 
@@ -239,8 +243,8 @@
                     var formData = [];
                     this.multipleSelection.forEach(function (val, index) {
                         formData.push({
-                            fieldid : val.fieldid,
-                            listorder : val.listorder,
+                            fieldid: val.fieldid,
+                            listorder: val.listorder,
                         })
                     });
                     if (formData.length > 0) {
@@ -249,7 +253,7 @@
                                 url: "{:api_url('/cms/field/listOrder')}",
                                 type: "post",
                                 data: {
-                                    data:formData
+                                    data: formData
                                 },
                                 dataType: "json",
                                 success: function (res) {
@@ -313,35 +317,22 @@
                 },
                 // 编辑字段
                 edit: function (modelid, fieldid) {
-                    var that = this
-                    var url = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
-                    location.href = url
+                    location.href = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
                 },
-
 
                 // 添加字段
                 add: function () {
-                    var that = this
-                    layer.open({
-                        type: 2,
-                        title: '添加',
-                        content: "{:api_url('/cms/model/add')}",
-                        area: ['100%', '100%'],
-                        end: function () {  //回调函数
-                            that.fetchData()
-                        }
-                    })
+                    location.href = "{:api_url('/cms/field/add')}" + '?modelid=' + this.modelid
                 },
                 // 预览模型
                 showModel: function () {
-                    window.location.href = "{:api_url('/cms/FieldExport/exportTableFields')}"
+                    var url = "{:api_url('/cms/field/priview')}" + '?modelid=' + this.modelid
+                    Ztbcms.openNewIframeByUrl('预览模型', url);
                 },
 
-
-                // 导出模型 下载
-                exportModel: function (modelid) {
-                    var url = "{:api_url('/cms/model/export')}" + '?modelid=' + modelid
-                    window.open(url)
+                // 返回列表
+                runBack: function () {
+                    window.location.href = "{:api_url('/cms/model/index')}"
                 }
             },
             mounted: function () {

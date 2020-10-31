@@ -112,7 +112,7 @@ class ModelFieldModel extends BaseModel
     {
         //判断是否唯一字段
         if (in_array($field, $this->unique_fields)) {
-            $f_datas = $this->where(array("modelid" => $modelid))->getField("field,field,formtype,name");
+            $f_datas = $this->where("modelid", $modelid)->field("field,field,formtype,name")->find();
             return empty($f_datas[$field]) ? true : false;
         }
         //不显示的字段类型（字段类型）
@@ -179,7 +179,7 @@ class ModelFieldModel extends BaseModel
     {
         //读取模型配置
         $model_cache = cache("Model");
-        if(empty($model_cache)){
+        if (empty($model_cache)) {
             // 生成model 缓存
             $ModelModel = new ModelModel();
             $ModelModel->model_cache();
@@ -344,13 +344,30 @@ class ModelFieldModel extends BaseModel
             $this->error = '数据表不存在！';
             return false;
         }
-        //数据正则
-        $pattern = $data['pattern'];
         //进行数据验证
-        $field = $data['field'];
-        $data = $this->create($data, 1);
+        $validate = new \app\cms\validate\Field();
+        if (!$validate->check($data)) {
+            $this->error = $validate->getError();
+            return false;
+        }
+        // 该字段名称已经存在？
+        $checkName = $this->isFieldUnique($data['field']);
+        if (!$checkName) {
+            $this->error = '该字段名称已经存在!';
+            return false;
+        }
+        // 是否作为基本信息设置错误？
+        if (!in_array($data['isbase'], [0, 1])) {
+            $this->error = '作为基本信息设置错误!';
+            return false;
+        }
+        // 是否前台投稿中显示设置错误？
+        if (!in_array($data['isadd'], [0, 1])) {
+            $this->error = '前台投稿中显示设置错误!';
+            return false;
+        }
+
         if ($data) {
-            $data['pattern'] = $pattern;
             //检查字段是否存在
             if ($this->field_exists($tablename, $data['field'])) {
                 $this->error = '该字段已经存在！';
@@ -383,17 +400,17 @@ class ModelFieldModel extends BaseModel
             }
             //增加字段
             $field = array(
-                'tablename'     => C("DB_PREFIX") . $tablename,
+                'tablename'     => $this->dbConfig['prefix'] . $tablename,
                 'fieldname'     => $data['field'],
                 'maxlength'     => $data['maxlength'],
                 'minlength'     => $data['minlength'],
-                'defaultvalue'  => $setting['defaultvalue'],
-                'minnumber'     => $setting['minnumber'],
-                'decimaldigits' => $setting['decimaldigits'],
+                'defaultvalue'  => $setting['defaultvalue'] ?? '',
+                'minnumber'     => $setting['minnumber'] ?? '',
+                'decimaldigits' => $setting['decimaldigits'] ?? '',
                 'comment'       => $data['name'] //字段别名 即为字段注释
             );
             if ($this->addFieldSql($field_type, $field)) {
-                $fieldid = $this->add($data);
+                $fieldid = $this->insertGetId($data);
                 //清理缓存
                 cache('ModelField', NULL);
                 if ($fieldid) {

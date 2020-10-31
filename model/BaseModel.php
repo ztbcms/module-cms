@@ -55,7 +55,7 @@ class BaseModel extends Model
         $table = getDbConfig()['prefix'] . $table;
         $data = Db::query("SHOW COLUMNS FROM $table");
         foreach ($data as $v) {
-            $fields[$v['field']] = $v['type'];
+            $fields[$v['Field']] = $v['Type'];
         }
         return $fields;
     }
