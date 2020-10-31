@@ -14,3 +14,7 @@ composer require liliuwei/thinkphp-jump
 ├──── 模型管理 {{domain}}/Content/Models/index => {{domain}}/home/cms/model/index
 │
 ```
+
+暂未处理：
+1、模型管理-字段管理-预览模型
+

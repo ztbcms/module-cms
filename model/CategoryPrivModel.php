@@ -8,6 +8,7 @@
 namespace app\cms\model;
 
 /**
+ * 栏目权限与角色之间的授权
  * Class CategoryPrivModel
  * @package app\cms\model
  */

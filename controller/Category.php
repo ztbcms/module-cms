@@ -11,12 +11,13 @@ use app\admin\service\AdminConfigService;
 use app\admin\service\AdminUserService;
 use app\cms\model\CategoryModel;
 use app\cms\model\CategoryPrivModel;
+use app\cms\model\ModelModel;
 use app\common\controller\AdminController;
 use liliuwei\think\Jump;
 use think\App;
-use think\facade\Cache;
 use think\facade\Config;
 use think\facade\View;
+use app\cms\libs\util\Tree;
 
 /**
  * 栏目管理
@@ -41,6 +42,9 @@ class Category extends AdminController
     // 系统配置
     protected $config;
 
+    // 树状类
+    protected $Tree;
+
     public function __construct(App $app)
     {
         parent::__construct($app);
@@ -60,121 +64,112 @@ class Category extends AdminController
         $this->tp_page = str_replace($this->filepath . "Page/", '', glob($this->filepath . 'Page/page*'));
         //取得评论模板列表
         $this->tp_comment = str_replace($this->filepath . "Comment/", '', glob($this->filepath . 'Comment/comment*'));
+
+        $this->Tree = new Tree();
     }
 
     //栏目列表
-    public function index() {
-        if ($this->request->isPost()) {
-            $Category = new CategoryModel();
-            foreach ($_POST['listorders'] as $id => $listorder) {
-                $Category->where('catid' , $id)->save(array('listorder' => $listorder));
-                //删除缓存
-                getCategory($id, '', true);
-            }
-            $this->cache();
-            $this->success("排序更新成功！");
-            exit;
-        }
-        $models = cache('Model');
-        $categorys = array();
-
-        //栏目数据，可以设置为缓存的方式 TODO
-        $CategoryModel = new CategoryModel();
-        $result = $CategoryModel->category_cache();
-
-        $siteurl = parse_url($this->config['siteurl']);
-        $types = array(0 => '内部栏目', 1 => '<font color="blue">单网页</font>', 2 => '<font color="red">外部链接</font>');
-
-        //是否超级管理员
+    public function index()
+    {
+        // 是否超级管理员 TODO
         $isAdministrator = AdminUserService::getInstance()->isAdministrator();
-        $priv_catids = array();
+        // 栏目权限 catid 是栏目id
+        $privCatIds = array();
         //栏目权限 超级管理员例外
         if ($isAdministrator !== true) {
-            $role_id = AdminUserService::getInstance()->role_id;
-            $priv_result = CategoryPrivModel::where([
-                ['roleid','=',$role_id],
-                ['action','=','init'],
+            $roleId = AdminUserService::getInstance()->role_id;
+            // 栏目权限
+            $privResult = CategoryPrivModel::where([
+                ['roleid', '=', $roleId],
+                ['action', '=', 'init'],
             ])->select();
-            foreach ($priv_result as $_v) {
-                $priv_catids[$_v['catid']] = true;
+            foreach ($privResult as $value) {
+                $privCatIds[$value['catid']] = true;
             }
         }
-        if (!empty($result)) {
-            foreach ($result as $r) {
-                if ($isAdministrator !== true && $priv_catids[$r['catid']] !== true) {
-                    //如果用户不是管理员，又没有栏目权限，则不显示该栏
-                    continue;
-                }
-                $r = getCategory($r['catid']);
-                $r['modelname'] = $models[$r['modelid']]['name'];
-                $r['str_manage'] = '';
-                if ($r['child']) {
-                    $r['yesadd'] = '';
-                } else {
-                    $r['yesadd'] = 'blue';
-                }
-                if ($r['type'] != 2) {
-                    if ($r['child']) {
-                        if ($r['type'] == 1) {
-                            $r['str_manage'] .= '<a href="' . api_url("Category/singlepage", array("parentid" => $r['catid'])) . '">添加子栏目</a> | ';
-                        } else {
-                            $r['str_manage'] .= '<a href="' . api_url("Category/add", array("parentid" => $r['catid'])) . '">添加子栏目</a> | ';
-                        }
-                    }
-                }
-                $r['str_manage'] .= '<a href="' . api_url("Category/edit", array("catid" => $r['catid'])) . '">修改</a> | <a class="J_ajax_del" href="' . api_url("Category/delete", array("catid" => $r['catid'])) . '">删除</a>';
-                //终极栏目转换
-                if (in_array($r['type'], array(0, 1)) && $r['modelid']) {
-                    $r['str_manage'] .= ' | <a href="' . api_url("Category/categoryshux", array("catid" => $r['catid'])) . '">终极属性转换</a> ';
-                }
-                $r['typename'] = $types[$r['type']];
-                $r['display_icon'] = $r['ismenu'] ? '' : ' <img src ="' . $this->config['siteurl'] . 'statics/images/icon/gear_disable.png" title="不在导航显示">';
-
-                $r['help'] = '';
-                $setting = $r['setting'];
-                if ($r['url']) {
-                    $parse_url = parse_url($r['url']);
-                    if ($parse_url['host'] != $siteurl['host'] && strpos($r['url'], '/index.php?') === false) {
-                        $catdir = $r['catdir'];
-                        //如果生成静态，将设置一个指定的静态目录
-                        $catdir = '/' . $r['parentdir'] . $catdir;
-                        if ($setting['ishtml'] && strpos($r['url'], '?') === false) {
-                            $r['help'] = '<img src="' . $this->config['siteurl'] . 'statics/images/icon/help.png" title="将域名：' . $r['url'] . '&#10;绑定到目录&#10;' . $catdir . '/">';
-                        }
-                    }
-                    $r['url'] = "<a href='" . $r['url'] . "' target='_blank'>访问</a>";
-                } else {
-                    $r['url'] = "<a href='" . api_url("Category/public_cache") . "'><font color='red'>更新缓存</font></a>";
-                }
-                $categorys[$r['catid']] = $r;
-            }
-        }
-        $str = "<tr>
-	<td align='center'><input name='listorders[\$id]' type='text' size='3' value='\$listorder' class='input'></td>
-	<td align='center'><font color='\$yesadd'>\$id</font></td>
-	<td >\$spacer\$catname\$display_icon</td>
-	<td  align='center'>\$typename</td>
-	<td>\$modelname</td>
-	<td align='center'>\$url</td>
-	<td align='center'>\$help</td>
-	<td align='center' >\$str_manage</td>
-	</tr>";
-        if (!empty($categorys) && is_array($categorys)) {
-            // TODO
-//            $this->Tree->icon = array('&nbsp;&nbsp;&nbsp;│ ', '&nbsp;&nbsp;&nbsp;├─ ', '&nbsp;&nbsp;&nbsp;└─ ');
-//            $this->Tree->nbsp = '&nbsp;&nbsp;&nbsp;';
-//            $this->Tree->init($categorys);
-//            $categorydata = $this->Tree->get_tree(0, $str);
-            $categorydata = '';
-        } else {
-            $categorydata = '';
-        }
-        View::assign("categorys", $categorydata);
         return View::fetch();
     }
 
+    /**
+     * 获取所有栏目
+     * @return \think\response\Json
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public function getCategoyList()
+    {
+        $list = CategoryModel::getCategoryTree();
+        // 获取全部模型
+        $models = ModelModel::model_cache();
+
+        // 类型
+        $type = [
+            0 => '内部栏目',
+            1 => '单网页',
+            2 => '外部链接',
+        ];
+
+//        $siteurl = parse_url($this->config['siteurl']);
+
+        foreach ($list as $k => &$v) {
+            $v['catname'] = str_repeat("--", $v['level']) . ' ' . $v['catname'];
+            $v['type_name'] = $type[$v['type']];
+            $v['model_name'] = (!empty($models[$v['modelid']])) ? $models[$v['modelid']]['name'] : '';
+
+            if ($v['url']) {
+                $parse_url = parse_url($v['url']);
+                $setting = unserialize($v['setting']);
+
+//                // 生成指定的访问路径
+//                if ($parse_url['host'] != $siteurl['host'] && strpos($v['url'], '/index.php?') === false) {
+//                    $catdir = $v['catdir'];
+//                    //如果生成静态，将设置一个指定的静态目录
+//                    $catdir = '/' . $v['parentdir'] . $catdir;
+//                    if ($setting['ishtml'] && strpos($v['url'], '?') === false) {
+//                        $v['help'] = '<img src="' . $this->config['siteurl'] . 'statics/images/icon/help.png" title="将域名：' . $v['url'] . '&#10;绑定到目录&#10;' . $catdir . '/">';
+//                    }
+//                }
+                $v['url_text'] = '访问';
+                $v['url_jump'] = 'open';
+            } else {
+                $v['url'] = api_url("/cms/category/public_cache");
+                $v['url_text'] = '更新缓存';
+                $v['url_jump'] = 'update';
+            }
+        }
+        return self::makeJsonReturn(true, $list, '获取成功');
+    }
+
+    /**
+     * 更新排序
+     * @return \think\response\Json
+     */
+    public function listOrder()
+    {
+        if ($this->request->isPost()) {
+            $data = $this->request->post();
+            $model = new CategoryModel();
+            $res = $model->transaction(function () use ($data) {
+                foreach ($data['data'] as $item) {
+                    CategoryModel::where('catid', $item['catid'])
+                        ->save(['listorder' => $item['listorder']]);
+                    //删除缓存
+                    getCategory($item['catid'], '', true);
+                }
+                return true;
+            });
+            if ($res) {
+                $this->cache();
+                return self::makeJsonReturn(true, '', '更新排序成功');
+            }
+            return self::makeJsonReturn(false, '', '更新排序失败');
+        }
+    }
+
     //添加栏目
-    public function add() {
+    public function add()
+    {
         if (IS_POST) {
             //是否超级管理员
             $administrator = User::getInstance()->getInfo();
@@ -297,17 +292,20 @@ class Category extends AdminController
     }
 
     //添加外部链接栏目
-    public function wadd() {
+    public function wadd()
+    {
         $this->add();
     }
 
     //添加单页
-    public function singlepage() {
+    public function singlepage()
+    {
         $this->add();
     }
 
     //编辑栏目
-    public function edit() {
+    public function edit()
+    {
         if (IS_POST) {
             $catid = I("post.catid", "", "intval");
             if (empty($catid)) {
@@ -409,7 +407,8 @@ class Category extends AdminController
     }
 
     //删除栏目
-    public function delete() {
+    public function delete()
+    {
         $catid = I("get.catid", "", "intval");
         if (!$catid) {
             $this->error("请指定需要删除的栏目！");
@@ -421,22 +420,30 @@ class Category extends AdminController
     }
 
     //更新栏目缓存并修复
-    public function public_cache() {
-        $db = D("Content/Category");
+    public function public_cache()
+    {
+        $db = new CategoryModel();
         //当前
-        $number = I('get.number', 1, 'intval');
+        $number = $this->request->get('number', 1, 'intval');
         //每次处理多少栏目
         $handlesum = 100;
         //计算栏目总数
-        $count = I('get.count', $db->count(), 'intval');
+        $count = $this->request->get('count',$db->count(),'intval');
         //需要处理几次
         $handlecount = ceil($count / $handlesum);
         if ($number > $handlecount) {
             $this->cache();
-            $this->success("缓存更新成功！", U("Category/index"));
-            return true;
+            return self::makeJsonReturn(true,[],'缓存更新成功!');
         }
-        $page = $this->page($count, $handlesum, $number);
+
+        // 分页处理
+        $page = $db->page($count, $handlesum);
+        echo json_encode($page);die();
+
+        // 循环处理
+        $data = $db->order(array('catid' => 'ASC'))->limit($page->firstRow . ',' . $page->listRows)->select();
+
+
         //取出需要处理的栏目数据
         $data = $db->order(array('catid' => 'ASC'))->limit($page->firstRow . ',' . $page->listRows)->select();
         if (empty($data)) {
@@ -457,7 +464,8 @@ class Category extends AdminController
     /**
      * 清除栏目缓存
      */
-    protected function cache() {
+    protected function cache()
+    {
         cache('Category', NULL);
     }
 
@@ -466,7 +474,8 @@ class Category extends AdminController
      * @param array $categorys 需要修复的栏目数组
      * @return boolean
      */
-    protected function repair($categorys) {
+    protected function repair($categorys)
+    {
         if (is_array($categorys)) {
             foreach ($categorys as $catid => $cat) {
                 //外部栏目无需修复
@@ -523,7 +532,8 @@ class Category extends AdminController
      * @param int|string $catid 栏目id
      * @return boolean
      */
-    public function public_check_catdir($return_method = 1, $catdir = '', $catid = 0) {
+    public function public_check_catdir($return_method = 1, $catdir = '', $catid = 0)
+    {
         $catid = $catid ? $catid : I('get.catid', 0, 'intval');
         //需要添加的目录
         $catdir = $catdir ? $catdir : I('get.catdir');
@@ -549,7 +559,8 @@ class Category extends AdminController
     }
 
     //栏目属性转换  child 字段的转换
-    public function categoryshux() {
+    public function categoryshux()
+    {
         $catid = I('get.catid', 0, 'intval');
         $r = M("Category")->where(array("catid" => $catid))->find();
         if ($r) {

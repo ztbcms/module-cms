@@ -511,22 +511,64 @@ class CategoryModel extends Model
         return $status !== false ? true : false;
     }
 
-    //刷新栏目索引缓存
-    public function category_cache() {
-        $data = $this->order("listorder ASC")->select();
+    /**
+     * 刷新栏目索引缓存
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    public static function category_cache() {
+        $data = self::order("listorder","ASC")->select();
         $CategoryIds = array();
         foreach ($data as $r) {
             $CategoryIds[$r['catid']] = array(
                 'catid' => $r['catid'],
                 'parentid' => $r['parentid'],
-//                'arrparentid' => $r['arrparentid'],
-                //                'child' => $r['child'],
-                //                'arrchildid' => $r['arrchildid'],
-                //                'type' => $r['type'],
             );
         }
         cache("Category", $CategoryIds);
         return $CategoryIds;
+    }
+
+    /**
+     * 获取所有栏目
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    static function getCategoryTree(){
+        $list = self::select();
+        if(!$list->isEmpty())  $list = $list->toArray();
+        return $data = self::getTree($list,0);
+    }
+
+    /**
+     * 递归实现无限极分类
+     * @param $array
+     * @param  int  $pid  父ID
+     * @param  int  $level  分类级别
+     * @return array 分好类的数组 直接遍历即可 $level可以用来遍历缩进
+     */
+    static function getTree($array, $pid = 0, $level = 0)
+    {
+        //声明静态数组,避免递归调用时,多次声明导致数组覆盖
+        static $list = [];
+        foreach ($array as $key => $value) {
+            //第一次遍历,找到父节点为根节点的节点 也就是pid=0的节点
+            if ($value['parentid'] == $pid) {
+                //父节点为根节点的节点,级别为0，也就是第一级
+                $value['level'] = $level;
+                //把数组放到list中
+                $list[] = $value;
+                //把这个节点从数组中移除,减少后续递归消耗
+                unset($array[$key]);
+                //开始递归,查找父ID为该节点ID的节点,级别则为原级别+1
+                self::getTree($array, $value['catid'], $level + 1);
+            }
+        }
+        return $list;
     }
 
 }
