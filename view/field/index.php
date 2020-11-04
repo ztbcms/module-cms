@@ -115,25 +115,18 @@
 
                     <el-table-column label="管理操作" align="center" width="250" class-name="small-padding fixed-width">
                         <template slot-scope="scope">
-                            <?php if (\app\admin\libs\system\Rbac::ableAccess('cms', 'field', 'edit')): ?>
                                 <el-button type="primary" size="mini"
                                            @click="edit(scope.row.modelid,scope.row.fieldid)">修改
                                 </el-button>
-                            <?php endif; ?>
-
-                            <?php if (\app\admin\libs\system\Rbac::ableAccess('cms', 'field', 'disabled')): ?>
                                 <el-button :type="scope.row.disabled ? 'primary' : 'danger' " size="mini"
                                            @click="changeStatus(scope.row.fieldid,scope.row.disabled)">
                                     <span v-if="scope.row.disabled">启用</span>
                                     <span v-else>禁用</span>
                                 </el-button>
-                            <?php endif; ?>
 
-                            <?php if (\app\admin\libs\system\Rbac::ableAccess('cms', 'field', 'disabled')): ?>
                                 <el-button type="danger" size="mini"
                                            @click="clickDel(scope.row.modelid,scope.row.fieldid)">删除
                                 </el-button>
-                            <?php endif; ?>
                         </template>
                     </el-table-column>
                 </el-table>
