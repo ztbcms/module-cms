@@ -178,7 +178,10 @@ class ModelFieldModel extends BaseModel
     protected function getModelTableName($modelid, $issystem = 1)
     {
         //读取模型配置
-        $model_cache = ModelModel::model_cache();
+        $model_cache = ModelModel::model_cache(true);
+        if(!isset($model_cache[$modelid])) {
+            return '';
+        }
         //表名获取
         $model_table = $model_cache[$modelid]['tablename'];
         //完整表名获取 判断主表 还是副表
@@ -350,6 +353,7 @@ class ModelFieldModel extends BaseModel
             $this->error = '该字段名称已经存在!';
             return false;
         }
+
         // 是否作为基本信息设置错误？
         if (!in_array($data['isbase'], [0, 1])) {
             $this->error = '作为基本信息设置错误!';
@@ -396,13 +400,14 @@ class ModelFieldModel extends BaseModel
             $field = array(
                 'tablename'     => $this->dbConfig['prefix'] . $tablename,
                 'fieldname'     => $data['field'],
-                'maxlength'     => $data['maxlength'],
-                'minlength'     => $data['minlength'],
+                'maxlength'     => $data['maxlength'] ?? 0,
+                'minlength'     => $data['minlength'] ?? 9999,
                 'defaultvalue'  => $setting['defaultvalue'] ?? '',
                 'minnumber'     => $setting['minnumber'] ?? '',
                 'decimaldigits' => $setting['decimaldigits'] ?? '',
                 'comment'       => $data['name'] //字段别名 即为字段注释
             );
+
             if ($this->addFieldSql($field_type, $field)) {
                 $fieldid = $this->insertGetId($data);
                 //清理缓存

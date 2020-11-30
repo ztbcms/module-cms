@@ -2,7 +2,8 @@
     <el-card>
         <el-col :sm="24" :md="24">
             <div id="app" style="padding-left: 20px;padding-top: 20px;" v-cloak>
-                <div class="filter-container">
+                <div class="filter-container" style="margin-bottom: 20px;">
+
                     <el-button @click="add" size="small" type="primary">
                         创建新模型
                     </el-button>
@@ -10,12 +11,22 @@
                         模型导入
                     </el-button>
 
+                    <br>
+                    <br>
+
                     <el-button @click="searchField" size="small" type="primary">
                         手动填写表名导出字典
                     </el-button>
                     <el-button @click="exportAllField" size="small" type="primary">
                         导出全部模型数据字典
                     </el-button>
+
+
+                    <el-alert style="margin-top: 20px;"
+                            type="warning">
+                        <p>使用提示 ：</p>
+                        <p>1.当模块禁用的时候无法对字段管理进行删除等操作</p>
+                    </el-alert>
                 </div>
 
                 <div>
@@ -49,28 +60,28 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="状态" width="" align="center">
+                        <el-table-column label="模块状态" width="" align="center">
                             <template slot-scope="{row}">
-                                <span v-if="row.disabled == '1'"><i class="el-icon-error"
-                                                                    style="color: red;font-size: 24px;"></i></span>
-                                <span v-else><i class="el-icon-success"
-                                                style="color: green;font-size: 24px;"></i></span>
+                                <span v-if="row.disabled == '1'">
+                                    <i @click="changeStatus(row.modelid,row.disabled)" class="el-icon-error" style="color: red;font-size: 24px;"></i>
+                                </span>
+                                <span v-else>
+                                    <i @click="changeStatus(row.modelid,row.disabled)" class="el-icon-success" style="color: green;font-size: 24px;"></i>
+                                </span>
                             </template>
                         </el-table-column>
 
                         <el-table-column label="管理操作" align="center" width="400" class-name="small-padding fixed-width">
                             <template slot-scope="scope">
+
                                 <el-button type="primary" style="" size="mini"
                                            @click="exportDictionary(scope.row.modelid)">导出数据字典
                                 </el-button>
+
                                 <el-button type="primary" size="mini" @click="edit(scope.row.modelid)">修改</el-button>
-                                <el-button type="primary" size="mini" @click="modelField(scope.row.modelid)">字段管理
-                                </el-button>
-                                <el-button :type="scope.row.disabled ? 'primary' : 'danger' " size="mini"
-                                           @click="changeStatus(scope.row.modelid,scope.row.disabled)">
-                                    <span v-if="scope.row.disabled">启用</span>
-                                    <span v-else>禁用</span>
-                                </el-button>
+
+                                <el-button type="primary" size="mini" @click="modelField(scope.row.modelid)">字段管理</el-button>
+
                                 <div style="height: 5px;"></div>
                                 <el-button type="danger" size="mini" @click="clickDelteItem(scope.row.modelid)">删除
                                 </el-button>

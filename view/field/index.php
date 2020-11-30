@@ -1,6 +1,15 @@
 <div id="app" style="padding: 8px;" v-cloak>
     <el-card>
         <el-col :sm="24" :md="24">
+
+            <div style="margin-top: 10px">
+                <div class="h_a" style="font-weight: bold;font-size: 26px;">模型信息</div>
+                <div class="prompt_text" style="font-weight: bold;">
+                    <p>模型名称: {$modelinfo['name']}</p>
+                    <p>表名: {$modelinfo['tablename']}</p>
+                </div>
+            </div>
+
             <div class="filter-container">
                 <el-button @click="runBack" size="small" type="primary">
                     返回列表
@@ -12,14 +21,6 @@
                 <el-button @click="showModel" size="small" type="primary">
                     预览模型
                 </el-button>
-            </div>
-
-            <div style="margin-top: 10px">
-                <div class="h_a">模型信息</div>
-                <div class="prompt_text">
-                    <p>名称: {$modelinfo['name']}</p>
-                    <p>表名: {$modelinfo['tablename']}</p>
-                </div>
             </div>
 
             <div style="margin-bottom: 80px;">
@@ -130,14 +131,14 @@
                         </template>
                     </el-table-column>
                 </el-table>
-            </div>
 
-            <div class="btn_wrap" style="margin-bottom: 10px;">
-                <div class="btn_wrap_pd">
-                    <el-button type="primary" size="small" @click="listOrder">排序</el-button>
-                    <el-button type="primary" size="small" @click="changeStatusItems(0)">禁用字段</el-button>
-                    <el-button type="primary" size="small" @click="changeStatusItems(1)">启用字段</el-button>
-                    <el-button type="primary" size="small" @click="batchDel">删除</el-button>
+                <div class="btn_wrap" style="margin-top: 20px;">
+                    <div class="btn_wrap_pd">
+                        <el-button type="primary" size="small" @click="listOrder">排序</el-button>
+                        <el-button type="primary" size="small" @click="changeStatusItems(0)">禁用字段</el-button>
+                        <el-button type="primary" size="small" @click="changeStatusItems(1)">启用字段</el-button>
+                        <el-button type="primary" size="small" @click="batchDel">删除</el-button>
+                    </div>
                 </div>
             </div>
         </el-col>
@@ -156,6 +157,29 @@
             },
             computed: {},
             methods: {
+                // 删除字段
+                clickDel: function (modelid, fieldid) {
+                    var that = this;
+                    layer.confirm('确认要删除?', function () {
+                        $.ajax({
+                            url: "{:api_url('/cms/field/delFields')}",
+                            type: "post",
+                            data: {
+                                modelid: modelid,
+                                fieldid: [fieldid],
+                            },
+                            dataType: "json",
+                            success: function (res) {
+                                layer.msg(res.msg);
+                                if (res.status) {
+                                    that.fetchData();
+                                }
+                            }
+                        })
+                    });
+                },
+
+
                 // 全选
                 handleSelectionChange: function (val) {
                     this.multipleSelection = val;
@@ -179,27 +203,6 @@
                             }
                         }
                     })
-                },
-                // 删除字段
-                clickDel: function (modelid, fieldid) {
-                    var that = this;
-                    layer.confirm('确认要删除?', function () {
-                        $.ajax({
-                            url: "{:api_url('/cms/field/delFields')}",
-                            type: "post",
-                            data: {
-                                modelid: modelid,
-                                fieldid: [fieldid],
-                            },
-                            dataType: "json",
-                            success: function (res) {
-                                layer.msg(res.msg)
-                                if (res.status) {
-                                    that.fetchData();
-                                }
-                            }
-                        })
-                    });
                 },
                 // 批量删除字段
                 batchDel: function () {
@@ -273,7 +276,7 @@
                         },
                         dataType: "json",
                         success: function (res) {
-                            layer.msg(res.msg)
+                            layer.msg(res.msg);
                             if (res.status) {
                                 that.fetchData();
                             }

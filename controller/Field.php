@@ -12,11 +12,9 @@ use app\cms\model\ModelFieldModel;
 use app\cms\model\ModelModel;
 use app\common\controller\AdminController;
 use app\common\model\ConfigModel;
-use Monolog\Handler\SlackWebhookHandler;
 use think\App;
 use think\facade\Db;
 use think\facade\View;
-use liliuwei\think\Jump;
 
 /**
  * 模型字段管理
@@ -25,8 +23,6 @@ use liliuwei\think\Jump;
  */
 class Field extends AdminController
 {
-    // 使用跳转
-    use Jump;
 
     private $modelfield, $fields;
 
@@ -239,6 +235,56 @@ class Field extends AdminController
     public function add()
     {
         //模型ID
+        $modelId = input('modelid',0,'intval');
+        if (empty($modelId)) {
+            return self::makeJsonReturn(false, '', '模型ID不能为空');
+        }
+
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            if (empty($post)) {
+                return self::makeJsonReturn(false, '', '数据不能为空!');
+            }
+            if ($this->modelfield->addField($post)) {
+                return self::makeJsonReturn(true, '', '添加成功',200,api_url("/cms/field/index", array("modelid" => $modelId)));
+            } else {
+                $error = $this->modelfield->error;
+                return self::makeJsonReturn(false, '', $error ? $error : '添加失败！');
+            }
+        } else {
+            //字段类型过滤
+            foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
+                if (!$this->modelfield->isAddField($formtype, $formtype, $modelId)) {
+                    continue;
+                }
+                $all_field[$formtype] = $name;
+            }
+            //不允许删除的字段，这些字段讲不会在字段添加处显示
+            View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
+            //允许添加但必须唯一的字段
+            View::assign("unique_fields", $this->modelfield->unique_fields);
+            //禁止被禁用的字段列表
+            View::assign("forbid_fields", $this->modelfield->forbid_fields);
+            //禁止被删除的字段列表
+            View::assign("forbid_delete", $this->modelfield->forbid_delete);
+            //可以追加 JS和CSS 的字段
+            View::assign("att_css_js", $this->modelfield->att_css_js);
+            //可使用字段类型
+            View::assign("all_field", $all_field);
+            //模型数据
+            View::assign("modelinfo", ModelModel::where("modelid", $modelId)->findOrEmpty());
+            View::assign("modelid", $modelId);
+            return View::fetch();
+        }
+    }
+
+    /***
+     * 增加字段 TODO
+     * @return string
+     */
+    public function add2()
+    {
+        //模型ID
         $modelId = $this->request->param('modelid', 0, 'intval');
         if (empty($modelId)) {
             $this->error('模型ID不能为空！');
@@ -268,7 +314,6 @@ class Field extends AdminController
                 }
                 $all_field[$formtype] = $name;
             }
-
             //不允许删除的字段，这些字段讲不会在字段添加处显示
             View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
             //允许添加但必须唯一的字段
@@ -298,7 +343,7 @@ class Field extends AdminController
     public function delFields()
     {
         //字段ID
-        $fieldIds = $this->request->post('fieldid', [], 'intval');
+        $fieldIds = input('fieldid',[],'intval');
         Db::startTrans();
         foreach ($fieldIds as $index => $fieldid) {
             $res = $this->doDelete($fieldid);
@@ -394,7 +439,7 @@ class Field extends AdminController
     public function public_field_setting()
     {
         //字段类型
-//        $fieldtype = $this->request->get('fieldtype');
+        $fieldtype = input('fieldtype','','trim');
         $fiepath = $this->fields . $fieldtype . '/';
         //载入对应字段配置文件 config.inc.php
         include $fiepath . 'config.inc.php';
@@ -402,9 +447,16 @@ class Field extends AdminController
         include $fiepath . "field_add_form.inc.php";
         $data_setting = ob_get_contents();
         ob_end_clean();
-        $settings = array('field_basic_table' => $field_basic_table, 'field_minlength' => $field_minlength, 'field_maxlength' => $field_maxlength, 'field_allow_search' => $field_allow_search, 'field_allow_fulltext' => $field_allow_fulltext, 'field_allow_isunique' => $field_allow_isunique, 'setting' => $data_setting);
-        echo json_encode($settings);
-        return true;
+        $settings = array(
+            'field_basic_table' => $field_basic_table,
+            'field_minlength' => $field_minlength,
+            'field_maxlength' => $field_maxlength,
+            'field_allow_search' => $field_allow_search,
+            'field_allow_fulltext' => $field_allow_fulltext,
+            'field_allow_isunique' => $field_allow_isunique,
+            'setting' => $data_setting
+        );
+        return self::makeJsonReturn(true, $settings, '获取成功!');
     }
 
     /**
