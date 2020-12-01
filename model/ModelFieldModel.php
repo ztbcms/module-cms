@@ -179,7 +179,7 @@ class ModelFieldModel extends BaseModel
     {
         //读取模型配置
         $model_cache = ModelModel::model_cache(true);
-        if(!isset($model_cache[$modelid])) {
+        if (!isset($model_cache[$modelid])) {
             return '';
         }
         //表名获取
@@ -271,12 +271,17 @@ class ModelFieldModel extends BaseModel
         Db::startTrans();
         if (!empty($data)) {
             // 更新
+
+            unset($data['pattern_select']);
+            unset($data['field_minlength']);
+            unset($data['field_maxlength']);
+
             if (false !== $this->where("fieldid", $fieldid)->save($data)) {
                 //清理缓存
                 cache('ModelField', NULL);
                 //如果字段名变更
                 if ($data['field'] && $info['field']) {
-                    //检查字段是否存在，只有当字段名改变才检测
+                    //检查段是否存在，只有当字段名改变才检测
                     if ($data['field'] != $info['field'] && $this->field_exists($tablename, $data['field'])) {
                         $this->error = '该字段已经存在！';
                         //回滚
@@ -287,17 +292,16 @@ class ModelFieldModel extends BaseModel
                     $newInfo = array_merge($info, $data);
                     $newInfo['setting'] = unserialize($newInfo['setting']);
                     $field = array(
-                        'tablename'     => $this->dbConfig['prefix'] . $tablename,
-                        'newfilename'   => $data['field'],
-                        'oldfilename'   => $info['field'],
-                        'maxlength'     => $newInfo['maxlength'],
-                        'minlength'     => $newInfo['minlength'],
-                        'defaultvalue'  => $newInfo['setting']['defaultvalue'] ?? '',
-                        'minnumber'     => $newInfo['setting']['minnumber'] ?? '',
+                        'tablename' => $this->dbConfig['prefix'] . $tablename,
+                        'newfilename' => $data['field'],
+                        'oldfilename' => $info['field'],
+                        'maxlength' => $newInfo['maxlength'],
+                        'minlength' => $newInfo['minlength'],
+                        'defaultvalue' => $newInfo['setting']['defaultvalue'] ?? '',
+                        'minnumber' => $newInfo['setting']['minnumber'] ?? '',
                         'decimaldigits' => $newInfo['setting']['decimaldigits'] ?? '',
-                        'comment'       => $data['name'] //字段别名 即为字段注释
+                        'comment' => $data['name'] //字段别名 即为字段注释
                     );
-
                     if (false === $this->editFieldSql($field_type, $field)) {
                         $this->error = '数据库字段结构更改失败！';
                         //回滚
@@ -312,7 +316,6 @@ class ModelFieldModel extends BaseModel
                 $this->error = '数据库更新失败！';
                 return false;
             }
-
         } else {
             Db::rollback();
             return false;
@@ -384,13 +387,20 @@ class ModelFieldModel extends BaseModel
              */
             require $this->fieldPath . "{$data['formtype']}/config.inc.php";
             //根据字段设置临时更改字段类型，否则使用字段配置文件配置的类型
-            if (isset($oldData['setting']['fieldtype'])) {
+
+            if (isset($oldData['setting']['fieldtype']) && $oldData['setting']['fieldtype']) {
                 $field_type = $oldData['setting']['fieldtype'];
             }
             //特定字段类型强制使用特定字段名，也就是字段类型等于字段名
             if (in_array($field_type, $this->forbid_delete)) {
                 $data['field'] = $field_type;
             }
+
+            //将多余的字段去除,兼容tp6模块
+            unset($data['field_minlength']);
+            unset($data['field_maxlength']);
+            unset($data['pattern_select']);
+
             //检查该字段是否允许添加
             if (false === $this->isAddField($data['field'], $data['formtype'], $modelid)) {
                 $this->error = '该字段名称/类型不允许添加！';
@@ -398,14 +408,14 @@ class ModelFieldModel extends BaseModel
             }
             //增加字段
             $field = array(
-                'tablename'     => $this->dbConfig['prefix'] . $tablename,
-                'fieldname'     => $data['field'],
-                'maxlength'     => $data['maxlength'] ?? 0,
-                'minlength'     => $data['minlength'] ?? 9999,
-                'defaultvalue'  => $setting['defaultvalue'] ?? '',
-                'minnumber'     => $setting['minnumber'] ?? '',
+                'tablename' => $this->dbConfig['prefix'] . $tablename,
+                'fieldname' => $data['field'],
+                'maxlength' => $data['maxlength'] ?? 0,
+                'minlength' => $data['minlength'] ?? 9999,
+                'defaultvalue' => $setting['defaultvalue'] ?? '',
+                'minnumber' => $setting['minnumber'] ?? '',
                 'decimaldigits' => $setting['decimaldigits'] ?? '',
-                'comment'       => $data['name'] //字段别名 即为字段注释
+                'comment' => $data['name'] //字段别名 即为字段注释
             );
 
             if ($this->addFieldSql($field_type, $field)) {
@@ -458,6 +468,7 @@ class ModelFieldModel extends BaseModel
             $this->error = '该字段不允许被删除！';
             return false;
         }
+
         if ($this->deleteFieldSql($info['field'], $this->dbConfig['prefix'] . $tablename)) {
             $this->where('fieldid', $fieldId)
                 ->where('modelid', $modelid)
@@ -910,9 +921,9 @@ class ModelFieldModel extends BaseModel
      */
     public static function model_field_cache($isForce = false)
     {
-        if(!$isForce){
+        if (!$isForce) {
             $data = cache('ModelField');
-            if(!empty($data)){
+            if (!empty($data)) {
                 return $data;
             }
         }
@@ -920,9 +931,9 @@ class ModelFieldModel extends BaseModel
         $modelList = ModelModel::select();
         foreach ($modelList as $info) {
             $data = self::where([
-                ['modelid','=', $info['modelid']],
-                ['disabled','=', 0],
-            ])->order("listorder","ASC")->select();
+                ['modelid', '=', $info['modelid']],
+                ['disabled', '=', 0],
+            ])->order("listorder", "ASC")->select();
             $fieldList = array();
             if (!$data->isEmpty()) {
                 foreach ($data as $rs) {
@@ -933,6 +944,75 @@ class ModelFieldModel extends BaseModel
         }
         cache('ModelField', $cache);
         return $cache;
+    }
+
+    /**
+     * 执行添加字段回调
+     * todo : 暂未处理回调结果
+     */
+    public function contentModelEditFieldBehavior($params)
+    {
+        $field = $this->where($params)->find();
+        if ($field['formtype'] == 'box') {
+            //如果为选项组件，反序列化设置参数
+            $setting = unserialize($field['setting']);
+            if (!isset($setting['relation'])) return true;
+            if ($setting['relation'] == 1) {
+                return true;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * 填补默认数据
+     * @param array $setting
+     * @return array
+     */
+    public function getDefaultSettingData($setting = [])
+    {
+        // 填充扩展配置
+        //后台信息处理函数
+        if (!isset($setting['backstagefun'])) $setting['backstagefun'] = '';
+        //后台信息处理函数 (入库类型)
+        if (!isset($setting['backstagefun_type'])) $setting['backstagefun_type'] = 1;
+        //前台信息处理函数
+        if (!isset($setting['frontfun'])) $setting['frontfun'] = '';
+        //前台信息处理函数 (入库类型)
+        if (!isset($setting['frontfun_type'])) $setting['frontfun_type'] = 1;
+
+        if (!isset($setting['enablehtml'])) $setting['enablehtml'] = '';
+        if (!isset($setting['toolbar'])) $setting['toolbar'] = '';
+        if (!isset($setting['enablesaveimage'])) $setting['enablesaveimage'] = '';
+
+        if(!isset($setting['show_type'])) $setting['show_type'] = '';
+        if(!isset($setting['options'])) $setting['options'] = '';
+        if(!isset($setting['boxtype'])) $setting['boxtype'] = '';
+        if(!isset($setting['outputtype'])) $setting['outputtype'] = '';
+        if(!isset($setting['upload_allowext'])) $setting['upload_allowext'] = 'gif|jpg|jpeg|png|bmp';
+        if(!isset($setting['watermark'])) $setting['watermark'] = 0;
+        if(!isset($setting['isselectimage'])) $setting['isselectimage'] = 0;
+        if(!isset($setting['images_width'])) $setting['images_width'] = 20;
+        if(!isset($setting['images_height'])) $setting['images_height'] = 50;
+        if(!isset($setting['upload_number'])) $setting['upload_number'] = 1;
+        if(!isset($setting['maxnumber'])) $setting['maxnumber'] = 99999;
+        if(!isset($setting['decimaldigits'])) $setting['decimaldigits'] = '-1';
+
+
+        if (!isset($setting['width'])) $setting['width'] = '';
+        if (!isset($setting['height'])) $setting['height'] = '';
+        if (!isset($setting['mbtoolbar'])) $setting['mbtoolbar'] = '';
+        if (!isset($setting['defaultvalue'])) $setting['defaultvalue'] = '';
+        if (!isset($setting['fieldtype'])) $setting['fieldtype'] = 'mediumtext';
+        if (!isset($setting['minnumber'])) $setting['minnumber'] = '';
+        if (!isset($setting['size'])) $setting['size'] = '';
+        if (!isset($setting['ispassword'])) $setting['ispassword'] = '';
+        if (!isset($setting['relation'])) $setting['relation'] = '';
+        if (!isset($setting['decimaldigits'])) $setting['decimaldigits'] = '';
+        if (!isset($setting['format'])) $setting['format'] = '';
+        if (!isset($setting['defaulttype'])) $setting['defaulttype'] = 0;
+
+        return $setting;
     }
 
 }

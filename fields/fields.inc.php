@@ -21,11 +21,9 @@ return array(
 	'copyfrom' => '来源',
 	'islink' => '转向链接',
 	'template' => '模板',
-	'pages' => '分页选择',
 	'typeid' => '类别',
 	'posid' => '推荐位',
 	'downfile' => '单文件上传',
 	'downfiles' => '多文件上传',
 	'omnipotent' => '万能字段',
-    'relationbox' => '关联字段'
 );

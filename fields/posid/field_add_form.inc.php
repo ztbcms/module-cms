@@ -1,10 +1,9 @@
-<table cellpadding="2" cellspacing="1" width="98%">
-    <tr> 
-        <td width="100">每个位置宽度</td>
-        <td><input type="text" name="setting[width]" value="125" size="5" class="input"> <span>px</span></td>
-    </tr>
-    <tr> 
-        <td>默认选中项</td>
-        <td><input type="text" name="setting[defaultvalue]" value="" size="20" class="input"> <span>多个之间用半角逗号隔开</span></td>
-    </tr>
-</table>
+<el-form-item label="每个位置宽度" prop="formData.setting.width">
+    <el-input v-model="formData.setting.width" clearable :style="{width: '100%'}"></el-input>
+    <span>px</span>
+</el-form-item>
+
+<el-form-item label="默认选中项" prop="formData.setting.defaultvalue">
+    <el-input v-model="formData.setting.defaultvalue" clearable :style="{width: '100%'}"></el-input>
+    <span>多个之间用半角逗号隔开</span>
+</el-form-item>

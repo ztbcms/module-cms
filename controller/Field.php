@@ -106,76 +106,56 @@ class Field extends AdminController
         }
     }
 
-    //编辑字段
+
+    /**
+     * 编辑字段信息
+     * @return string|\think\response\Json
+     */
     public function edit()
     {
         //模型ID
-        $modelId = $this->request->param('modelid', 0, 'intval');
+        $modelId = input('modelid',0,'intval');
         //字段ID
-        $fieldId = $this->request->param('fieldid', 0, 'intval');
-        if (empty($modelId)) {
-            $this->error('模型ID不能为空！');
-        }
-        if (empty($fieldId)) {
-            $this->error('字段ID不能为空！');
-        }
+        $fieldId = input('fieldid',0,'intval');
+        if (empty($modelId))  return self::makeJsonReturn(false, '', '模型ID不能为空');
+        if (empty($fieldId)) return self::makeJsonReturn(false, '', '字段ID不能为空！');
+
         // 提交更新
         if ($this->request->isPost()) {
             $post = $this->request->post();
             if (empty($post)) {
-                $this->error('数据不能为空！');
+                return self::makeJsonReturn(false, '', '数据不能为空！');
             }
             if ($this->modelfield->editField($post, $fieldId)) {
+                //成功后执行回调
                 $field = $post['field'];
-                // TODO listen
-//                $params = array("modelid" => $modelId, 'field' => $field);
-//                Hook::listen('content_model_edit_field', $params);
-                $this->success("更新成功！", api_url("/cms/field/index", array("modelid" => $modelId)));
+                $params = array("modelid" => $modelId, 'field' => $field);
+                $this->modelfield->contentModelEditFieldBehavior($params);
+
+                return self::makeJsonReturn(true, [
+                    'modelid' => $modelId
+                ], '更新成功！',api_url("/cms/field/index", array("modelid" => $modelId)));
             } else {
                 $error = $this->modelfield->error;
-                $this->error($error ? $error : '更新失败！');
+                return self::makeJsonReturn(false, '', $error ? $error : '更新失败！');
             }
         } else {
-            // 显示
             //模型信息
             $modeData = ModelModel::where("modelid", $modelId)->findOrEmpty();
-            if ($modeData->isEmpty()) {
-                $this->error('该模型不存在！');
-            }
+
             //字段信息
-            $fieldData = $this->modelfield
-                ->where(
-                    [
-                        ["fieldid", "=", $fieldId],
-                        ["modelid", "=", $modelId]
-                    ]
-                )
-                ->findOrEmpty();
-            if (empty($fieldData)) {
-                $this->error('该字段信息不存在！');
-            }
+            $fieldWhere[] = ["fieldid", "=", $fieldId];
+            $fieldWhere[] = ["modelid", "=", $modelId];
+            $fieldData = $this->modelfield->where($fieldWhere)->findOrEmpty();
+
             //字段路径
             $fiepath = $this->fields . "{$fieldData['formtype']}/";
             //======获取字段类型的表单编辑界面===========
             //字段扩展配置
+
             $setting = unserialize($fieldData['setting']);
-            // 填充扩展配置
-            if (empty($setting['backstagefun_type'])) $setting['backstagefun_type'] = null;
-            if (empty($setting['frontfun_type'])) $setting['frontfun_type'] = null;
+            $setting = $this->modelfield->getDefaultSettingData($setting);
 
-            // 设置默认值
-            $this->setDefault($setting);
-
-            //打开缓冲区
-            ob_start();
-            // 判断文件是否存在
-            if (file_exists($fiepath . 'field_edit_form.inc.php')) {
-                include $fiepath . 'field_edit_form.inc.php';
-            }
-            $form_data = ob_get_contents();
-            //关闭缓冲
-            ob_end_clean();
-            //======获取字段类型的表单编辑界面===END====
             //字段类型过滤
             $all_field = array();
             foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
@@ -198,8 +178,6 @@ class Field extends AdminController
             View::assign("all_field", $all_field);
             //当前字段是否允许编辑
             View::assign('isEditField', $this->modelfield->isEditField($fieldData['field']));
-            //附加属性
-            View::assign("form_data", $form_data);
             View::assign("modelid", $modelId);
             View::assign("fieldid", $fieldId);
             View::assign("setting", $setting);
@@ -210,27 +188,10 @@ class Field extends AdminController
         }
     }
 
-    /**
-     * 设置默认值
-     * @param $setting
-     */
-    public function setDefault(&$setting)
-    {
-        if (empty($setting['width'])) $setting['width'] = '';
-        if (empty($setting['height'])) $setting['height'] = '';
-        if (empty($setting['mbtoolbar'])) $setting['mbtoolbar'] = '';
-        if (empty($setting['defaultvalue'])) $setting['defaultvalue'] = '';
-        if (empty($setting['fieldtype'])) $setting['fieldtype'] = 'mediumtext';
-        if (empty($setting['minnumber'])) $setting['minnumber'] = '';
-        if (empty($setting['size'])) $setting['size'] = '';
-        if (empty($setting['ispassword'])) $setting['ispassword'] = '';
-        if (empty($setting['relation'])) $setting['relation'] = '';
-        if (empty($setting['decimaldigits'])) $setting['decimaldigits'] = '';
-    }
 
-    /***
-     * 增加字段 TODO
-     * @return string
+    /**
+     * 添加字段
+     * @return string|\think\response\Json
      */
     public function add()
     {
@@ -246,19 +207,28 @@ class Field extends AdminController
                 return self::makeJsonReturn(false, '', '数据不能为空!');
             }
             if ($this->modelfield->addField($post)) {
+
+                //成功后执行回调
+                $field = $post['field'];
+                $params = array("modelid" => $modelId, 'field' => $field);
+                $this->modelfield->contentModelEditFieldBehavior($params);
+
                 return self::makeJsonReturn(true, '', '添加成功',200,api_url("/cms/field/index", array("modelid" => $modelId)));
             } else {
                 $error = $this->modelfield->error;
                 return self::makeJsonReturn(false, '', $error ? $error : '添加失败！');
             }
         } else {
+
             //字段类型过滤
+            $all_field = [];
             foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
                 if (!$this->modelfield->isAddField($formtype, $formtype, $modelId)) {
                     continue;
                 }
                 $all_field[$formtype] = $name;
             }
+
             //不允许删除的字段，这些字段讲不会在字段添加处显示
             View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
             //允许添加但必须唯一的字段
@@ -274,61 +244,7 @@ class Field extends AdminController
             //模型数据
             View::assign("modelinfo", ModelModel::where("modelid", $modelId)->findOrEmpty());
             View::assign("modelid", $modelId);
-            return View::fetch();
-        }
-    }
 
-    /***
-     * 增加字段 TODO
-     * @return string
-     */
-    public function add2()
-    {
-        //模型ID
-        $modelId = $this->request->param('modelid', 0, 'intval');
-        if (empty($modelId)) {
-            $this->error('模型ID不能为空！');
-        }
-        if ($this->request->isPost()) {
-            $post = $this->request->post();
-            if (empty($post)) {
-                $this->error('数据不能为空！');
-            }
-            if ($this->modelfield->addField($post)) {
-                $field = $post['field'];
-
-                // TODO 触发钩子
-//                $params = array("modelid" => $modelId, 'field' => $field);
-//                Hook::listen('content_model_edit_field', $params);
-
-                $this->success("添加成功！", api_url("/cms/field/index", array("modelid" => $modelId)));
-            } else {
-                $error = $this->modelfield->error;
-                $this->error($error ? $error : '添加失败！');
-            }
-        } else {
-            //字段类型过滤
-            foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
-                if (!$this->modelfield->isAddField($formtype, $formtype, $modelId)) {
-                    continue;
-                }
-                $all_field[$formtype] = $name;
-            }
-            //不允许删除的字段，这些字段讲不会在字段添加处显示
-            View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
-            //允许添加但必须唯一的字段
-            View::assign("unique_fields", $this->modelfield->unique_fields);
-            //禁止被禁用的字段列表
-            View::assign("forbid_fields", $this->modelfield->forbid_fields);
-            //禁止被删除的字段列表
-            View::assign("forbid_delete", $this->modelfield->forbid_delete);
-            //可以追加 JS和CSS 的字段
-            View::assign("att_css_js", $this->modelfield->att_css_js);
-            //可使用字段类型
-            View::assign("all_field", $all_field);
-            //模型数据
-            View::assign("modelinfo", ModelModel::where("modelid", $modelId)->findOrEmpty());
-            View::assign("modelid", $modelId);
             return View::fetch();
         }
     }
@@ -418,20 +334,19 @@ class Field extends AdminController
     public function public_checkfield()
     {
         //新字段名称
-        $field = I('get.field');
+        $field = input('get.field');
         //原来字段名
-        $oldfield = I('get.oldfield');
+        $oldfield = input('get.oldfield');
         if ($field == $oldfield) {
-            $this->ajaxReturn($field, "字段没有重复！", true);
+            return self::makeJsonReturn(true, $field, '字段没有重复!');
         }
         //模型ID
-        $modelid = I('get.modelid');
-
+        $modelid = input('get.modelid');
         $status = $this->modelfield->where(array("field" => $field, "modelid" => $modelid))->count();
         if ($status == 0) {
-            $this->ajaxReturn($field, "字段没有重复！", true);
+            return self::makeJsonReturn(true, $field, '字段没有重复!');
         } else {
-            $this->ajaxReturn($field, "字段有重复！", false);
+            return self::makeJsonReturn(false, $field, '字段有重复!');
         }
     }
 
@@ -443,10 +358,6 @@ class Field extends AdminController
         $fiepath = $this->fields . $fieldtype . '/';
         //载入对应字段配置文件 config.inc.php
         include $fiepath . 'config.inc.php';
-        ob_start();
-        include $fiepath . "field_add_form.inc.php";
-        $data_setting = ob_get_contents();
-        ob_end_clean();
         $settings = array(
             'field_basic_table' => $field_basic_table,
             'field_minlength' => $field_minlength,
@@ -454,7 +365,7 @@ class Field extends AdminController
             'field_allow_search' => $field_allow_search,
             'field_allow_fulltext' => $field_allow_fulltext,
             'field_allow_isunique' => $field_allow_isunique,
-            'setting' => $data_setting
+            'setting' => ''
         );
         return self::makeJsonReturn(true, $settings, '获取成功!');
     }
