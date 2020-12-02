@@ -75,7 +75,6 @@
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="details(scope.row.catid)">修改</el-button>
                     <el-button type="text" size="mini" @click="handleDelete(scope.row.catid)">删除</el-button>
-                    <el-button type="text" size="mini" @click="changeType(scope.row.catid)">终极属性转换</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -216,7 +215,7 @@
 
                 details : function (id) {
                     var that = this;
-                    var url = '{:api_url("/admin/Menu/details")}';
+                    var url = '{:api_url("/cms/Category/details")}';
                     if(id) url += '&id=' + id;
                     layer.open({
                         type: 2,

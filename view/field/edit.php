@@ -15,7 +15,7 @@
                     <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="210px">
 
                         <el-form-item label="字段属性" prop="formtype">
-                            <el-select @change="getParameter()" v-model="formData.formtype" placeholder="请选择字段属性" :style="{width: '100%'}">
+                            <el-select :disabled="disabled.formtype"  @change="getParameter()" v-model="formData.formtype" placeholder="请选择字段属性" :style="{width: '100%'}">
                                 {volist name="all_field" id="vo"}
                                 <el-option label="{$vo}" value="{$key}"></el-option>
                                 {/volist}
@@ -71,22 +71,22 @@
                             {include file="../app/cms/fields/author/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'copyfrom'">
-                            {include file="../app/cms/fields/copyfrom/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/copyfrom/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'islink'">
-                            {include file="../app/cms/fields/islink/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/islink/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'posid'">
-                            {include file="../app/cms/fields/posid/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/posid/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'downfile'">
-                            {include file="../app/cms/fields/downfile/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/downfile/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'downfiles'">
-                            {include file="../app/cms/fields/downfiles/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/downfiles/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'omnipotent'">
-                            {include file="../app/cms/fields/omnipotent/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/omnipotent/field_form.inc.php"}
                         </div>
 
                         <h3>通用参数</h3>
@@ -197,11 +197,15 @@
 
 
                         <el-form-item size="large">
-                            <el-button type="primary" @click="submitForm">提交</el-button>
-
+                            <el-button type="primary" :disabled="disabled.formtype" @click="submitForm">提交</el-button>
                             <el-button type="primary" @click="runBack">返回列表</el-button>
                         </el-form-item>
 
+                        <el-form-item size="large">
+                            <el-alert type="error">
+                                <p>字段属性为作者，来源，转向链接，推荐位无法进行编辑</p>
+                            </el-alert>
+                        </el-form-item>
                     </el-form>
                 </div>
             </template>
@@ -268,7 +272,11 @@
 
                             'decimaldigits' : "{$setting['decimaldigits']}",
                             'format' : "{$setting['format']}",
-                            'defaulttype' : "{$setting['defaulttype']}"
+                            'defaulttype' : "{$setting['defaulttype']}",
+
+                            'statistics' : "{$setting['statistics']}",
+                            'downloadlink' : "{$setting['downloadlink']}",
+                            'formtext' : "{$setting['formtext']}"
                         },
                         isunique : "{$data['isunique']}", //值唯一
                         isbase : "{$data['isbase']}", //作为基本信息
@@ -286,7 +294,8 @@
                         issystem : false,
                         issearch :false,
                         isfulltext : false,
-                        isunique : false
+                        isunique : false,
+                        formtype : true
                     },
                     setting : '',
                     rules: {},
@@ -297,6 +306,11 @@
             created: function() {},
             mounted: function() {
                 this.getParameter();
+                if("{$is_disabled_formtype}" <= 0) {
+                    this.disabled.formtype = false;
+                } else {
+                    this.disabled.formtype = true;
+                }
             },
             methods: {
                 getPatternVal : function () {

@@ -71,22 +71,22 @@
                             {include file="../app/cms/fields/author/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'copyfrom'">
-                            {include file="../app/cms/fields/copyfrom/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/copyfrom/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'islink'">
-                            {include file="../app/cms/fields/islink/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/islink/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'posid'">
-                            {include file="../app/cms/fields/posid/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/posid/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'downfile'">
-                            {include file="../app/cms/fields/downfile/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/downfile/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'downfiles'">
-                            {include file="../app/cms/fields/downfiles/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/downfiles/field_form.inc.php"}
                         </div>
                         <div v-if="setting === 'omnipotent'">
-                            {include file="../app/cms/fields/omnipotent/field_add_form.inc.php"}
+                            {include file="../app/cms/fields/omnipotent/field_form.inc.php"}
                         </div>
 
                         <h3>通用参数</h3>

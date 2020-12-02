@@ -158,12 +158,15 @@ class Field extends AdminController
 
             //字段类型过滤
             $all_field = array();
+            $no_all_field = [];
             foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
                 if (!$this->modelfield->isEditField($formtype)) {
-                    continue;
+                    $no_all_field[] = $formtype;
                 }
                 $all_field[$formtype] = $name;
             }
+
+
             //不允许删除的字段，这些字段讲不会在字段添加处显示
             View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
             //允许添加但必须唯一的字段
@@ -184,6 +187,15 @@ class Field extends AdminController
             //字段信息分配到模板
             View::assign("data", $fieldData);
             View::assign("modelinfo", $modeData);
+
+            //是否可以编辑数据类型
+            if(in_array($fieldData['formtype'],$no_all_field)){
+                View::assign("is_disabled_formtype", 1);
+            } else {
+                //不存在可编辑数组中
+                View::assign("is_disabled_formtype", 0);
+            }
+
             return View::fetch();
         }
     }

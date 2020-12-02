@@ -11,13 +11,14 @@ use app\admin\service\AdminConfigService;
 use app\admin\service\AdminUserService;
 use app\cms\model\CategoryModel;
 use app\cms\model\CategoryPrivModel;
+use app\cms\model\CmsCategory;
 use app\cms\model\ModelModel;
 use app\common\controller\AdminController;
-use liliuwei\think\Jump;
+use app\cms\model\CmsModel;
 use think\App;
 use think\facade\Config;
 use think\facade\View;
-use app\cms\libs\util\Tree;
+
 
 /**
  * 栏目管理
@@ -26,7 +27,6 @@ use app\cms\libs\util\Tree;
  */
 class Category extends AdminController
 {
-    use Jump;
     //模板文件夹
     private $filepath;
     //频道模板路径
@@ -41,9 +41,6 @@ class Category extends AdminController
     protected $tp_comment;
     // 系统配置
     protected $config;
-
-    // 树状类
-    protected $Tree;
 
     public function __construct(App $app)
     {
@@ -64,34 +61,16 @@ class Category extends AdminController
         $this->tp_page = str_replace($this->filepath . "Page/", '', glob($this->filepath . 'Page/page*'));
         //取得评论模板列表
         $this->tp_comment = str_replace($this->filepath . "Comment/", '', glob($this->filepath . 'Comment/comment*'));
-
-        $this->Tree = new Tree();
     }
 
     //栏目列表
     public function index()
     {
-        // 是否超级管理员 TODO
-        $isAdministrator = AdminUserService::getInstance()->isAdministrator();
-        // 栏目权限 catid 是栏目id
-        $privCatIds = array();
-        //栏目权限 超级管理员例外
-        if ($isAdministrator !== true) {
-            $roleId = AdminUserService::getInstance()->role_id;
-            // 栏目权限
-            $privResult = CategoryPrivModel::where([
-                ['roleid', '=', $roleId],
-                ['action', '=', 'init'],
-            ])->select();
-            foreach ($privResult as $value) {
-                $privCatIds[$value['catid']] = true;
-            }
-        }
         return View::fetch();
     }
 
     /**
-     * 获取所有栏目
+     * 栏目列表
      * @return \think\response\Json
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
@@ -99,7 +78,8 @@ class Category extends AdminController
      */
     public function getCategoyList()
     {
-        $list = CategoryModel::getCategoryTree();
+        $CmsCategory = new CmsCategory();
+        $list = $CmsCategory::getCategoryTree();
         // 获取全部模型
         $models = ModelModel::model_cache();
 
@@ -110,26 +90,12 @@ class Category extends AdminController
             2 => '外部链接',
         ];
 
-//        $siteurl = parse_url($this->config['siteurl']);
-
         foreach ($list as $k => &$v) {
             $v['catname'] = str_repeat("--", $v['level']) . ' ' . $v['catname'];
             $v['type_name'] = $type[$v['type']];
             $v['model_name'] = (!empty($models[$v['modelid']])) ? $models[$v['modelid']]['name'] : '';
 
             if ($v['url']) {
-                $parse_url = parse_url($v['url']);
-                $setting = unserialize($v['setting']);
-
-//                // 生成指定的访问路径
-//                if ($parse_url['host'] != $siteurl['host'] && strpos($v['url'], '/index.php?') === false) {
-//                    $catdir = $v['catdir'];
-//                    //如果生成静态，将设置一个指定的静态目录
-//                    $catdir = '/' . $v['parentdir'] . $catdir;
-//                    if ($setting['ishtml'] && strpos($v['url'], '?') === false) {
-//                        $v['help'] = '<img src="' . $this->config['siteurl'] . 'statics/images/icon/help.png" title="将域名：' . $v['url'] . '&#10;绑定到目录&#10;' . $catdir . '/">';
-//                    }
-//                }
                 $v['url_text'] = '访问';
                 $v['url_jump'] = 'open';
             } else {
@@ -139,6 +105,68 @@ class Category extends AdminController
             }
         }
         return self::makeJsonReturn(true, $list, '获取成功');
+    }
+
+    /**
+     * 栏目详情
+     * @return string|\think\response\Json
+     */
+    public function details()
+    {
+        $action = input('action', '', 'trim');
+        if ($action == 'submit') {
+            //添加新栏目
+            $AdminUserDetails = AdminUserService::getInstance()->getInfo();
+            $_POST = input('post.');
+            if($AdminUserDetails['id'] != AdminUserService::administratorRoleId){
+                //不是超管的情况
+                $priv_roleid = [
+                    'init,' . $AdminUserDetails['role_id'],
+                    'add,' . $AdminUserDetails['role_id'],
+                    'edit,' . $AdminUserDetails['role_id'],
+                    'delete,' . $AdminUserDetails['role_id'],
+                    'listorder,' . $AdminUserDetails['role_id'],
+                    'push,' . $AdminUserDetails['role_id'],
+                    'remove,' . $AdminUserDetails['role_id'],
+                ];
+                $_POST['priv_roleid'] = $priv_roleid;
+            }
+            $CmsCategory = new CmsCategory();
+            //是否批量添加
+            $isbatch = input('isbatch','0','intval');
+            if($isbatch) {
+
+                //todo 未处理批量添加栏目
+
+            } else {
+                $addCategoryRes = $CmsCategory->addCategory($_POST);
+                if(!$addCategoryRes['status']) return $addCategoryRes;
+
+                $catid = $addCategoryRes['data']['catid'];
+
+                $CategoryPrivModel = new CategoryPrivModel();
+                //更新权限
+                $CategoryPrivModel->update_priv($catid, $_POST['priv_roleid'], 1);
+            }
+        }
+
+        $parentid = input('get.parentid', 0, 'intval');
+        if (!empty($parentid)) {
+            $Ca = getCategory($parentid);
+            if (empty($Ca)) return self::makeJsonReturn(false, '', '父栏目不存在！');
+            if ($Ca['child'] == '0') return self::makeJsonReturn(false, '', '终极栏目不能添加子栏目！');
+        }
+
+        //输出可用模型
+        $CmsModel = new CmsModel();
+        $models = $CmsModel->getAvailableList();
+        View::assign("models", $models);
+
+        //栏目列表 可以用缓存的方式
+        $CmsCategory = new CmsCategory();
+        $categorydata = $CmsCategory->getAvailableList();
+        View::assign("category", $categorydata);
+        return View::fetch();
     }
 
     /**
@@ -165,142 +193,6 @@ class Category extends AdminController
             }
             return self::makeJsonReturn(false, '', '更新排序失败');
         }
-    }
-
-    //添加栏目
-    public function add()
-    {
-        if (IS_POST) {
-            //是否超级管理员
-            $administrator = User::getInstance()->getInfo();
-            if ($administrator['role_id'] != User::administratorRoleId) {
-                //不是超级管理员
-                $priv_roleid = [
-                    'init,' . $administrator['role_id'],
-                    'add,' . $administrator['role_id'],
-                    'edit,' . $administrator['role_id'],
-                    'delete,' . $administrator['role_id'],
-                    'listorder,' . $administrator['role_id'],
-                    'push,' . $administrator['role_id'],
-                    'remove,' . $administrator['role_id'],
-                ];
-                $_POST['priv_roleid'] = $priv_roleid;
-            }
-            $Category = D("Content/Category");
-            //批量添加
-            $isbatch = I('post.isbatch', 0, 'intval');
-            if ($isbatch) {
-                $post = $_POST;
-                unset($post['isbatch'], $post['info']['catname'], $post['info']['catdir']);
-                //需要批量添加的栏目
-                $batch_add = explode("\n", $_POST['batch_add']);
-                if (empty($batch_add) || empty($_POST['batch_add'])) {
-                    $this->error('请填写需要添加的栏目！');
-                }
-                //关闭表单令牌验证
-                C('TOKEN_ON', false);
-                foreach ($batch_add as $rs) {
-                    $cat = explode('|', $rs, 2);
-                    if ($cat[0] && $cat[1]) {
-                        $post['info']['catname'] = $cat[0];
-                        $post['info']['catdir'] = $cat[1];
-                        $catid = $Category->addCategory($post);
-                        if ($catid) {
-                            //更新角色栏目权限
-                            D("Content/Category_priv")->update_priv($catid, $_POST['priv_roleid'], 1);
-                            if (isModuleInstall('Member')) {
-                                //更新会员组权限
-                                D("Content/Category_priv")->update_priv($catid, $_POST['priv_groupid'], 0);
-                            }
-                        }
-                    }
-                }
-                $this->success("添加成功！", U("Category/index"));
-            } else {
-                $catid = $Category->addCategory($_POST);
-                if ($catid) {
-                    //更新角色栏目权限
-                    D("Content/Category_priv")->update_priv($catid, $_POST['priv_roleid'], 1);
-                    $this->success("添加成功！", U("Category/index"));
-                } else {
-                    $error = $Category->getError();
-                    $this->error($error ? $error : '栏目添加失败！');
-                }
-            }
-        } else {
-            $parentid = I('get.parentid', 0, 'intval');
-            if (!empty($parentid)) {
-                $Ca = getCategory($parentid);
-                if (empty($Ca)) {
-                    $this->error("父栏目不存在！");
-                }
-                if ($Ca['child'] == '0') {
-                    $this->error("终极栏目不能添加子栏目！");
-                }
-            }
-
-            //输出可用模型
-            $modelsdata = cache("Model");
-            $models = array();
-            foreach ($modelsdata as $v) {
-                if ($v['disabled'] == 0 && $v['type'] == 0) {
-                    $models[] = $v;
-                }
-            }
-            //栏目列表 可以用缓存的方式
-            $array = cache("Category");
-            foreach ($array as $k => $v) {
-                $array[$k] = getCategory($v['catid']);
-                if ($v['child'] == '0') {
-                    $array[$k]['disabled'] = "disabled";
-                } else {
-                    $array[$k]['disabled'] = "";
-                }
-            }
-            if (!empty($array) && is_array($array)) {
-                $this->Tree->icon = array('&nbsp;&nbsp;&nbsp;│ ', '&nbsp;&nbsp;&nbsp;├─ ', '&nbsp;&nbsp;&nbsp;└─ ');
-                $this->Tree->nbsp = '&nbsp;&nbsp;&nbsp;';
-                $str = "<option value='\$catid' \$selected \$disabled>\$spacer \$catname</option>";
-                $this->Tree->init($array);
-                $categorydata = $this->Tree->get_tree(0, $str, $parentid);
-            } else {
-                $categorydata = '';
-            }
-            $this->assign("tp_category", $this->tp_category);
-            $this->assign("tp_list", $this->tp_list);
-            $this->assign("tp_show", $this->tp_show);
-            $this->assign("tp_comment", $this->tp_comment);
-            $this->assign("tp_page", $this->tp_page);
-            $this->assign("category", $categorydata);
-            $this->assign("models", $models);
-            $this->assign('parentid_modelid', $Ca['modelid']);
-
-            $type = I('get.type', 0, 'intval');
-            $this->assign("category_php_ruleid", \Form::urlrule('content', 'category', 0, "", 'name="category_php_ruleid"'));
-            $this->assign("category_html_ruleid", \Form::urlrule('content', 'category', 1, "", 'name="category_html_ruleid"'));
-            $this->assign("show_php_ruleid", \Form::urlrule('content', 'show', 0, "", 'name="show_php_ruleid"'));
-            $this->assign("show_html_ruleid", \Form::urlrule('content', 'show', 1, "", 'name="show_html_ruleid"'));
-            //角色组
-            $this->assign("Role_group", M("Role")->order(array("id" => "ASC"))->select());
-            if (isModuleInstall('Member')) {
-                //会员组
-                $this->assign("Member_group", cache("Member_group"));
-            }
-            $this->assign("is_admin", User::getInstance()->isAdministrator());
-            $this->display();
-        }
-    }
-
-    //添加外部链接栏目
-    public function wadd()
-    {
-        $this->add();
-    }
-
-    //添加单页
-    public function singlepage()
-    {
-        $this->add();
     }
 
     //编辑栏目
@@ -428,17 +320,18 @@ class Category extends AdminController
         //每次处理多少栏目
         $handlesum = 100;
         //计算栏目总数
-        $count = $this->request->get('count',$db->count(),'intval');
+        $count = $this->request->get('count', $db->count(), 'intval');
         //需要处理几次
         $handlecount = ceil($count / $handlesum);
         if ($number > $handlecount) {
             $this->cache();
-            return self::makeJsonReturn(true,[],'缓存更新成功!');
+            return self::makeJsonReturn(true, [], '缓存更新成功!');
         }
 
         // 分页处理 TODO 以下需要优化
         $page = $db->page($count, $handlesum);
-        echo json_encode($page);die();
+        echo json_encode($page);
+        die();
 
         // 循环处理
         $data = $db->order(array('catid' => 'ASC'))->limit($page->firstRow . ',' . $page->listRows)->select();

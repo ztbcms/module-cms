@@ -1011,6 +1011,8 @@ class ModelFieldModel extends BaseModel
         if (!isset($setting['decimaldigits'])) $setting['decimaldigits'] = '';
         if (!isset($setting['format'])) $setting['format'] = '';
         if (!isset($setting['defaulttype'])) $setting['defaulttype'] = 0;
+        if (!isset($setting['statistics'])) $setting['statistics'] = '';
+        if (!isset($setting['downloadlink'])) $setting['downloadlink'] = '';
 
         return $setting;
     }
