@@ -52,7 +52,7 @@ function getCategory($catid, $field = '', $newCache = false)
     }
     if (empty($cache)) {
         //读取数据
-        $cache = \app\cms\model\CategoryModel::where('catid', $catid)->findOrEmpty();
+        $cache = \app\cms\model\CmsCategory::where('catid', $catid)->findOrEmpty();
         if (empty($cache)) {
             cache($key, 'false', 60);
             return false;

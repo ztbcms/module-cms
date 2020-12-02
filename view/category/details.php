@@ -29,11 +29,13 @@
                         </el-form-item>
 
                         <el-form-item label="栏目名称" prop="formData.info.catname" required>
-                            <el-input v-model="formData.info.catname" placeholder="请输入栏目名称" clearable :style="{width: '100%'}"></el-input>
+                            <el-input v-model="formData.info.catname" placeholder="请输入栏目名称" clearable
+                                      :style="{width: '100%'}"></el-input>
                         </el-form-item>
 
                         <el-form-item label="英文目录" prop="formData.info.catdir" required>
-                            <el-input v-model="formData.info.catdir" placeholder="请输入英文目录" clearable :style="{width: '100%'}"></el-input>
+                            <el-input v-model="formData.info.catdir" placeholder="请输入英文目录" clearable
+                                      :style="{width: '100%'}"></el-input>
                         </el-form-item>
 
                         <el-form-item label="是否为终极栏目" prop="formData.info.child" required>
@@ -65,6 +67,7 @@
                 return {
                     all_field: [],
                     formData: {
+                        catid: "{$catid}",
                         info: {
                             modelid: '',
                             parentid: '0',
@@ -92,13 +95,13 @@
                             meta_keywords: '', //栏目关键词
                             meta_description: '', //针对搜索引擎设置的网页描述
 
-                            ishtml : '0', //栏目生成静态,
-                            content_ishtml : '0', //内容页是否生成静态,
+                            ishtml: '0', //栏目生成静态,
+                            content_ishtml: '0', //内容页是否生成静态,
 
                         },
                         isbatch: '0',  //单条添加
-                        category_php_ruleid : '1',  //是否生成静态目录
-                        show_php_ruleid : '', //内容页URL规则
+                        category_php_ruleid: '1',  //是否生成静态目录
+                        show_php_ruleid: '', //内容页URL规则
                     },
                     show: {},
                     disabled: {},
@@ -111,15 +114,19 @@
             created: function () {
             },
             mounted: function () {
-
+                if (this.formData.catid > 0) this.getDetails();
             },
             methods: {
                 submitForm: function () {
                     var that = this;
                     var url = "{:api_url('/cms/category/details')}";
                     var data = that.formData;
-                    data.action = 'submit';
-                    that.httpPost(url,data, function (res) {
+                    if (that.formData.catid > 0) {
+                        data.action = 'edit_submit';
+                    } else {
+                        data.action = 'add_submit';
+                    }
+                    that.httpPost(url, data, function (res) {
                         layer.msg(res.msg);
                         if (res.status) {
                             //添加成功
@@ -133,6 +140,23 @@
                 },
                 runBack: function () {
                     window.location.href = "{:api_url('/cms/Category/index')}"
+                },
+                getDetails: function () {
+                    var that = this;
+                    var url = "{:api_url('/cms/category/details')}";
+                    var data = {
+                        'catid': this.formData.catid
+                    };
+                    data.action = 'details';
+                    that.httpPost(url, data, function (res) {
+                        if (res.data) {
+                            that.formData.info.modelid = res.data.modelid;
+                            that.formData.info.parentid = String(res.data.parentid);
+                            that.formData.info.catname = res.data.catname;
+                            that.formData.info.catdir = res.data.catdir;
+                            that.formData.info.child = String(res.data.child);
+                        }
+                    })
                 }
             }
         });

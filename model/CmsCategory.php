@@ -40,7 +40,7 @@ class CmsCategory extends Model
      * @param $post
      * @return array
      */
-    public function addCategory($post)
+    public function addCategory($post = [])
     {
         if (empty($post)) {
             return createReturn(false, '', '添加栏目数据不能为空！');
@@ -140,6 +140,162 @@ class CmsCategory extends Model
     }
 
     /**
+     * 编辑栏目信息
+     * @param array $post
+     * @return array|bool
+     */
+    public function editCategory($post = []){
+        if (empty($post)) {
+            return createReturn(false, '', '添加栏目数据不能为空！');
+        }
+        $catid = $post['catid'];
+        $data = $post['info'];
+        //查询该栏目是否存在
+        $info = $this->where(array('catid' => $catid))->find();
+        if (empty($info)) {
+            return createReturn(false, '', '该栏目不存在！');
+        }
+        unset($data['catid'], $info['catid'], $data['module'], $data['child']);
+
+        //表单令牌
+        $data['setting'] = $post['setting'];
+
+        //内部栏目
+        if ((int) $info['type'] != 2) {
+            if ($data['setting']['ishtml']) {
+                $data['setting']['category_ruleid'] = $post['category_html_ruleid'];
+            } else {
+                $data['setting']['category_ruleid'] = $post['category_php_ruleid'];
+                $data['url'] = '';
+            }
+        }
+
+        //栏目生成静态配置
+        if ($data['setting']['ishtml']) {
+            $data['setting']['category_ruleid'] = $post['category_html_ruleid'];
+        } else {
+            $data['setting']['category_ruleid'] = $post['category_php_ruleid'];
+        }
+        //内容生成静态配置
+        if ($data['setting']['content_ishtml']) {
+            $data['setting']['show_ruleid'] = $post['show_html_ruleid'];
+        } else {
+            $data['setting']['show_ruleid'] = $post['show_php_ruleid'];
+        }
+        //栏目是否生成静态
+        $data['sethtml'] = $data['setting']['ishtml'] ? 1 : 0;
+        //判断URL规则是否有设置
+        if ((int) $info['type'] == 0) {
+            //内部栏目
+            if (empty($data['setting']['category_ruleid'])) {
+                return createReturn(false, '', '栏目URL规则没有设置！');
+            }
+            if (empty($data['setting']['show_ruleid']) && isset($data['child'])) {
+                return createReturn(false, '', '栏目内容页URL规则没有设置！');
+            }
+
+            //添加modelid自动验证规则
+            if (!$data['modelid']) {
+                return createReturn(false, '', '对不起所属的模型不能为空！');
+            }
+        } else if ((int) $info['type'] == 1) {
+
+            //单页栏目
+            if (empty($data['setting']['category_ruleid'])) {
+                return createReturn(false, '', '栏目URL规则没有设置！');
+            }
+        }
+
+        //栏目生成静态配置
+        if ($data['setting']['ishtml']) {
+            $data['setting']['category_ruleid'] = $post['category_html_ruleid'];
+        } else {
+            $data['setting']['category_ruleid'] = $post['category_php_ruleid'];
+        }
+
+        //内容生成静态配置
+        if ($data['setting']['content_ishtml']) {
+            $data['setting']['show_ruleid'] = $post['show_html_ruleid'];
+        } else {
+            $data['setting']['show_ruleid'] = $post['show_php_ruleid'];
+        }
+        //栏目是否生成静态
+        $data['sethtml'] = $data['setting']['ishtml'] ? 1 : 0;
+
+        //判断URL规则是否有设置
+        if ((int) $info['type'] == 0) {
+            //内部栏目
+            if (empty($data['setting']['category_ruleid'])) {
+                return createReturn(false, '', '栏目URL规则没有设置！');
+            }
+
+            if (empty($data['setting']['show_ruleid']) && isset($data['child'])) {
+                return createReturn(false, '', '栏目内容页URL规则没有设置！');
+            }
+
+            //添加modelid自动验证规则
+            if (!$data['modelid']) {
+                return createReturn(false, '', '对不起所属的模型不能为空！');
+            }
+        } else if ((int) $info['type'] == 1) {
+            //单页栏目
+            if (empty($data['setting']['category_ruleid'])) {
+                return createReturn(false, '', '栏目URL规则没有设置！');
+            }
+        }
+
+        include App::getRootPath() . 'app/cms/common/iconvfunc.php';
+        //栏目拼音
+        $catname = iconv('utf-8', 'gbk', $data['catname']);
+        $letters = gbk_to_pinyin($catname);
+        $data['letter'] = strtolower(implode('', $letters));
+        //序列化setting数据
+        $data['setting'] = serialize($data['setting']);
+
+        if (!$data['catname']) return createReturn(false, '', '栏目名称不能为空！');
+        if (!$data['catdir']) return createReturn(false, '', '英文目录不能为空！');
+
+
+        if ($this->where([
+            ['catdir' ,'=', $data['catdir']],
+            ['catid' ,'<>', $catid]
+        ])->count()) {
+            return createReturn(false, '', '目录名称已存在！');
+        };
+
+//        if (!self::checkSetting($data['setting'], 2)) {
+//            return createReturn(false, '', 'Setting配置信息有误！');
+//        }
+
+//        if (!($data['type'] == 0 || $data['type'] == 1 || $data['type'] == 2)) {
+//            return createReturn(false, '', '栏目类型错误！');
+//        }
+
+//        if ((int) $info['type'] != 2) {
+//            //绑定域名
+//            $data['domain'] = $data['url'];
+//        }
+
+        if ($this->where(['catid'=>$catid])->update($data) !== false) {
+            //更新缓存
+            cache('Category', NULL);
+            getCategory($catid, '', true);
+            //更新附件状态
+            if (isset($data['image'])) {
+                //更新附件状态，把相关附件和文章进行管理
+//                service("Attachment")->api_update('', 'catid-' . $catid, 1);
+            }
+            //扩展字段处理
+            if (isset($post['extend'])) {
+                $this->extendField($catid, $post);
+            }
+            return createReturn(true,['catid'=>$catid],'编辑成功');
+        } else {
+            return createReturn(false, '', '栏目修改失败！');
+        }
+    }
+
+    /**
      * 验证setting配置信息
      * @param string $setting
      * @return boolean
@@ -169,7 +325,7 @@ class CmsCategory extends Model
     public function extendField($catid, $post)
     {
         if (empty($catid) || intval($catid) < 1 || empty($post)) {
-            return false;
+            return createReturn(false, '', '栏目不能为空！');
         }
 
         //时间
@@ -177,7 +333,7 @@ class CmsCategory extends Model
         //栏目信息
         $info = $this->where(array('catid' => $catid))->find();
         if (empty($info)) {
-            return false;
+            return createReturn(false, '', '栏目不能为空！');
         }
         $info['setting'] = unserialize($info['setting']);
 
@@ -276,5 +432,6 @@ class CmsCategory extends Model
         $config['idKey'] = 'catid';
         return TreeHelper::getTreeShapeArray($list,0,0,$config);
     }
+
 
 }

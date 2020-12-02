@@ -82,7 +82,6 @@ class Category extends AdminController
         $list = $CmsCategory::getCategoryTree();
         // 获取全部模型
         $models = ModelModel::model_cache();
-
         // 类型
         $type = [
             0 => '内部栏目',
@@ -114,11 +113,12 @@ class Category extends AdminController
     public function details()
     {
         $action = input('action', '', 'trim');
-        if ($action == 'submit') {
+        $catid = input('catid', '0', 'trim');
+        if ($action == 'add_submit') {
             //添加新栏目
             $AdminUserDetails = AdminUserService::getInstance()->getInfo();
             $_POST = input('post.');
-            if($AdminUserDetails['id'] != AdminUserService::administratorRoleId){
+            if ($AdminUserDetails['id'] != AdminUserService::administratorRoleId) {
                 //不是超管的情况
                 $priv_roleid = [
                     'init,' . $AdminUserDetails['role_id'],
@@ -133,14 +133,14 @@ class Category extends AdminController
             }
             $CmsCategory = new CmsCategory();
             //是否批量添加
-            $isbatch = input('isbatch','0','intval');
-            if($isbatch) {
+            $isbatch = input('isbatch', '0', 'intval');
+            if ($isbatch) {
 
                 //todo 未处理批量添加栏目
 
             } else {
                 $addCategoryRes = $CmsCategory->addCategory($_POST);
-                if(!$addCategoryRes['status']) return $addCategoryRes;
+                if (!$addCategoryRes['status']) return $addCategoryRes;
 
                 $catid = $addCategoryRes['data']['catid'];
 
@@ -148,13 +148,35 @@ class Category extends AdminController
                 //更新权限
                 $CategoryPrivModel->update_priv($catid, $_POST['priv_roleid'], 1);
             }
-        }
 
-        $parentid = input('get.parentid', 0, 'intval');
-        if (!empty($parentid)) {
-            $Ca = getCategory($parentid);
-            if (empty($Ca)) return self::makeJsonReturn(false, '', '父栏目不存在！');
-            if ($Ca['child'] == '0') return self::makeJsonReturn(false, '', '终极栏目不能添加子栏目！');
+            return self::makeJsonReturn(true, [], '操作成功！');
+        } else if ($action == 'details') {
+            //获取栏目详情
+            $catid = input('catid',0,'intval');
+            $data = getCategory($catid);
+            return self::makeJsonReturn(true, $data, '获取成功');
+        } else if ($action == 'edit_submit') {
+            //编辑栏目信息
+            $catid = input("post.catid", "", "intval");
+            if (empty($catid)) {
+                return self::makeJsonReturn(false, [], '请选择需要修改的栏目！');
+            }
+
+            $_POST = input('post.');
+
+            $CmsCategory = new CmsCategory();
+            $editCategoryRes = $CmsCategory->editCategory($_POST);
+            if (!$editCategoryRes['status']) return $editCategoryRes;
+
+            $catid = $editCategoryRes['data']['catid'];
+
+            //更新权限
+            if(isset($_POST['priv_roleid'])) {
+                $CategoryPrivModel = new CategoryPrivModel();
+                $CategoryPrivModel->update_priv($catid, $_POST['priv_roleid'], 1);
+            }
+
+            return self::makeJsonReturn(true, [], '操作成功！');
         }
 
         //输出可用模型
@@ -166,6 +188,10 @@ class Category extends AdminController
         $CmsCategory = new CmsCategory();
         $categorydata = $CmsCategory->getAvailableList();
         View::assign("category", $categorydata);
+
+        //详情id
+        View::assign("catid", $catid);
+
         return View::fetch();
     }
 
@@ -192,109 +218,6 @@ class Category extends AdminController
                 return self::makeJsonReturn(true, '', '更新排序成功');
             }
             return self::makeJsonReturn(false, '', '更新排序失败');
-        }
-    }
-
-    //编辑栏目
-    public function edit()
-    {
-        if (IS_POST) {
-            $catid = I("post.catid", "", "intval");
-            if (empty($catid)) {
-                $this->error('请选择需要修改的栏目！');
-            }
-            $Category = D("Content/Category");
-            $status = $Category->editCategory($_POST);
-            if ($status) {
-                //应用权限设置到子栏目
-                if ($_POST['priv_child']) {
-                    //子栏目
-                    $arrchildid = $Category->where(array('catid' => $catid))->getField('arrchildid');
-                    $arrchildid_arr = explode(',', $arrchildid);
-                    foreach ($arrchildid_arr as $arr_v) {
-                        D("Content/Category_priv")->update_priv($arr_v, $_POST['priv_roleid'], 1);
-                    }
-                } else {
-                    //更新角色栏目权限
-                    D("Content/Category_priv")->update_priv($catid, $_POST['priv_roleid'], 1);
-                    if (isModuleInstall('Member')) {
-                        //更新会员组权限
-                        D("Content/Category_priv")->update_priv($catid, $_POST['priv_groupid'], 0);
-                    }
-                }
-                $this->success("更新成功！", U("Category/index"));
-            } else {
-                $error = $Category->getError();
-                $this->error($error ? $error : '栏目修改失败！');
-            }
-        } else {
-            $catid = I('get.catid', 0, 'intval');
-            $array = cache("Category");
-            foreach ($array as $k => $v) {
-                $array[$k] = getCategory($v['catid']);
-                if ($v['child'] == "0") {
-                    $array[$k]['disabled'] = "disabled";
-                } else {
-                    $array[$k]['disabled'] = "";
-                }
-            }
-            $data = getCategory($catid);
-            $setting = $data['setting'];
-            //输出可用模型
-            $modelsdata = cache("Model");
-            $models = array();
-            foreach ($modelsdata as $v) {
-                if ($v['disabled'] == 0 && $v['type'] == 0) {
-                    $models[] = $v;
-                }
-            }
-            if (!empty($array) && is_array($array)) {
-                $this->Tree->icon = array('&nbsp;&nbsp;&nbsp;│ ', '&nbsp;&nbsp;&nbsp;├─ ', '&nbsp;&nbsp;&nbsp;└─ ');
-                $this->Tree->nbsp = '&nbsp;&nbsp;&nbsp;';
-                $this->Tree->init($array);
-                $str = "<option value='\$catid' \$selected \$disabled>\$spacer \$catname</option>";
-                $categorydata = $this->Tree->get_tree(0, $str, $data['parentid']);
-            } else {
-                $categorydata = '';
-            }
-
-            $this->assign("category_php_ruleid", \Form::urlrule('content', 'category', 0, $setting['category_ruleid'], 'name="category_php_ruleid"'));
-            $this->assign("category_html_ruleid", \Form::urlrule('content', 'category', 1, $setting['category_ruleid'], 'name="category_html_ruleid"'));
-
-            $this->assign("show_php_ruleid", \Form::urlrule('content', 'show', 0, $setting['show_ruleid'], 'name="show_php_ruleid"'));
-            $this->assign("show_html_ruleid", \Form::urlrule('content', 'show', 1, $setting['show_ruleid'], 'name="show_html_ruleid"'));
-
-            $this->assign("tp_category", $this->tp_category);
-            $this->assign("tp_list", $this->tp_list);
-            $this->assign("tp_show", $this->tp_show);
-            $this->assign("tp_comment", $this->tp_comment);
-            $this->assign("tp_page", $this->tp_page);
-            $this->assign("category", $categorydata);
-            $this->assign("models", $models);
-            $this->assign("data", $data);
-            $this->assign("setting", $setting);
-            //栏目扩展字段
-            $this->assign('extendList', D("Content/Category")->getExtendField($catid));
-            //角色组
-            $this->assign("Role_group", M("Role")->order(array("id" => "ASC"))->select());
-            $this->assign("big_menu", array(U("Category/index"), "栏目管理"));
-            //权限数据
-            $this->assign("privs", M("CategoryPriv")->where(array('catid' => $catid))->select());
-            $this->assign("is_admin", User::getInstance()->isAdministrator());
-
-            if (isModuleInstall('Member')) {
-                //会员组
-                $this->assign("Member_group", cache("Member_group"));
-            }
-            if ($data['type'] == 1) {
-                //单页栏目
-                $this->display("singlepage_edit");
-            } else if ($data['type'] == 2) {
-                //外部栏目
-                $this->display("wedit");
-            } else {
-                $this->display();
-            }
         }
     }
 
