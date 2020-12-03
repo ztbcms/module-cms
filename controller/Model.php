@@ -11,6 +11,7 @@ namespace app\cms\controller;
 use app\admin\service\AdminConfigService;
 use app\cms\model\ModelModel;
 use app\cms\model\CategoryModel;
+use app\cms\service\ModelService;
 use app\common\controller\AdminController;
 use think\App;
 use think\facade\Config;
@@ -64,21 +65,16 @@ class Model extends AdminController
      */
     public function index()
     {
+        $action = input('action', '', 'trim');
+        if($action == 'getModelsList') {
+            //获取模型列表
+            return ModelService::getModelsList();
+        } else if($action == 'delModel') {
+            //删除模型
+            $modelid = input('modelid','','trim');
+            return ModelService::delModel($modelid);
+        }
         return View::fetch('index');
-    }
-
-    /**
-     * 获取全部模型
-     * @return \think\response\Json
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    public function getModelsList()
-    {
-        ModelModel::model_cache();
-        $data = ModelModel::where("type", 0)->select();
-        return self::makeJsonReturn(true, $data);
     }
 
     /**
@@ -108,30 +104,6 @@ class Model extends AdminController
                 'tmpl_template_suffix' => Config::get('template.tmpl_template_suffix')
             ]);
             return View::fetch('add');
-        }
-    }
-
-    /**
-     * 删除模型
-     * @return \think\response\Json
-     */
-    public function delModel()
-    {
-        $modelId = $this->request->get('modelid', 0, 'intval');
-        //检查该模型是否已经被使用
-        $count = CategoryModel::where("modelid", $modelId)->count();
-        if ($count) {
-            return self::makeJsonReturn(false, '', '该模型已经在使用中，请删除栏目后再进行删除！');
-        }
-        //这里可以根据缓存获取表名
-        $modeldata = ModelModel::where("modelid", $modelId)->findOrEmpty();
-        if ($modeldata->isEmpty()) {
-            return self::makeJsonReturn(false, '', '要删除的模型不存在！');
-        }
-        if ($modeldata->deleteModel($modelId)) {
-            return self::makeJsonReturn(true, '', '删除成功！');
-        } else {
-            return self::makeJsonReturn(false, '', '删除失败');
         }
     }
 

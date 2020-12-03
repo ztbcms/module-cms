@@ -108,6 +108,27 @@
             },
             computed: {},
             methods: {
+
+                // 获取数据
+                fetchData: function () {
+                    var that = this;
+                    $.ajax({
+                        url: "{:api_url('/cms/model/index')}",
+                        data : {
+                            'action' : 'getModelsList'
+                        },
+                        type: "get",
+                        dataType: "json",
+                        success: function (res) {
+                            if (res.status) {
+                                that.modelsList = res.data;
+                            } else {
+                                that.modelsList = [];
+                            }
+                        }
+                    })
+                },
+
                 // 模型导入跳转
                 importData: function () {
                     Ztbcms.openNewIframeByUrl('模型导入', "{:api_url('/cms/model/import')}")
@@ -123,22 +144,6 @@
                 // 字段管理
                 modelField:function(modelid) {
                     window.location.href = "{:api_url('/cms/Field/index')}" + '?modelid=' +  modelid
-                },
-                // 获取数据
-                fetchData: function () {
-                    var that = this;
-                    $.ajax({
-                        url: "{:api_url('/cms/model/getModelsList')}",
-                        type: "get",
-                        dataType: "json",
-                        success: function (res) {
-                            if (res.status) {
-                                that.modelsList = res.data;
-                            } else {
-                                layer.msg('操作繁忙，请稍后再试')
-                            }
-                        }
-                    })
                 },
                 // 添加模型
                 add: function () {
@@ -175,10 +180,11 @@
                     var that = this;
                     layer.confirm('确认要删除?', function () {
                         $.ajax({
-                            url: "{:api_url('/cms/model/delModel')}",
+                            url: "{:api_url('/cms/model/index')}",
                             type: "get",
                             data: {
-                                modelid: modelid
+                                modelid: modelid,
+                                action : 'delModel'
                             },
                             dataType: "json",
                             success: function (res) {

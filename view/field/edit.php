@@ -227,64 +227,64 @@
                         modelid : '{$modelid}',
                         fieldid : "{$fieldid}",
                         formtype : "{$data['formtype']}",
-                        issystem : "{$data['issystem']}", //是否作为主表
-                        field : "{$data['field']}", //字段名
-                        name : "{$data['name']}", //字段别名
+                        issystem : "", //是否作为主表
+                        field : "", //字段名
+                        name : "", //字段别名
                         tips : "", //字段提示
-                        css : "{$data['css']}",
-                        formattribute  : "{$data['formattribute']}",
-                        minlength : "{$data['minlength']}",
-                        maxlength : "{$data['maxlength']}",
-                        pattern : "{$data['pattern']}",
-                        pattern_select : "{$data['pattern_select']}",
-                        errortips : "{$data['errortips']}",
+                        css : "",
+                        formattribute  : "",
+                        minlength : "",
+                        maxlength : "",
+                        pattern : "",
+                        pattern_select : "",
+                        errortips : "",
                         setting : {
-                            'fieldtype' : "{$setting['fieldtype']}",
-                            'backstagefun' : "{$setting['backstagefun']}",
-                            'backstagefun_type' : "{$setting['backstagefun_type']}",
-                            'frontfun' : "{$setting['frontfun']}",
-                            'frontfun_type' : "{$setting['frontfun_type']}",
+                            'fieldtype' : "",
+                            'backstagefun' : "",
+                            'backstagefun_type' : "",
+                            'frontfun' : "",
+                            'frontfun_type' : "",
 
-                            'size' : "{$setting['size']}",
-                            'defaultvalue' : "{$setting['defaultvalue']}",
-                            'ispassword' : "{$setting['ispassword']}",
+                            'size' : "",
+                            'defaultvalue' : "",
+                            'ispassword' : "",
 
-                            'width' : "{$setting['width']}",
-                            'height' : "{$setting['height']}",
-                            'enablehtml' : "{$setting['enablehtml']}",
+                            'width' : "",
+                            'height' : "",
+                            'enablehtml' : "",
 
-                            'toolbar' : "{$setting['toolbar']}",
-                            'enablesaveimage' : "{$setting['enablesaveimage']}",
+                            'toolbar' : "",
+                            'enablesaveimage' : "",
 
-                            'options' : "{$setting['options']}",
-                            'boxtype' : "{$setting['boxtype']}",
-                            'minnumber' : "{$setting['minnumber']}",
-                            'maxnumber' : "{$setting['maxnumber']}",
-                            'outputtype' : "{$setting['outputtype']}",
+                            'options' : "",
+                            'boxtype' : "",
+                            'minnumber' : "",
+                            'maxnumber' : "",
+                            'outputtype' : "",
 
-                            'show_type' : "{$setting['show_type']}",
-                            'upload_allowext' : "{$setting['upload_allowext']}",
-                            'watermark' : "{$setting['watermark']}",
-                            'isselectimage' : "{$setting['isselectimage']}",
-                            'images_width' : "{$setting['images_width']}",
-                            'images_height' : "{$setting['images_height']}",
-                            'upload_number' : "{$setting['upload_number']}",
+                            'show_type' : "",
+                            'upload_allowext' : "",
+                            'watermark' : "",
+                            'isselectimage' : "",
+                            'images_width' : "",
+                            'images_height' : "",
+                            'upload_number' : "",
 
-                            'decimaldigits' : "{$setting['decimaldigits']}",
-                            'format' : "{$setting['format']}",
-                            'defaulttype' : "{$setting['defaulttype']}",
+                            'decimaldigits' : "",
+                            'format' : "",
+                            'defaulttype' : "",
 
-                            'statistics' : "{$setting['statistics']}",
-                            'downloadlink' : "{$setting['downloadlink']}",
-                            'formtext' : "{$setting['formtext']}"
+                            'statistics' : "",
+                            'downloadlink' : "",
+                            'formtext' : ""
                         },
-                        isunique : "{$data['isunique']}", //值唯一
-                        isbase : "{$data['isbase']}", //作为基本信息
-                        issearch : "{$data['issearch']}", //是否作为筛选条件
-                        isadd : "{$data['isadd']}", //是否在前端中显示
-                        isfulltext : "{$data['isfulltext']}", //是否作为全站搜索信息
-                        isomnipotent : "{$data['isomnipotent']}", //作为万能字段
-                        isposition : "{$data['isposition']}" //推荐位标签中调用
+                        isunique : "", //值唯一
+                        isbase : "", //作为基本信息
+                        issearch : "", //是否作为筛选条件
+                        isadd : "", //是否在前端中显示
+                        isfulltext : "", //是否作为全站搜索信息
+                        isomnipotent : "", //作为万能字段
+                        isposition : "" //推荐位标签中调用
                     },
                     show : {
                         isFormattribute : true,
@@ -303,7 +303,10 @@
             },
             computed: {},
             watch: {},
-            created: function() {},
+            created: function() {
+                //编辑的情况
+                if("{$fieldid}" > 0) this.getDetails();
+            },
             mounted: function() {
                 this.getParameter();
                 if("{$is_disabled_formtype}" <= 0) {
@@ -312,8 +315,7 @@
                     this.disabled.formtype = true;
                 }
 
-                //编辑的情况
-                if("{$fieldid}" > 0) this.getDetails();
+
             },
             methods: {
                 getPatternVal : function () {
@@ -389,6 +391,70 @@
                 },
                 runBack :function () {
                     window.location.href = "{:api_url('/cms/Field/index')}?modelid=" + this.formData.modelid
+                },
+                getDetails : function () {
+                    var that = this;
+                    var url = "{:api_url('/cms/field/getFieldDetails')}";
+                    that.httpGet(url, {
+                        modelid : "{$modelid}",
+                        fieldid : "{$fieldid}"
+                    }, function(res){
+                        if (res.status) {
+                            that.formData.modelid = '{$modelid}';
+                            that.formData.fieldid = "{$fieldid}";
+                            that.formData.formtype = res.data.data.formtype;
+                            that.formData.issystem = res.data.data.issystem;
+                            that.formData.field = String(res.data.data.field);
+                            that.formData.name = res.data.data.name;
+                            that.formData.tips = res.data.data.tips;
+                            that.formData.css = res.data.data.css;
+                            that.formData.formattribute = res.data.data.formattribute;
+                            that.formData.minlength = res.data.data.minlength;
+                            that.formData.maxlength = res.data.data.maxlength;
+                            that.formData.pattern = res.data.data.pattern;
+                            that.formData.pattern_select = res.data.data.pattern_select;
+                            that.formData.errortips = res.data.data.errortips;
+                            that.formData.isunique = String(res.data.data.isunique);
+                            that.formData.isbase = String(res.data.data.isbase);
+                            that.formData.issearch = String(res.data.data.issearch);
+                            that.formData.isadd = String(res.data.data.isadd);
+                            that.formData.isfulltext = String(res.data.data.isfulltext);
+                            that.formData.isomnipotent = String(res.data.data.isomnipotent);
+                            that.formData.isposition = String(res.data.data.isposition);
+                            that.formData.setting.fieldtype = res.data.setting.fieldtype;
+                            that.formData.setting.backstagefun = res.data.setting.backstagefun;
+                            that.formData.setting.backstagefun_type = String(res.data.setting.backstagefun_type);
+                            that.formData.setting.frontfun = res.data.setting.frontfun;
+                            that.formData.setting.frontfun_type = String(res.data.setting.frontfun_type);
+                            that.formData.setting.size = res.data.setting.size;
+                            that.formData.setting.defaultvalue = res.data.setting.defaultvalue;
+                            that.formData.setting.ispassword = res.data.setting.ispassword;
+                            that.formData.setting.width = res.data.setting.width;
+                            that.formData.setting.height = res.data.setting.height;
+                            that.formData.setting.enablehtml = res.data.setting.enablehtml;
+                            that.formData.setting.toolbar = res.data.setting.toolbar;
+                            that.formData.setting.enablesaveimage = res.data.setting.enablesaveimage;
+                            that.formData.setting.options = res.data.setting.options;
+                            that.formData.setting.boxtype = res.data.setting.boxtype;
+                            that.formData.setting.width = res.data.setting.width;
+                            that.formData.setting.minnumber = res.data.setting.minnumber;
+                            that.formData.setting.maxnumber = res.data.setting.maxnumber;
+                            that.formData.setting.outputtype = res.data.setting.outputtype;
+                            that.formData.setting.show_type = res.data.setting.show_type;
+                            that.formData.setting.upload_allowext = res.data.setting.upload_allowext;
+                            that.formData.setting.watermark = res.data.setting.watermark;
+                            that.formData.setting.isselectimage = res.data.setting.isselectimage;
+                            that.formData.setting.images_width = res.data.setting.images_width;
+                            that.formData.setting.images_height = res.data.setting.images_height;
+                            that.formData.setting.upload_number = res.data.setting.upload_number;
+                            that.formData.setting.decimaldigits = res.data.setting.decimaldigits;
+                            that.formData.setting.format = res.data.setting.format;
+                            that.formData.setting.defaulttype = res.data.setting.defaulttype;
+                            that.formData.setting.statistics = res.data.setting.statistics;
+                            that.formData.setting.downloadlink = res.data.setting.downloadlink;
+                            that.formData.setting.formtext = res.data.setting.formtext;
+                        }
+                    });
                 }
             }
         });
