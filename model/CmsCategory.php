@@ -11,6 +11,7 @@ namespace app\cms\model;
 use think\Model;
 use think\facade\App;
 use app\common\libs\helper\TreeHelper;
+use think\facade\Db;
 
 class CmsCategory extends Model
 {
@@ -78,6 +79,7 @@ class CmsCategory extends Model
             if (empty($data['setting']['category_ruleid'])) {
                 return createReturn(false, '', '栏目URL规则没有设置');
             }
+
             if (empty($data['setting']['show_ruleid']) && $data['child']) {
                 return createReturn(false, '', '栏目内容页URL规则没有设置！');
             }
@@ -133,7 +135,7 @@ class CmsCategory extends Model
             if (isset($post['extend'])) {
                 $this->extendField($catid, $post);
             }
-            return createReturn(true,['catid'=>$catid],'添加成功');
+            return createReturn(true, ['catid' => $catid], '添加成功');
         } else {
             return createReturn(false, '', '栏目添加失败！');
         }
@@ -144,7 +146,8 @@ class CmsCategory extends Model
      * @param array $post
      * @return array|bool
      */
-    public function editCategory($post = []){
+    public function editCategory($post = [])
+    {
         if (empty($post)) {
             return createReturn(false, '', '添加栏目数据不能为空！');
         }
@@ -161,7 +164,7 @@ class CmsCategory extends Model
         $data['setting'] = $post['setting'];
 
         //内部栏目
-        if ((int) $info['type'] != 2) {
+        if ((int)$info['type'] != 2) {
             if ($data['setting']['ishtml']) {
                 $data['setting']['category_ruleid'] = $post['category_html_ruleid'];
             } else {
@@ -185,7 +188,7 @@ class CmsCategory extends Model
         //栏目是否生成静态
         $data['sethtml'] = $data['setting']['ishtml'] ? 1 : 0;
         //判断URL规则是否有设置
-        if ((int) $info['type'] == 0) {
+        if ((int)$info['type'] == 0) {
             //内部栏目
             if (empty($data['setting']['category_ruleid'])) {
                 return createReturn(false, '', '栏目URL规则没有设置！');
@@ -198,7 +201,7 @@ class CmsCategory extends Model
             if (!$data['modelid']) {
                 return createReturn(false, '', '对不起所属的模型不能为空！');
             }
-        } else if ((int) $info['type'] == 1) {
+        } else if ((int)$info['type'] == 1) {
 
             //单页栏目
             if (empty($data['setting']['category_ruleid'])) {
@@ -223,7 +226,7 @@ class CmsCategory extends Model
         $data['sethtml'] = $data['setting']['ishtml'] ? 1 : 0;
 
         //判断URL规则是否有设置
-        if ((int) $info['type'] == 0) {
+        if ((int)$info['type'] == 0) {
             //内部栏目
             if (empty($data['setting']['category_ruleid'])) {
                 return createReturn(false, '', '栏目URL规则没有设置！');
@@ -237,7 +240,7 @@ class CmsCategory extends Model
             if (!$data['modelid']) {
                 return createReturn(false, '', '对不起所属的模型不能为空！');
             }
-        } else if ((int) $info['type'] == 1) {
+        } else if ((int)$info['type'] == 1) {
             //单页栏目
             if (empty($data['setting']['category_ruleid'])) {
                 return createReturn(false, '', '栏目URL规则没有设置！');
@@ -257,8 +260,8 @@ class CmsCategory extends Model
 
 
         if ($this->where([
-            ['catdir' ,'=', $data['catdir']],
-            ['catid' ,'<>', $catid]
+            ['catdir', '=', $data['catdir']],
+            ['catid', '<>', $catid]
         ])->count()) {
             return createReturn(false, '', '目录名称已存在！');
         };
@@ -276,7 +279,7 @@ class CmsCategory extends Model
 //            $data['domain'] = $data['url'];
 //        }
 
-        if ($this->where(['catid'=>$catid])->update($data) !== false) {
+        if ($this->where(['catid' => $catid])->update($data) !== false) {
             //更新缓存
             cache('Category', NULL);
             getCategory($catid, '', true);
@@ -289,7 +292,7 @@ class CmsCategory extends Model
             if (isset($post['extend'])) {
                 $this->extendField($catid, $post);
             }
-            return createReturn(true,['catid'=>$catid],'编辑成功');
+            return createReturn(true, ['catid' => $catid], '编辑成功');
         } else {
             return createReturn(false, '', '栏目修改失败！');
         }
@@ -367,10 +370,10 @@ class CmsCategory extends Model
                 }
 
                 $rs['catid'] = $catid;
-                if(!$rs['catid'])   return createReturn(false, '', '栏目ID不能为空！');
-                if(!$rs['fieldname']) return createReturn(false, '', '键名不能为空！');
-                if(!$rs['type']) return createReturn(false, '', '类型不能为空！');
-                if(!$rs['fieldname']) return createReturn(false, '', '键名不能为空！');
+                if (!$rs['catid']) return createReturn(false, '', '栏目ID不能为空！');
+                if (!$rs['fieldname']) return createReturn(false, '', '键名不能为空！');
+                if (!$rs['type']) return createReturn(false, '', '类型不能为空！');
+                if (!$rs['fieldname']) return createReturn(false, '', '键名不能为空！');
 
                 $data = $rs;
                 $data['createtime'] = $time;
@@ -426,12 +429,138 @@ class CmsCategory extends Model
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    static function getCategoryTree(){
+    static function getCategoryTree()
+    {
         $list = self::select();
-        if(!$list->isEmpty())  $list = $list->toArray();
+        if (!$list->isEmpty()) $list = $list->toArray();
         $config['idKey'] = 'catid';
-        return TreeHelper::getTreeShapeArray($list,0,0,$config);
+        return TreeHelper::getTreeShapeArray($list, 0, 0, $config);
     }
 
+    /**
+     * 获取所有栏目
+     * @return array
+     */
+    static function getCategoryToArray()
+    {
+        $list = self::select();
+        if (!$list->isEmpty()) $list = $list->toArray() ?: [];
+        $config['idKey'] = 'catid';
+        $config['parentKey'] = 'parentid';
+        $list = TreeHelper::arrayToTree($list, 0, $config);
+        return $list;
+    }
+
+    /**
+     * 删除栏目
+     * @param int $catid
+     * @return bool
+     */
+    public function deleteCatid($catid = 0)
+    {
+        if (!$catid) return false;
+        $where = [];
+        //取得子栏目
+        if (is_array($catid)) {
+
+            $where[] = ['catid', 'IN', $catid];
+            $catList = $this->where($where)->select();
+            foreach ($catList as $cat) {
+                //是否存在子栏目
+                if ($cat['child'] && $cat['type'] == 0) {
+                    $arrchildid = explode(",", $cat['arrchildid']);
+                    unset($arrchildid[0]);
+                    $catid = array_merge($catid, $arrchildid);
+                }
+            }
+
+        } else {
+            $where[] = ['catid', '=', $catid];
+
+            $catInfo = $this->where($where)->find();
+            //是否存在子栏目
+            if ($catInfo['child'] && $catInfo['type'] == 0) {
+                $arrchildid = explode(",", $catInfo['arrchildid']);
+                unset($arrchildid[0]);
+                $catid = array_merge($arrchildid, array($catid));
+                $where[] = ['catid', 'IN', $catid];
+            }
+        }
+
+
+        //检查是否存在数据，存在数据不执行删除
+        include App::getRootPath() . 'app/cms/common/common.php';
+        if (is_array($catid)) {
+            $modeid = array();
+            foreach ($catid as $cid) {
+                $catinfo = getCategory($cid);
+                if ($catinfo['modelid'] && $catinfo['type'] == 0) {
+                    $modeid[$catinfo['modelid']] = $catinfo['modelid'];
+                }
+            }
+
+            foreach ($modeid as $mid) {
+                $tbname = ucwords(getModel($mid, 'tablename'));
+                if (!$tbname) {
+                    return createReturn(false, '', '对不起，删除的模型不存在！');
+                }
+                $catidCount = Db::name($tbname)->where([
+                    ['catid', 'in', $catid]
+                ])->count();
+                if ($tbname && $catidCount > 0) {
+                    return createReturn(false, '', '对不起，该栏目下存在内容无法删除！');
+                }
+            }
+        } else {
+            $catinfo = getCategory($catid);
+            $tbname = ucwords(getModel($catInfo['modelid'], 'tablename'));
+
+            $catidCount = Db::name($tbname)->where([
+                ['catid', '=', $catid]
+            ])->count();
+
+            if (!$tbname && $catinfo['type'] == 0) {
+                return createReturn(false, '', '对不起，删除的模型不存在！');
+            }
+
+            if ($tbname && $catinfo['type'] == 0 && $catidCount > 0) {
+                return createReturn(false, '', '对不起，该栏目下存在内容无法删除！');
+            }
+        }
+
+        $status = $this->where($where)->delete();
+        //更新缓存
+        cache('Category', NULL);
+
+        if (false !== $status) {
+
+            //删除对应栏目的权限列表
+            $CmsCategoryPiv = new CmsCategoryPiv();
+            $CmsCategoryPiv->where($where)->delete();
+
+// todo : 未处理文件附件部分
+//            if (is_array($catid)) {
+//                //删除附件
+//                foreach ($catid as $cid) {
+//                    service("Attachment")->api_delete('catid-' . $cid);
+//                }
+//            } else {
+//                service("Attachment")->api_delete('catid-' . $catid);
+//            }
+            return createReturn(true, '', '删除成功！');
+        } else {
+            return createReturn(false, '', '对不起，删除的栏目失败！');
+        }
+    }
+
+    /**
+     * 清除缓存
+     * @return array
+     */
+    public function clearCache()
+    {
+        cache('Category', NULL);
+        return createReturn(true, '', '清除成功！');
+    }
 
 }

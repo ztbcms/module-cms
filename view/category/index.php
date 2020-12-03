@@ -1,11 +1,11 @@
 
 <div id="app" style="padding: 8px;" v-cloak>
     <el-card>
-        <div class="h_a">温馨提示</div>
-        <div class="prompt_text">
-            <p>1、请在添加、修改栏目全部完成后，<a href="{:api_url("/cms/category/public_cache")}">更新栏目缓存</a>，否则可能出现未知错误！</p>
-            <p>2、栏目<font color="blue">ID</font>为<font color="blue">蓝色</font>才可以添加内容。可以使用“终极属性转换”进行转换！</p>
-        </div>
+
+        <el-alert type="success" style="margin-bottom: 10px;">
+            <p>温馨提示：</p>
+            <p>1、请在添加、修改栏目全部完成后，更新栏目缓存，否则可能出现未知错误！</p>
+        </el-alert>
 
         <el-button class="filter-item" style="margin-left: 10px;margin-bottom: 15px;" size="small" type="primary" @click="details('')">
             添加栏目
@@ -21,13 +21,7 @@
             :data="list"
             highlight-current-row
             style="width: 100%;"
-            @selection-change="handleSelectionChange"
         >
-            <el-table-column
-                type="selection"
-                width="55"
-                label="全选">
-            </el-table-column>
 
             <el-table-column label="排序" width="80px" align="center">
                 <template slot-scope="{row}">
@@ -43,6 +37,8 @@
 
             <el-table-column label="栏目名称" align="">
                 <template slot-scope="scope">
+                    <template v-for="i in scope.row.level * 2"><span>&nbsp;</span></template>
+                    <template v-if="scope.row.level > 0"><span> ∟</span></template>
                     <span>{{ scope.row.catname }}</span>
                 </template>
             </el-table-column>
@@ -67,6 +63,8 @@
 
             <el-table-column label="域名绑定须知" align="">
                 <template slot-scope="scope">
+                    <template v-for="i in scope.row.level * 2"><span>&nbsp;</span></template>
+                    <template v-if="scope.row.level > 0"><span> ∟</span></template>
                     <span>{{ scope.row.catname }}</span>
                 </template>
             </el-table-column>
@@ -112,7 +110,6 @@
             data: {
                 tableKey: 0,
                 list: [],
-                multipleSelection: [],
                 total: 0,
                 listQuery: {
                     page: 1,
@@ -124,10 +121,21 @@
             watch: {},
             filters: {},
             methods: {
-                // 全选
-                handleSelectionChange: function (val) {
-                    this.multipleSelection = val;
-                    console.log(this.multipleSelection)
+                //获取栏目详情
+                details : function (catid) {
+                    var that = this;
+                    var url = '{:api_url("/cms/category/details")}';
+                    if(catid) url += '&catid=' + catid;
+
+                    layer.open({
+                        type: 2,
+                        title: '管理',
+                        content: url,
+                        area: ['95%', '95%'],
+                        end: function(){
+                            that.getList();
+                        }
+                    })
                 },
                 // 获取列表
                 getList: function () {
@@ -144,16 +152,39 @@
                         }
                     })
                 },
+                // 删除
+                handleDelete: function (index) {
+                    var that = this;
+                    var url = '{:api_url("/cms/category/index")}';
+                    layer.confirm('您确定需要删除？', {
+                        btn: ['确定','取消'] //按钮
+                    }, function(){
+                        var data = {
+                            "catid" : index,
+                            "action" : 'doDelete'
+                        };
+                        that.httpPost(url, data, function(res){
+                            if(res.status){
+                                layer.msg('操作成功', {icon: 1});
+                                that.getList();
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        });
+                    });
+                },
+
                 // 排序批量
                 listOrder: function () {
                     var that = this;
                     var formData = [];
-                    this.multipleSelection.forEach(function (val, index) {
+                    this.list.forEach(function (val, index) {
                         formData.push({
                             catid: val.catid,
-                            listorder: val.listorder,
+                            listorder: val.listorder
                         })
                     });
+
                     if (formData.length > 0) {
                         layer.confirm('确认要进行排序?', function () {
                             $.ajax({
@@ -175,6 +206,7 @@
                         layer.msg('请选择')
                     }
                 },
+
                 // 更新缓存或者打开访问链接
                 updateCache:function(url,type){
                     var that = this;
@@ -191,62 +223,11 @@
                     if(type == 'open'){
                         window.open(url)
                     }
-                },
-                // 删除
-                handleDelete: function (index) {
-                    var that = this;
-                    var url = '{:api_url("/admin/Menu/doDelete")}';
-                    layer.confirm('您确定需要删除？', {
-                        btn: ['确定','取消'] //按钮
-                    }, function(){
-                        var data = {
-                            "id": index
-                        };
-                        that.httpPost(url, data, function(res){
-                            if(res.status){
-                                layer.msg('操作成功', {icon: 1});
-                                that.getList();
-                            } else {
-                                layer.msg(res.msg);
-                            }
-                        });
-                    });
-                },
-
-                details : function (id) {
-                    var that = this;
-                    var url = '{:api_url("/cms/Category/details")}';
-                    if(id) url += '&id=' + id;
-                    layer.open({
-                        type: 2,
-                        title: '管理',
-                        content: url,
-                        area: ['95%', '95%'],
-                        end: function(){
-                            that.getList();
-                        }
-                    })
-                },
-                linkMenuAdd: function (parentid) {
-                    var that = this;
-                    var url = '{:api_url("/admin/Menu/details")}';
-                    if(parentid) url += '&parentid=' + parentid;
-                    layer.open({
-                        type: 2,
-                        title: '管理',
-                        content: url,
-                        area: ['95%', '95%'],
-                        end: function(){
-                            that.getList();
-                        }
-                    })
-                },
+                }
             },
             mounted: function () {
                 this.getList();
-            },
+            }
         })
     })
 </script>
-<script src="/statics/js/common.js"></script>
-<link href="/statics/css/admin_style.css" rel="stylesheet"/>

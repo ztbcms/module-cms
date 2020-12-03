@@ -1013,6 +1013,7 @@ class ModelFieldModel extends BaseModel
         if (!isset($setting['defaulttype'])) $setting['defaulttype'] = 0;
         if (!isset($setting['statistics'])) $setting['statistics'] = '';
         if (!isset($setting['downloadlink'])) $setting['downloadlink'] = '';
+        if (!isset($setting['formtext']))  $setting['formtext'] = '';
 
         return $setting;
     }

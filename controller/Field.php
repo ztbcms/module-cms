@@ -107,6 +107,46 @@ class Field extends AdminController
     }
 
 
+    public function getFieldDetails(){
+        //模型ID
+        $modelId = input('modelid',0,'intval');
+        //字段ID
+        $fieldId = input('fieldid',0,'intval');
+
+        //模型信息
+        $modeData = ModelModel::where("modelid", $modelId)->findOrEmpty();
+
+        //字段信息
+        $fieldWhere[] = ["fieldid", "=", $fieldId];
+        $fieldWhere[] = ["modelid", "=", $modelId];
+        $fieldData = $this->modelfield->where($fieldWhere)->findOrEmpty();
+
+        //字段路径
+        $fiepath = $this->fields . "{$fieldData['formtype']}/";
+        //======获取字段类型的表单编辑界面===========
+        //字段扩展配置
+
+        $setting = unserialize($fieldData['setting']);
+        $setting = $this->modelfield->getDefaultSettingData($setting);
+
+        //字段类型过滤
+        $all_field = array();
+        $no_all_field = [];
+        foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
+            if (!$this->modelfield->isEditField($formtype)) {
+                $no_all_field[] = $formtype;
+            }
+            $all_field[$formtype] = $name;
+        }
+
+        return self::createReturn(true,[
+            'modeData' => $modeData,
+            'setting' => $setting,
+            'all_field' => $all_field,
+            'data' => $fieldData
+        ],'获取详情信息');
+    }
+
     /**
      * 编辑字段信息
      * @return string|\think\response\Json

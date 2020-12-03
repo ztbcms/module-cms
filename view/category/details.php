@@ -23,7 +23,7 @@
                             <el-select v-model="formData.info.parentid" placeholder="请选择模型" :style="{width: '100%'}">
                                 <el-option label="作为一级栏目" value="0"></el-option>
                                 {volist name="category" id="vo"}
-                                <el-option label="{$vo.name}" value="{$vo.modelid}"></el-option>
+                                <el-option label="{$vo.catname}" value="{$vo.modelid}"></el-option>
                                 {/volist}
                             </el-select>
                         </el-form-item>
@@ -101,7 +101,7 @@
                         },
                         isbatch: '0',  //单条添加
                         category_php_ruleid: '1',  //是否生成静态目录
-                        show_php_ruleid: '', //内容页URL规则
+                        show_php_ruleid: '1', //内容页URL规则
                     },
                     show: {},
                     disabled: {},
@@ -150,7 +150,7 @@
                     data.action = 'details';
                     that.httpPost(url, data, function (res) {
                         if (res.data) {
-                            that.formData.info.modelid = res.data.modelid;
+                            that.formData.info.modelid = String(res.data.modelid);
                             that.formData.info.parentid = String(res.data.parentid);
                             that.formData.info.catname = res.data.catname;
                             that.formData.info.catdir = res.data.catdir;

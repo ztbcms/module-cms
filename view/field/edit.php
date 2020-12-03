@@ -230,7 +230,7 @@
                         issystem : "{$data['issystem']}", //是否作为主表
                         field : "{$data['field']}", //字段名
                         name : "{$data['name']}", //字段别名
-                        tips : "{$data['tips']}", //字段提示
+                        tips : "", //字段提示
                         css : "{$data['css']}",
                         formattribute  : "{$data['formattribute']}",
                         minlength : "{$data['minlength']}",
@@ -311,6 +311,9 @@
                 } else {
                     this.disabled.formtype = true;
                 }
+
+                //编辑的情况
+                if("{$fieldid}" > 0) this.getDetails();
             },
             methods: {
                 getPatternVal : function () {
