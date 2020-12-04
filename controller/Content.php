@@ -8,6 +8,7 @@
 namespace app\cms\controller;
 
 use app\cms\model\CmsCategory;
+use app\cms\model\CmsModelField;
 use app\cms\service\ContentService;
 use app\common\controller\AdminController;
 use think\facade\View;
@@ -19,8 +20,6 @@ use think\facade\View;
  */
 class Content extends AdminController
 {
-
-
     /**
      * 内容管理列表
      * @return array|string
@@ -80,17 +79,22 @@ class Content extends AdminController
 
         if($action == 'getDisplaySettin'){
             //获取显示设置
-            return ContentService::getDetailsDisplaySettin($catid);
+            return ContentService::getDetailsDisplaySettin($catid,$id);
         } else if($action == 'submitForm') {
             //提交内容
             $post = input('post.');
-            var_dump($post);
-            exit;
+            return ContentService::submitForm($post);
         }
 
+
+        $CmsModelField = new CmsModelField();
+        $where[] = ['formtype','=','editor'];
+        $editor = $CmsModelField->where($where)->group('field')->column('field') ?: [];
+        $editor = implode(',',$editor);
         return View::fetch('details',[
             'catid' => $catid,
-            'id' => $id
+            'id' => $id,
+            'editor' => $editor
         ]);
     }
 
