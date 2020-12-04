@@ -86,7 +86,7 @@
                 form: {
                     category_template: 'category{$tmpl_template_suffix}',
                     list_template: 'list{$tmpl_template_suffix}',
-                    show_template: 'show{$tmpl_template_suffix}',
+                    show_template: 'show{$tmpl_template_suffix}'
                 }
             },
             watch: {},
@@ -95,7 +95,7 @@
                 onSubmit: function () {
                     var that = this;
                     this.httpPost("{:api_url('/cms/Model/add')}", this.form, function (res) {
-                        layer.msg(res.msg)
+                        layer.msg(res.msg);
                         if (res.status) {
                             that.onCancel(1000)
                         }
@@ -107,12 +107,11 @@
                             window.parent.layer.closeAll();
                         }, time);
                     }
-                },
+                }
             },
             mounted: function () {
 
-            },
-
+            }
         })
     })
 </script>

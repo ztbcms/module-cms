@@ -153,12 +153,14 @@ class ModelModel extends Model
             $this->error = $validate->getError();
             return false;
         }
+
         // 是否重复模型名称
         $checkName = $this->where('name', '=', $data['name'])->findOrEmpty();
         if (!$checkName->isEmpty()) {
             $this->error = '该模型名称已经存在!';
             return false;
         }
+
         // 是否重复表名称
         $checkTableName = $this->checkTablename($data['tablename']);
         if (!$checkTableName) {

@@ -198,13 +198,14 @@
                 },
                 // 改变模型状态
                 changeStatus: function (modelid, disabled) {
-                    var that = this
+                    var that = this;
                     $.ajax({
-                        url: "{:api_url('/cms/model/disabled')}",
+                        url: "{:api_url('/cms/model/index')}",
                         type: "get",
                         data: {
                             modelid: modelid,
-                            disabled: disabled
+                            disabled: disabled,
+                            action : 'disabled'
                         },
                         dataType: "json",
                         success: function (res) {
