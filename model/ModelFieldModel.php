@@ -89,19 +89,6 @@ class ModelFieldModel extends BaseModel
     }
 
     /**
-     * 根据模型ID读取全部字段信息
-     * @param $modelid 模型ID
-     * @return \think\Collection
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\DbException
-     * @throws \think\db\exception\ModelNotFoundException
-     */
-    public function getModelField($modelid)
-    {
-        return $this->where("modelid", $modelid)->order("listorder", "ASC")->select();
-    }
-
-    /**
      * 检查该字段是否允许添加
      * @param string $field 字段名称
      * @param string $field_type 字段类型

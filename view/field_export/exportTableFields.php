@@ -75,15 +75,16 @@
                 getData: function () {
                     var that = this;
                     var data = {
-                        tablename: this.tablename
-                    }
+                        tablename: this.tablename,
+                        action : 'getExportTableFieldsInfo'
+                    };
                     if(!this.tablename){
-                        layer.msg('请输入表名')
+                        layer.msg('请输入表名');
                         return
                     }
 
                     $.ajax({
-                        url: '{:api_url("cms/FieldExport/getExportTableFieldsInfo")}',
+                        url: '{:api_url("cms/FieldExport/exportTableFields")}',
                         type: 'post',
                         dataType: 'json',
                         data: data,

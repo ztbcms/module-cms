@@ -46,13 +46,14 @@
                 form:{
                     name: '',
                     tablename: '',
-                    file: null,
+                    file: null
                 }
             },
             watch: {},
             filters: {},
             methods: {
                 onSubmit: function () {
+                    var that = this;
                     var file_obj = document.getElementById('file_obj').files[0];
                     if (typeof (file_obj) == "undefined") {
                         layer.msg("请选择需要导入的文件");
@@ -71,20 +72,22 @@
                         processData: false,  //tell jQuery not to process the data
                         contentType: false,  //tell jQuery not to set contentType
                         success: function (result) {
-                            layer.msg(result.msg)
-                            if (result.code == 0) {
-                                location.reload()
-                            }
+                            layer.msg(result.msg);
+                            that.onCancel(1000);
                         }
                     })
                 },
-                onCancel: function () {
-
-                },
+                onCancel: function (time) {
+                    if (window !== window.parent) {
+                        setTimeout(function () {
+                            window.parent.layer.closeAll();
+                        }, time);
+                    }
+                }
             },
             mounted: function () {
 
-            },
+            }
 
         })
     })

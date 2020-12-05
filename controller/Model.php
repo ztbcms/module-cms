@@ -7,7 +7,6 @@
 
 namespace app\cms\controller;
 
-
 use app\common\controller\AdminController;
 use think\App;
 use think\facade\View;
@@ -83,36 +82,16 @@ class Model extends AdminController
 
     /**
      * 模型导入
-     * @return \think\response\Json|\think\response\View
+     * @return array|\think\response\View
      */
     public function import()
     {
         if ($this->request->isPost()) {
-            if (empty($_FILES['file'])) {
-                return self::makeJsonReturn(false, null, "请选择上传文件！");
-            }
-            $filename = $_FILES['file']['tmp_name'];
-            if (strtolower(substr($_FILES['file']['name'], -3, 3)) != 'txt') {
-                return self::makeJsonReturn(false, null, "上传的文件格式有误！");
-            }
-            //读取文件
-            $data = file_get_contents($filename);
-            //删除
-            @unlink($filename);
-            //模型名称
-
-            $name = $this->request->post('name',null,'trim');
             //模型表键名
-            $tablename = $this->request->post('tablename',null,'trim');
-            //导入
-            $ModelModel= new ModelModel();
-            $status = $ModelModel->import($data, $tablename, $name);
-            if ($status) {
-                return self::makeJsonReturn(true, null, "模型导入成功，请及时更新缓存！");
-            } else {
-                $error = $ModelModel->error ?: '模型导入失败！';
-                return self::makeJsonReturn(false, null, $error);
-            }
+            $tablename = input('tablename','','trim');
+            //模型名称
+            $name = input('name','','trim');
+            return json(ModelService::importModel($tablename,$name));
         } else {
             return View();
         }
@@ -128,21 +107,8 @@ class Model extends AdminController
     public function export()
     {
         //需要导出的模型ID
-        $modelId = $this->request->get('modelid', 0, 'intval');
-        if (empty($modelId)) {
-            return self::makeJsonReturn(false, '', '请指定需要导出的模型!');
-        }
-        //导出模型
-        $ModelModel = new ModelModel();
-        $res = $ModelModel->export($modelId);
-        if ($res) {
-            header("Content-type: application/octet-stream");
-            header("Content-Disposition: attachment; filename=ztb_model_" . $modelId . '.txt');
-            echo $res;
-        } else {
-            $error = $ModelModel->error ?: '模型导出失败！';
-            return self::makeJsonReturn(false, '', $error);
-        }
+        $modelId = input('modelid',0,'intval');
+        return json(ModelService::exportModel($modelId));
     }
 
 }

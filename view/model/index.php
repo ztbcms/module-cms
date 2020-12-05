@@ -131,7 +131,16 @@
 
                 // 模型导入跳转
                 importData: function () {
-                    Ztbcms.openNewIframeByUrl('模型导入', "{:api_url('/cms/model/import')}")
+                    var that = this;
+                    layer.open({
+                        type: 2,
+                        title: '模型导入',
+                        content: "{:api_url('/cms/model/import')}",
+                        area: ['100%', '100%'],
+                        end: function () {  //回调函数
+                            that.fetchData()
+                        }
+                    })
                 },
                 // 查询字段
                 searchField:function() {

@@ -60,12 +60,13 @@
                 },
                 getData: function () {
                     var that = this;
-                    var data = {}
+                    var data = {};
                     if(that.getUrlQuery('modelid')){
                         data['modelid'] = that.getUrlQuery('modelid');
                     }
+                    data['action'] = 'getExportModelFieldsInfo';
                     $.ajax({
-                        url: '{:api_url("cms/FieldExport/getExportModelFieldsInfo")}',
+                        url: '{:api_url("cms/FieldExport/exportModelFields")}',
                         type: 'post',
                         dataType: 'json',
                         data: data,

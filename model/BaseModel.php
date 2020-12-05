@@ -70,6 +70,11 @@ class BaseModel extends Model
         return array_key_exists($field, $fields);
     }
 
+    /**
+     * 执行一段SQL
+     * @param $sql
+     * @return mixed
+     */
     public function execute($sql){
         return Db::execute($sql);
     }

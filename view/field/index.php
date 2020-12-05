@@ -157,42 +157,15 @@
             },
             computed: {},
             methods: {
-                // 删除字段
-                clickDel: function (modelid, fieldid) {
-                    var that = this;
-                    layer.confirm('确认要删除?', function () {
-                        $.ajax({
-                            url: "{:api_url('/cms/field/delFields')}",
-                            type: "post",
-                            data: {
-                                modelid: modelid,
-                                fieldid: [fieldid],
-                            },
-                            dataType: "json",
-                            success: function (res) {
-                                layer.msg(res.msg);
-                                if (res.status) {
-                                    that.fetchData();
-                                }
-                            }
-                        })
-                    });
-                },
-
-
-                // 全选
-                handleSelectionChange: function (val) {
-                    this.multipleSelection = val;
-                    console.log(this.multipleSelection)
-                },
                 // 获取数据
                 fetchData: function () {
                     var that = this;
                     $.ajax({
-                        url: "{:api_url('cms/field/getFieldData')}",
+                        url: "{:api_url('cms/field/index')}",
                         type: "get",
                         data: {
-                            modelid: "{:input('modelid')}"
+                            'modelid' : "{:input('modelid')}",
+                            'action' : 'getFieldData'
                         },
                         dataType: "json",
                         success: function (res) {
@@ -204,75 +177,17 @@
                         }
                     })
                 },
-                // 批量删除字段
-                batchDel: function () {
-                    var that = this;
-                    var fieldids = [];
-                    this.multipleSelection.forEach(function (val, index) {
-                        fieldids.push(val.fieldid)
-                    });
-                    if (fieldids.length > 0) {
-                        layer.confirm('确认要删除?', function () {
-                            $.ajax({
-                                url: "{:api_url('/cms/field/delFields')}",
-                                type: "post",
-                                data: {
-                                    modelid: that.modelid,
-                                    fieldid: fieldids,
-                                },
-                                dataType: "json",
-                                success: function (res) {
-                                    layer.msg(res.msg)
-                                    if (res.status) {
-                                        that.fetchData();
-                                    }
-                                }
-                            })
-                        });
-                    } else {
-                        layer.msg('请选择')
-                    }
-                },
-                // 排序批量
-                listOrder: function () {
-                    var that = this;
-                    var formData = [];
-                    this.multipleSelection.forEach(function (val, index) {
-                        formData.push({
-                            fieldid: val.fieldid,
-                            listorder: val.listorder,
-                        })
-                    });
-                    if (formData.length > 0) {
-                        layer.confirm('确认要进行排序?', function () {
-                            $.ajax({
-                                url: "{:api_url('/cms/field/listOrder')}",
-                                type: "post",
-                                data: {
-                                    data: formData
-                                },
-                                dataType: "json",
-                                success: function (res) {
-                                    layer.msg(res.msg)
-                                    if (res.status) {
-                                        that.fetchData();
-                                    }
-                                }
-                            })
-                        });
-                    } else {
-                        layer.msg('请选择')
-                    }
-                },
+
                 // 启用/禁用
                 changeStatus: function (fieldid, disabled) {
                     var that = this
                     $.ajax({
-                        url: "{:api_url('/cms/field/disabled')}",
+                        url: "{:api_url('/cms/field/index')}",
                         type: "post",
                         data: {
                             fieldid: [fieldid],
-                            disabled: disabled
+                            disabled: disabled,
+                            action : 'disabledField'
                         },
                         dataType: "json",
                         success: function (res) {
@@ -293,11 +208,12 @@
                     });
                     if (fieldids.length > 0) {
                         $.ajax({
-                            url: "{:api_url('/cms/field/disabled')}",
+                            url: "{:api_url('/cms/field/index')}",
                             type: "post",
                             data: {
                                 fieldid: fieldids,
-                                disabled: disabled
+                                disabled: disabled,
+                                action : 'disabledField'
                             },
                             dataType: "json",
                             success: function (res) {
@@ -311,6 +227,100 @@
                         layer.msg('请选择')
                     }
                 },
+
+                // 删除字段
+                clickDel: function (modelid, fieldid) {
+                    var that = this;
+                    layer.confirm('确认要删除?', function () {
+                        $.ajax({
+                            url: "{:api_url('/cms/field/index')}",
+                            type: "post",
+                            data: {
+                                modelid: modelid,
+                                fieldid: [fieldid],
+                                action : 'delFields'
+                            },
+                            dataType: "json",
+                            success: function (res) {
+                                layer.msg(res.msg);
+                                if (res.status) {
+                                    that.fetchData();
+                                }
+                            }
+                        })
+                    });
+                },
+
+                // 批量删除字段
+                batchDel: function () {
+                    var that = this;
+                    var fieldids = [];
+                    this.multipleSelection.forEach(function (val, index) {
+                        fieldids.push(val.fieldid)
+                    });
+                    if (fieldids.length > 0) {
+                        layer.confirm('确认要删除?', function () {
+                            $.ajax({
+                                url: "{:api_url('/cms/field/index')}",
+                                type: "post",
+                                data: {
+                                    modelid: that.modelid,
+                                    fieldid: fieldids,
+                                    action : 'delFields'
+                                },
+                                dataType: "json",
+                                success: function (res) {
+                                    layer.msg(res.msg)
+                                    if (res.status) {
+                                        that.fetchData();
+                                    }
+                                }
+                            })
+                        });
+                    } else {
+                        layer.msg('请选择')
+                    }
+                },
+
+                // 全选
+                handleSelectionChange: function (val) {
+                    this.multipleSelection = val;
+                    console.log(this.multipleSelection)
+                },
+
+                // 排序批量
+                listOrder: function () {
+                    var that = this;
+                    var formData = [];
+                    this.multipleSelection.forEach(function (val, index) {
+                        formData.push({
+                            fieldid: val.fieldid,
+                            listorder: val.listorder,
+                        })
+                    });
+                    if (formData.length > 0) {
+                        layer.confirm('确认要进行排序?', function () {
+                            $.ajax({
+                                url: "{:api_url('/cms/field/index')}",
+                                type: "post",
+                                data: {
+                                    'data': formData,
+                                    'action' : 'listOrderFields'
+                                },
+                                dataType: "json",
+                                success: function (res) {
+                                    layer.msg(res.msg);
+                                    if (res.status) {
+                                        that.fetchData();
+                                    }
+                                }
+                            })
+                        });
+                    } else {
+                        layer.msg('请选择')
+                    }
+                },
+
                 // 编辑字段
                 edit: function (modelid, fieldid) {
                     location.href = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;

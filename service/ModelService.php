@@ -128,4 +128,48 @@ class ModelService extends BaseService
         return self::createReturn(true, $data);
     }
 
+
+    /**
+     * 导入模型
+     * @param $tablename
+     * @param $name
+     * @return array
+     */
+    static function importModel($tablename,$name){
+        if (!isset($_FILES['file']) || empty($_FILES['file'])) {
+            return self::createReturn(false, [], "请选择上传文件！");
+        }
+        $filename = $_FILES['file']['tmp_name'];
+        if (strtolower(substr($_FILES['file']['name'], -3, 3)) != 'txt') {
+            return self::createReturn(false, [], "上传的文件格式有误！");
+        }
+        //读取文件
+        $data = file_get_contents($filename);
+        //删除
+        @unlink($filename);
+        $Model = new Model();
+        return $Model->importModel($data, $tablename, $name);
+    }
+
+    /**
+     * 导出模型
+     * @param $modelId
+     * @return array|string
+     */
+    static function exportModel($modelId){
+        if (!isset($modelId) || empty($modelId)) {
+            return self::createReturn(false, '', '请指定需要导出的模型!');
+        }
+        $Model = new Model();
+        $exportModelRSes = $Model->exportModel($modelId);
+        if ($exportModelRSes['status']) {
+            header("Content-type: application/octet-stream");
+            header("Content-Disposition: attachment; filename=ztb_model_" . $modelId . '.txt');
+            echo $exportModelRSes['data']['data'];
+            exit;
+        } else {
+            return $exportModelRSes;
+        }
+    }
+
 }

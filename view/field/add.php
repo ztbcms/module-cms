@@ -221,7 +221,7 @@
                 return {
                     all_field : [],
                     formData: {
-                        modelid : '{$modelid}',
+                        modelid : '{$modelinfo['modelid']}',
                         formtype : 'text',
                         minlength : 0,
                         maxlength : 10000,
@@ -284,7 +284,7 @@
                         }
                     });
 
-                    var url = "{:api_url('/cms/field/public_field_setting')}";
+                    var url = "{:api_url('/cms/field/publicFieldSetting')}";
                     that.httpPost(url, {
                         fieldtype : that.formData.formtype
                     }, function(res){

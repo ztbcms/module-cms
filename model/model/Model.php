@@ -113,11 +113,11 @@ class Model extends PublicModel
                     Cache::set("Model", NULL);
                     $this->commit();
                     return createReturn(true, [
-                        'modelid' => $modelid
+                        'modelid' => $data['id']
                     ], '创建成功!');
                 } else {
                     //表创建失败
-                    $this->where("modelid", $modelid)->delete();
+                    $this->where("modelid", $data['id'])->delete();
                     return createReturn(false, '', '数据表创建失败!');
                 }
             } else {
@@ -205,6 +205,146 @@ class Model extends PublicModel
         } else {
             return createReturn(false, '', '编辑模型失败！');
         }
+    }
+
+    /**
+     * 导入模型
+     * @param $data
+     * @param string $tablename
+     * @param string $name
+     * @return array
+     */
+    public function importModel($data, $tablename = '', $name = ''){
+        if (!isset($data) || empty($data)) {
+            return createReturn(false, '', '没有导入数据！');
+        }
+
+        //解析
+        $data = json_decode(base64_decode($data), true);
+        if (!isset($data) || empty($data)) {
+            return createReturn(false, '', '解析数据失败，无法进行导入！');
+        }
+
+        //取得模型数据
+        $model = $data['model'];
+        if (!isset($model) || empty($model)) {
+            return createReturn(false, '', '解析数据失败，无法进行导入！');
+        }
+
+        if ($name) $model['name'] = $name;
+        if ($tablename) $model['tablename'] = $tablename;
+
+        //导入模型
+        $addModelRes = $this->addModel($model);
+
+        if ($addModelRes['status']) {
+
+            $modelid = $addModelRes['data']['modelid'];
+
+            //处理模块的字段
+            if (isset($data['field']) && !empty($data['field'])) {
+                foreach ($data['field'] as $value) {
+                    $value['modelid'] = $modelid;
+                    if ($value['setting']) $value['setting'] = unserialize($value['setting']);
+                    $ModelField = new ModelField();
+                    // 添加字段
+                    if ($ModelField->addField($value)['status']) {
+
+                        $value['setting'] = serialize($value['setting']);
+                        $ModelField->where([
+                            ['modelid','=',$modelid],
+                            ['field','=',$value['field']],
+                            ['name','=',$value['name']]
+                        ])->update($value);
+                    }
+                    unset($ModelField);
+                }
+            }
+        }
+
+        return $addModelRes;
+    }
+
+    /**
+     * 生成模型缓存，以模型ID为下标的数组
+     * 可用作获取
+     * @param bool $isForce
+     * @return array|mixed
+     */
+    public static function model_cache($isForce = false)
+    {
+        // 不强制则检查
+        if(!$isForce){
+            $check = cache('Model');
+            if(empty($check)){
+                $data = self::getModelAll();
+                cache('Model', $data);
+                return $data;
+            }
+            return $check;
+        }
+        $data = self::getModelAll();
+        cache('Model', $data);
+        return $data;
+    }
+
+    /**
+     * 根据模型类型取得数据用于缓存
+     * @param null $type
+     * @return array
+     */
+    public static function getModelAll($type = null)
+    {
+        $where = array('disabled' => 0);
+        if (!is_null($type)) {
+            $where['type'] = $type;
+        }
+        $data = self::where($where)->select();
+        $Cache = array();
+        foreach ($data as $v) {
+            $Cache[$v['modelid']] = $v;
+        }
+        return $Cache;
+    }
+
+    /**
+     * 导出模型
+     * @param $modelId
+     * @return array|string
+     */
+    public function exportModel($modelId){
+        if (empty($modelId)) {
+            return createReturn(false, '', '请指定需要导出的模型！');
+        }
+
+        //取得模型信息
+        $info = $this->where(array('modelid' => $modelId, 'type' => 0))->findOrEmpty()->toArray() ?: [];
+        if (empty($info)) {
+            return createReturn(false, '', '该模型不存在，无法导出！');
+        }
+
+        unset($info['modelid']);
+
+        //数据
+        $data = array();
+        $data['model'] = $info;
+
+        $ModelField = new ModelField();
+
+        //取得对应模型字段
+        $fieldList = $ModelField->where('modelid', $modelId)->select()->toArray() ?: [];
+        if (empty($fieldList)) {
+            $fieldList = array();
+        }
+
+        //去除fieldid，modelid字段内容
+        foreach ($fieldList as $k => $v) {
+            unset($fieldList[$k]['fieldid'], $fieldList[$k]['modelid']);
+        }
+
+        $data['field'] = $fieldList;
+        $res['data'] = base64_encode(json_encode($data));
+        return createReturn(true, $res);
     }
 
 }
