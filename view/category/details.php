@@ -23,7 +23,7 @@
                             <el-select v-model="formData.info.parentid" placeholder="请选择模型" :style="{width: '100%'}">
                                 <el-option label="作为一级栏目" value="0"></el-option>
                                 {volist name="category" id="vo"}
-                                <el-option label="{$vo.catname}" value="{$vo.modelid}"></el-option>
+                                <el-option label="{$vo.catname}" value="{$vo.catid}"></el-option>
                                 {/volist}
                             </el-select>
                         </el-form-item>
@@ -38,9 +38,9 @@
                                       :style="{width: '100%'}"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="是否为终极栏目" prop="formData.info.child" required>
-                            <el-radio v-model="formData.info.child" label="1">是</el-radio>
+                        <el-form-item label="是否为目录" prop="formData.info.child" required>
                             <el-radio v-model="formData.info.child" label="0">否</el-radio>
+                            <el-radio v-model="formData.info.child" label="1">是</el-radio>
                         </el-form-item>
 
                         <el-form-item size="large">

@@ -7,9 +7,9 @@
 
 namespace app\cms\service;
 
-use app\cms\model\CmsCategory;
-use app\cms\model\CmsModel;
-use app\cms\model\CmsModelField;
+use app\cms\model\category\Category;
+use app\cms\model\model\Model;
+use app\cms\model\model\ModelField;
 use app\common\service\BaseService;
 use think\facade\Db;
 
@@ -27,9 +27,10 @@ class ContentService extends BaseService
      * @return array
      */
     static function getDisplaySettin($catid = 0){
-        $CmsCategory = new CmsCategory();
-        $CmsModelField = new CmsModelField();
-        $CategoryDetails = $CmsCategory->where(['catid'=>$catid])->find()->toArray() ?: [];
+
+        $Category = new Category();
+        $ModelField = new ModelField();
+        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         //列表中显示的字段
@@ -37,11 +38,11 @@ class ContentService extends BaseService
         $where[] = ['modelid','=',$modelid];
 
         $cmsModelIsaddWhere[] = ['isadd','=',1];
-        $fieldList = $CmsModelField->where($cmsModelIsaddWhere)->where($where)->order('listorder asc')->select()->toArray() ?: [];
+        $fieldList = $ModelField->where($cmsModelIsaddWhere)->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         //筛选条件中显示的字段
         $cmsModelIsbaseWhere[] = ['issearch','=',1];
-        $baseList = $CmsModelField->where($cmsModelIsbaseWhere)->where($where)->order('listorder asc')->select()->toArray() ?: [];
+        $baseList = $ModelField->where($cmsModelIsbaseWhere)->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         $res['field_list'] = $fieldList;
         $res['base_list'] = $baseList;
@@ -56,13 +57,13 @@ class ContentService extends BaseService
      * @return array
      */
     static function getTemplateList($catid = 0,$where = []){
-        $CmsCategory = new CmsCategory();
-        $CmsModel = new CmsModel();
-        $CategoryDetails = $CmsCategory->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $Category = new Category();
+        $Model = new Model();
+        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         $modelWhere[] = ['modelid','=',$modelid];
-        $modelDetails = $CmsModel->where($modelWhere)->find()->toArray() ?: [];
+        $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
         $tablename = $modelDetails['tablename'];
         $where[] = ['catid','=',$catid];
         $lists = Db::name($tablename)->where($where)->order('id', 'DESC')->paginate(20);
@@ -76,13 +77,14 @@ class ContentService extends BaseService
      * @return array
      */
     static function delTemplate($catid = 0,$id = 0){
-        $CmsCategory = new CmsCategory();
-        $CmsModel = new CmsModel();
-        $CategoryDetails = $CmsCategory->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $Category = new Category();
+        $Model = new Model();
+
+        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         $modelWhere[] = ['modelid','=',$modelid];
-        $modelDetails = $CmsModel->where($modelWhere)->find()->toArray() ?: [];
+        $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
         $tablename = $modelDetails['tablename'];
 
         $where[] = ['catid','=',$catid];
@@ -97,16 +99,17 @@ class ContentService extends BaseService
      * @return array
      */
     static function getDetailsDisplaySettin($catid = 0,$id = 0){
-        $CmsCategory = new CmsCategory();
-        $CmsModel = new CmsModel();
-        $CmsModelField = new CmsModelField();
-        $CategoryDetails = $CmsCategory->where(['catid'=>$catid])->find()->toArray() ?: [];
+
+        $Category = new Category();
+        $Model = new Model();
+        $ModelField = new ModelField();
+        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         $contentDetails = [];
         if($id > 0){
             $modelWhere[] = ['modelid','=',$modelid];
-            $modelDetails = $CmsModel->where($modelWhere)->find()->toArray() ?: [];
+            $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
             $tablename = $modelDetails['tablename'];
             $contentWhere[] = ['catid','=',$catid];
             $contentWhere[] = ['id','=',$id];
@@ -116,7 +119,7 @@ class ContentService extends BaseService
 
         //列表中显示的字段
         $where[] = ['modelid','=',$modelid];
-        $fieldList = $CmsModelField->where($where)->order('listorder asc')->select()->toArray() ?: [];
+        $fieldList = $ModelField->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         //处理解密后的数据
         foreach ($fieldList as $k => $v){
@@ -174,18 +177,21 @@ class ContentService extends BaseService
         if(!$post['catid']) return self::createReturn(false,'','栏目id不能为空');
 
         $catid = $post['catid'];
-        $CmsCategory = new CmsCategory();
-        $CmsModel = new CmsModel();
-        $CmsModelField = new CmsModelField();
-        $CategoryDetails = $CmsCategory->where(['catid'=>$catid])->find()->toArray() ?: [];
+
+        $Model = new Model();
+        $Category = new Category();
+        $ModelField = new ModelField();
+
+
+        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         $modelWhere[] = ['modelid','=',$modelid];
-        $modelDetails = $CmsModel->where($modelWhere)->find()->toArray() ?: [];
+        $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
         $tablename = $modelDetails['tablename'];
 
         $where[] = ['modelid','=',$modelid];
-        $fieldList = $CmsModelField->where($where)->order('listorder asc')->select()->toArray() ?: [];
+        $fieldList = $ModelField->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         $issystem_content = [];
         $no_issystem_content = [];

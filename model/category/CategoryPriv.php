@@ -1,21 +1,24 @@
 <?php
 /**
- * Created by FHYI.
- * Date 2020/10/30
- * Time 19:01
+ * Created by PhpStorm.
+ * User: asus
+ * Date: 2020/12/6
+ * Time: 13:07
  */
 
-namespace app\cms\model;
+namespace app\cms\model\category;
+
+use think\Model;
 
 /**
- * 栏目权限与角色之间的授权
- * Class CategoryPrivModel
- * @package app\cms\model
+ * 栏目权限管理
+ * Class CategoryPriv
+ * @package app\cms\model\category
  */
-class CategoryPrivModel extends BaseModel
+class CategoryPriv extends Model
 {
-    protected $name = 'category_priv';
 
+    protected $name = 'content_category_priv';
 
     /**
      * 更新权限
@@ -23,7 +26,7 @@ class CategoryPrivModel extends BaseModel
      * @param $priv_datas
      * @param int $is_admin
      */
-    function update_priv($catid, $priv_datas = [], $is_admin = 1){
+    public function update_priv($catid, $priv_datas = [], $is_admin = 1){
 
         //删除旧的
         $where[] = ['catid','=',$catid];
@@ -45,6 +48,8 @@ class CategoryPrivModel extends BaseModel
                 ]);
             }
         }
+
+        return true;
     }
 
 }

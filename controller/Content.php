@@ -7,11 +7,11 @@
 
 namespace app\cms\controller;
 
-use app\cms\model\CmsCategory;
-use app\cms\model\CmsModelField;
+use app\cms\model\model\ModelField;
 use app\cms\service\ContentService;
 use app\common\controller\AdminController;
 use think\facade\View;
+use app\cms\model\category\Category;
 
 /**
  * 内容管理
@@ -29,8 +29,8 @@ class Content extends AdminController
         $action = input('action','','trim');
         if($action == 'category_list') {
             //获取分类列表
-            $CmsCategory = new CmsCategory();
-            $res['list'] = $CmsCategory::getCategoryToArray();
+            $Category = new Category();
+            $res['list'] = $Category::getCategoryToArray();
             return self::createReturn(true,$res);
         }
         return View::fetch('index');
@@ -86,10 +86,9 @@ class Content extends AdminController
             return ContentService::submitForm($post);
         }
 
-
-        $CmsModelField = new CmsModelField();
+        $ModelField = new ModelField();
         $where[] = ['formtype','=','editor'];
-        $editor = $CmsModelField->where($where)->group('field')->column('field') ?: [];
+        $editor = $ModelField->where($where)->group('field')->column('field') ?: [];
         $editor = implode(',',$editor);
         return View::fetch('details',[
             'catid' => $catid,

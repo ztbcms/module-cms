@@ -119,19 +119,46 @@ class FieldService extends BaseService
      * @param $modelId
      * @return array
      */
-    static function getAllField($modelId)
+    static function getAllField($modelId,$formtype = '')
     {
         //字段类型过滤
         $ModelField = new ModelField();
         $OperationField = new OperationField();
-        $all_field = [];
-        foreach ($ModelField->getFieldTypeList() as $formtype => $name) {
-            if (!$OperationField->isAddField($formtype, $formtype, $modelId)) {
-                continue;
+        if($formtype) {
+            //不存在的字段用一个新数组分割开来
+
+            //字段类型过滤
+            $all_field = [];
+            $no_all_field = [];
+            foreach ($ModelField->getFieldTypeList() as $formtype => $name) {
+                if (!$OperationField->isEditField($formtype)) {
+                    $no_all_field[] = $formtype;
+                }
+                $all_field[$formtype] = $name;
             }
-            $all_field[$formtype] = $name;
+            //是否可以编辑数据类型
+            if(in_array($formtype,$no_all_field)){
+                $is_disabled_formtype = 1;
+            } else {
+                //不存在可编辑数组中
+                $is_disabled_formtype = 0;
+            }
+            $res['all_field'] = $all_field;
+            $res['is_disabled_formtype'] = $is_disabled_formtype;
+        } else {
+            //不存在的字段不进行显示
+            $all_field = [];
+            foreach ($ModelField->getFieldTypeList() as $formtype => $name) {
+                if (!$OperationField->isAddField($formtype, $formtype, $modelId)) {
+                    continue;
+                }
+                $all_field[$formtype] = $name;
+            }
+
+            $res['all_field'] = $all_field;
+            $res['is_disabled_formtype'] = 1;
         }
-        return $all_field;
+        return $res;
     }
 
     /**
@@ -182,6 +209,65 @@ class FieldService extends BaseService
             $ModelField->contentModelEditFieldBehavior($params);
         }
         return $res;
+    }
+
+    /**
+     * 获取字段详情
+     * @param $modelId
+     * @param $fieldId
+     * @return array
+     */
+    static function getFieldDetails($modelId,$fieldId){
+
+        $Model = new Model();
+        $ModelField = new ModelField();
+
+        //模型信息
+        $modeData = $Model->where("modelid", $modelId)->findOrEmpty();
+
+        //字段信息
+        $fieldWhere[] = ["fieldid", "=", $fieldId];
+        $fieldWhere[] = ["modelid", "=", $modelId];
+        $fieldData = $ModelField->where($fieldWhere)->findOrEmpty();
+
+        //字段设置
+        $setting = unserialize($fieldData['setting']);
+
+        //填补默认值
+        $setting = $ModelField->getDefaultSettingData($setting);
+
+        $OperationField = new OperationField();
+        return self::createReturn(true,[
+            'modeData' => $modeData,
+            'setting' => $setting,
+            'data' => $fieldData,
+            'isEditField' => $OperationField->isEditField($fieldData['field'])
+        ],'获取详情信息');
+
+    }
+
+    /**
+     * 编辑字段
+     * @param array $post
+     * @param int $modelId
+     * @param int $fieldId
+     * @return array
+     */
+    static function editField($post = [], $modelId = 0,$fieldId = 0){
+        if (!isset($post) || empty($post)) {
+            return self::createReturn(false, '', '数据不能为空！');
+        }
+
+        if (!isset($modelId) || empty($modelId))  {
+            return self::createReturn(false, '', '模型ID不能为空');
+        }
+
+        if (!isset($fieldId) || empty($fieldId)) {
+            return self::createReturn(false, '', '字段ID不能为空！');
+        }
+
+        $ModelField = new ModelField();
+        return $ModelField->editField($post, $fieldId);
     }
 
 }

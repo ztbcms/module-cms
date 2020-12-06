@@ -18,9 +18,7 @@
                 <el-button @click="add" size="small" type="primary">
                     添加字段
                 </el-button>
-                <el-button @click="showModel" size="small" type="primary">
-                    预览模型
-                </el-button>
+
             </div>
 
             <div style="margin-bottom: 80px;">
@@ -96,7 +94,7 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="投稿" align="center">
+                    <el-table-column label="列表中显示" align="center">
                         <template slot-scope="scope">
                              <span class="el-icon-success" style="color: green;font-size: 24px;"
                                    v-if="scope.row.isadd == '1'"></span>

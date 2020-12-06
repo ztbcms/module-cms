@@ -8,9 +8,6 @@
 namespace app\cms\controller;
 
 use app\cms\model\model\Model;
-
-use app\cms\model\ModelFieldModel;
-use app\cms\model\ModelModel;
 use app\cms\service\FieldService;
 use app\common\controller\AdminController;
 use think\App;
@@ -23,18 +20,6 @@ use think\facade\View;
  */
 class Field extends AdminController
 {
-
-    private $modelfield, $fields;
-
-    //初始化
-    public function __construct(App $app)
-    {
-        parent::__construct($app);
-        $this->modelfield = new ModelFieldModel();
-        //字段类型存放目录
-        $this->fields = app_path() . 'fields/';
-    }
-
 
     /**
      * 字段列表
@@ -64,21 +49,9 @@ class Field extends AdminController
             return FieldService::listOrderFields($postData);
         }
 
-
-
-        //不允许删除的字段，这些字段讲不会在字段添加处显示
-        View::assign("not_allow_fields", $this->modelfield->not_allow_fields);
-        //允许添加但必须唯一的字段
-        View::assign("unique_fields", $this->modelfield->unique_fields);
-        //禁止被禁用的字段列表
-        View::assign("forbid_fields", $this->modelfield->forbid_fields);
-        //禁止被删除的字段列表
-        View::assign("forbid_delete", $this->modelfield->forbid_delete);
-        //可以追加 JS和CSS 的字段
-        View::assign("att_css_js", $this->modelfield->att_css_js);
-
-        $modelId = $this->request->get('modelid', 0, 'intval');
-        $model = ModelModel::where("modelid", $modelId)->findOrEmpty();
+        $modelId = input('modelid', 0, 'intval');
+        $Model = new Model();
+        $model = $Model->where("modelid", $modelId)->findOrEmpty();
         View::assign("modelinfo", $model);
         return View::fetch();
     }
@@ -96,7 +69,7 @@ class Field extends AdminController
             return FieldService::addField($post,$modelId);
         } else {
             //可使用字段类型
-            View::assign("all_field", FieldService::getAllField($modelId));
+            View::assign("all_field", FieldService::getAllField($modelId)['all_field']);
             //模型数据
             View::assign("modelinfo",(new Model())->where("modelid", $modelId)->findOrEmpty());
             return View::fetch();
@@ -114,45 +87,17 @@ class Field extends AdminController
         return FieldService::getPublicFieldSetting($fieldtype);
     }
 
-
+    /**
+     * 获取字段详情
+     * @return array
+     */
     public function getFieldDetails(){
         //模型ID
         $modelId = input('modelid',0,'intval');
         //字段ID
         $fieldId = input('fieldid',0,'intval');
 
-        //模型信息
-        $modeData = ModelModel::where("modelid", $modelId)->findOrEmpty();
-
-        //字段信息
-        $fieldWhere[] = ["fieldid", "=", $fieldId];
-        $fieldWhere[] = ["modelid", "=", $modelId];
-        $fieldData = $this->modelfield->where($fieldWhere)->findOrEmpty();
-
-        //字段路径
-        $fiepath = $this->fields . "{$fieldData['formtype']}/";
-        //======获取字段类型的表单编辑界面===========
-        //字段扩展配置
-
-        $setting = unserialize($fieldData['setting']);
-        $setting = $this->modelfield->getDefaultSettingData($setting);
-
-        //字段类型过滤
-        $all_field = array();
-        $no_all_field = [];
-        foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
-            if (!$this->modelfield->isEditField($formtype)) {
-                $no_all_field[] = $formtype;
-            }
-            $all_field[$formtype] = $name;
-        }
-
-        return self::createReturn(true,[
-            'modeData' => $modeData,
-            'setting' => $setting,
-            'all_field' => $all_field,
-            'data' => $fieldData
-        ],'获取详情信息');
+        return FieldService::getFieldDetails($modelId,$fieldId);
     }
 
     /**
@@ -165,75 +110,31 @@ class Field extends AdminController
         $modelId = input('modelid',0,'intval');
         //字段ID
         $fieldId = input('fieldid',0,'intval');
-        if (empty($modelId))  return self::makeJsonReturn(false, '', '模型ID不能为空');
-        if (empty($fieldId)) return self::makeJsonReturn(false, '', '字段ID不能为空！');
-
         // 提交更新
         if ($this->request->isPost()) {
-            $post = $this->request->post();
-            if (empty($post)) {
-                return self::makeJsonReturn(false, '', '数据不能为空！');
-            }
-            if ($this->modelfield->editField($post, $fieldId)) {
-                //成功后执行回调
-                $field = $post['field'];
-                $params = array("modelid" => $modelId, 'field' => $field);
-                $this->modelfield->contentModelEditFieldBehavior($params);
-
-                return self::makeJsonReturn(true, [
-                    'modelid' => $modelId
-                ], '更新成功！',api_url("/cms/field/index", array("modelid" => $modelId)));
-            } else {
-                $error = $this->modelfield->error;
-                return self::makeJsonReturn(false, '', $error ? $error : '更新失败！');
-            }
+            $post = input('post.');
+            return FieldService::editField($post, $modelId,$fieldId);
         } else {
-            //模型信息
-            $modeData = ModelModel::where("modelid", $modelId)->findOrEmpty();
-
-            //字段信息
-            $fieldWhere[] = ["fieldid", "=", $fieldId];
-            $fieldWhere[] = ["modelid", "=", $modelId];
-            $fieldData = $this->modelfield->where($fieldWhere)->findOrEmpty();
-
-            //字段路径
-            $fiepath = $this->fields . "{$fieldData['formtype']}/";
-            //======获取字段类型的表单编辑界面===========
-            //字段扩展配置
-
-            $setting = unserialize($fieldData['setting']);
-            $setting = $this->modelfield->getDefaultSettingData($setting);
-
-            //字段类型过滤
-            $all_field = array();
-            $no_all_field = [];
-            foreach ($this->modelfield->getFieldTypeList() as $formtype => $name) {
-                if (!$this->modelfield->isEditField($formtype)) {
-                    $no_all_field[] = $formtype;
-                }
-                $all_field[$formtype] = $name;
-            }
+            //获取字段信息
+            $FieldDetails = FieldService::getFieldDetails($modelId,$fieldId)['data'];
+            //获取可编辑的字段
+            $getAllFieldRes = FieldService::getAllField($modelId,$FieldDetails['data']['formtype']);
 
             //允许使用的字段类型
-            View::assign("all_field", $all_field);
-
-            View::assign("modelid", $modelId);
-            View::assign("fieldid", $fieldId);
-            View::assign("setting", $setting);
+            View::assign("all_field", $getAllFieldRes['all_field']);
+            View::assign("is_disabled_formtype", $getAllFieldRes['is_disabled_formtype']);
+            //模型信息
+            View::assign("modelinfo", $FieldDetails['modeData']);
             //字段信息分配到模板
-            View::assign("data", $fieldData);
-            View::assign("modelinfo", $modeData);
-
-            //是否可以编辑数据类型
-            if(in_array($fieldData['formtype'],$no_all_field)){
-                View::assign("is_disabled_formtype", 1);
-            } else {
-                //不存在可编辑数组中
-                View::assign("is_disabled_formtype", 0);
-            }
-
+            View::assign("data", $FieldDetails['data']);
+            //模型id
+            View::assign("modelid", $modelId);
+            //字段id
+            View::assign("fieldid", $fieldId);
+            //字段设置
+            View::assign("setting", $FieldDetails['setting']);
             //当前字段是否允许编辑
-            View::assign('isEditField', $this->modelfield->isEditField($fieldData['field']));
+            View::assign('isEditField', $FieldDetails['isEditField']);
             return View::fetch();
         }
     }

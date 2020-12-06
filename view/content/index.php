@@ -75,7 +75,7 @@
                     })
                 },
                 handleNodeClick : function (data) {
-                    if(data.child > 0) {
+                    if(data.child <= 0) {
                         this.src = "{:api_url('/cms/Content/list')}&catid=" + data.catid;
                     } else {
                         this.src = '';

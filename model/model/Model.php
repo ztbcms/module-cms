@@ -347,4 +347,15 @@ class Model extends PublicModel
         return createReturn(true, $res);
     }
 
+    /**
+     * 获取可用模块列表
+     * @return array
+     */
+    public function getAvailableList(){
+        $where[] = ['disabled','=',0];
+        $where[] = ['type','=',0];
+        $availableList = $this->where($where)->select()->toArray() ?: [];
+        return $availableList;
+    }
+
 }

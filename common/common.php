@@ -38,7 +38,7 @@ function getModel($modelid, $field = '') {
     }
     if (empty($cache)) {
         //读取数据
-        $cache = \think\facade\Db::name('model')->where('modelid', $modelid)->findOrEmpty();
+        $cache = \think\facade\Db::name('content_model')->where('modelid', $modelid)->findOrEmpty();
         if (empty($cache)) {
             cache($key, 'false', 60);
             return false;

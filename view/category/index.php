@@ -5,6 +5,7 @@
         <el-alert type="success" style="margin-bottom: 10px;">
             <p>温馨提示：</p>
             <p>1、请在添加、修改栏目全部完成后，更新栏目缓存，否则可能出现未知错误！</p>
+            <p>2、终极栏目为内容， 非终极栏目为目录！</p>
         </el-alert>
 
         <el-button class="filter-item" style="margin-left: 10px;margin-bottom: 15px;" size="small" type="primary" @click="details('')">
@@ -140,8 +141,10 @@
                 // 获取列表
                 getList: function () {
                     var that = this;
+                    var data = that.listQuery;
+                    data.action = 'getCategoyList';
                     $.ajax({
-                        url: "{:api_url('/cms/category/getCategoyList')}",
+                        url: "{:api_url('/cms/category/index')}",
                         type: "get",
                         dataType: "json",
                         data: that.listQuery,
@@ -188,10 +191,11 @@
                     if (formData.length > 0) {
                         layer.confirm('确认要进行排序?', function () {
                             $.ajax({
-                                url: "{:api_url('/cms/category/listOrder')}",
+                                url: "{:api_url('/cms/category/index')}",
                                 type: "post",
                                 data: {
-                                    data: formData
+                                    'data': formData,
+                                    'action' : 'listOrderCategoy'
                                 },
                                 dataType: "json",
                                 success: function (res) {

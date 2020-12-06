@@ -30,18 +30,6 @@ class OperationField extends BaseService
     //可以追加 JS和CSS 的字段（字段名）
     public $att_css_js = array('text', 'textarea', 'box', 'number', 'keyword', 'typeid');
 
-    //array(验证字段,验证规则,错误提示,[验证条件,附加规则,验证时间])
-    protected $_validate = array(
-        array('modelid', 'require', '请选择模型！'),
-        array('formtype', 'require', '字段类型不能为空！'),
-        array('field', 'require', '字段名称必须填写！'),
-        array('field', 'isFieldUnique', '该字段名称已经存在！', 0, 'callback', 1),
-        array('name', 'require', '字段别名必须填写！'),
-        array('field', '/^[a-z_0-9]+$/i', '字段名只支持英文！', 0, 'regex', 3),
-        array('isbase', array(0, 1), '是否作为基本信息设置错误！', 0, 'in', 3),
-        array('isadd', array(0, 1), '是否前台投稿中显示设置错误！', 0, 'in', 3),
-    );
-
     // 数据库配置
     public $dbConfig;
 
@@ -192,6 +180,103 @@ class OperationField extends BaseService
     }
 
     /**
+     * 编辑字段
+     * @param int $modelid
+     * @param array $info
+     * @param array $data
+     * @param array $oldData
+     * @return array
+     */
+    public function editField($modelid = 0,$info = [],$data = [],$oldData = []){
+
+        //字段附加配置
+        $setting = $data['setting'];
+
+        $Operation = new Operation();
+        //完整表名获取 判断主表 还是副表
+        $tablename = $this->getModelTableName($modelid, $info['issystem']);
+        if (!$Operation->table_exists($tablename)) {
+            return self::createReturn(false,'','数据表不存在');
+        }
+
+        /**
+         * 对应字段配置
+         * $field_type = 'varchar'; //字段数据库类型
+         * $field_basic_table = 1; //是否允许作为主表字段
+         * $field_allow_index = 1; //是否允许建立索引
+         * $field_minlength = 0; //字符长度默认最小值
+         * $field_maxlength = ''; //字符长度默认最大值
+         * $field_allow_search = 1; //作为搜索条件
+         * $field_allow_fulltext = 0; //作为全站搜索信息
+         * $field_allow_isunique = 1; //是否允许值唯一
+         */
+        require $this->fieldPath . "{$data['formtype']}/config.inc.php";
+
+        //根据字段设置临时更改字段类型，否则使用字段配置文件配置的类型
+        if (isset($oldData['setting']['fieldtype'])) {
+            $field_type = $oldData['setting']['fieldtype'];
+        } else {
+            return self::createReturn(false,'','字段类型不能为空');
+        }
+
+        //附加属性值
+        $data['setting'] = serialize($setting);
+
+        //字段id
+        $fieldid = $info['fieldid'];
+
+        Db::startTrans();
+        if (!empty($data)) {
+            // 更新
+            unset($data['pattern_select']);
+            unset($data['field_minlength']);
+            unset($data['field_maxlength']);
+            $ModelField = new ModelField();
+            if (false !== $ModelField->where("fieldid", $fieldid)->update($data)) {
+                //清理缓存
+                cache('ModelField', NULL);
+                //如果字段名变更
+                if ($data['field'] && $info['field']) {
+
+                    //检查段是否存在，只有当字段名改变才检测
+                    if ($data['field'] != $info['field'] && $this->field_exists($tablename, $data['field'])) {
+                        //回滚
+                        $ModelField->where("fieldid", $fieldid)->update($info);
+                        return self::createReturn(false,'','该字段已经存在！');
+                    }
+
+                    //合并字段更改后的
+                    $newInfo = array_merge($info, $data);
+                    $newInfo['setting'] = unserialize($newInfo['setting']);
+                    $field = array(
+                        'tablename' => $this->dbConfig['prefix'] . $tablename,
+                        'newfilename' => $data['field'],
+                        'oldfilename' => $info['field'],
+                        'maxlength' => isset($newInfo['maxlength']) ? $newInfo['maxlength'] : 0,
+                        'minlength' => isset($newInfo['minlength']) ? $newInfo['minlength'] : 0,
+                        'defaultvalue' => isset($newInfo['setting']['defaultvalue']) ? $newInfo['setting']['defaultvalue'] : '',
+                        'minnumber' => isset($newInfo['setting']['minnumber']) ? $newInfo['setting']['minnumber'] : '',
+                        'decimaldigits' => isset($newInfo['setting']['decimaldigits']) ? $newInfo['setting']['decimaldigits'] : '',
+                        'comment' => $data['name'] //字段别名 即为字段注释
+                    );
+
+                    if (false === $this->editFieldSql($field_type, $field)) {
+                        //回滚
+                        $ModelField->where(array("fieldid" => $fieldid))->update($info);
+                        return self::createReturn(false,'',$this->error);
+                    }
+                }
+
+                Db::commit();
+                return self::createReturn(true,'','操作成功！');
+            } else {
+                Db::rollback();
+                return self::createReturn(false,'','数据库更新失败！');
+            }
+        }
+    }
+
+    /**
      * 检查该字段是否允许添加
      * @param string $field 字段名称
      * @param string $field_type 字段类型
@@ -216,6 +301,28 @@ class OperationField extends BaseService
         }
         //不显示的字段类型（字段类型）
         if (in_array($field_type, $this->not_allow_fields)) {
+            return false;
+        }
+        //禁止被禁用的字段列表（字段名）
+        if (in_array($field, $this->forbid_fields)) {
+            return false;
+        }
+        //禁止被删除的字段列表（字段名）
+        if (in_array($field, $this->forbid_delete)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断字段是否允许被编辑
+     * @param string $field 字段名称
+     * @return boolean
+     */
+    public function isEditField($field)
+    {
+        //判断是否唯一字段
+        if (in_array($field, $this->unique_fields)) {
             return false;
         }
         //禁止被禁用的字段列表（字段名）
@@ -414,6 +521,199 @@ class OperationField extends BaseService
                 return true;
                 break;
             default:
+                return false;
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * 执行数据库表结构更改
+     * @param string $field_type 字段类型
+     * @param array $field 相关配置
+     * $field = array(
+     *      'tablename' 表名(完整表名)
+     *      'newfilename' 新字段名
+     *      'oldfilename' 原字段名
+     *      'maxlength' 最大长度
+     *      'minlength' 最小值
+     *      'defaultvalue' 默认值
+     *      'minnumber' 是否正整数 和整数 1为正整数，-1是为整数
+     *      'decimaldigits' 小数位数
+     *      'comment' 字段注释
+     * )
+     * @return boolean
+     */
+    protected function editFieldSql($field_type, $field)
+    {
+        //表名
+        $tablename = $field['tablename'];
+        //原字段名
+        $oldfilename = $field['oldfilename'];
+        //新字段名
+        $newfilename = $field['newfilename'] ? $field['newfilename'] : $oldfilename;
+        //最大长度
+        $maxlength = $field['maxlength'];
+        //最小值
+        $minlength = $field['minlength'];
+        //默认值
+        $defaultvalue = isset($field['defaultvalue']) ? $field['defaultvalue'] : '';
+        //是否正整数 和整数 1为正整数，-1是为整数
+        $minnumber = isset($field['minnumber']) ? $field['minnumber'] : 1;
+        //小数位数
+        $decimaldigits = isset($field['decimaldigits']) ? $field['decimaldigits'] : '';
+        //字段注释
+        $comment = isset($field['comment']) ? $field['comment'] : '';
+
+        if (empty($tablename) || empty($newfilename)) {
+            $this->error = '表名或者字段名不能为空！';
+            return false;
+        }
+
+        switch ($field_type) {
+            case 'varchar':
+                //最大值
+                if (!$maxlength) {
+                    $maxlength = 255;
+                }
+                $maxlength = min($maxlength, 255);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` VARCHAR( {$maxlength} ) NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'tinyint':
+                $minnumber = intval($minnumber);
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` TINYINT " . ($minnumber >= 0 ? 'UNSIGNED' : '') . " NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'number': //特殊字段类型，数字类型，如果小数位是0字段类型为 INT,否则是FLOAT
+                $minnumber = intval($minnumber);
+                $defaultvalue = $decimaldigits == 0 ? intval($defaultvalue) : floatval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` " . ($decimaldigits == 0 ? 'INT' : 'FLOAT') . " " . ($minnumber >= 0 ? 'UNSIGNED' : '') . " NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'smallint':
+                $minnumber = intval($minnumber);
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` SMALLINT " . ($minnumber >= 0 ? 'UNSIGNED' : '') . " NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'mediumint':
+                $minnumber = intval($minnumber);
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` MEDIUMINT " . ($minnumber >= 0 ? 'UNSIGNED' : '') . " NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'int':
+                $minnumber = intval($minnumber);
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` INT " . ($minnumber >= 0 ? 'UNSIGNED' : '') . " NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'mediumtext':
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` MEDIUMTEXT" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'text':
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` TEXT" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'date':
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` DATE" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'datetime':
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'timestamp':
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case 'readpoint': //特殊字段类型
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `readpoint` SMALLINT(5) unsigned NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case "double":
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` DOUBLE NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case "float":
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}` FLOAT NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case "bigint":
+                $defaultvalue = intval($defaultvalue);
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}`  BIGINT NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case "longtext":
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}`  LONGTEXT" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            case "char":
+                $sql = "ALTER TABLE `{$tablename}` CHANGE `{$oldfilename}` `{$newfilename}`  CHAR(255) NOT NULL DEFAULT '{$defaultvalue}'" . " COMMENT '{$comment}'";
+                if (false === $this->execute($sql)) {
+                    $this->error = '字段结构更改失败！';
+                    return false;
+                }
+                break;
+            //特殊自定义字段
+            case 'pages':
+                break;
+            default:
+                $this->error = "字段类型" . $field_type . "不存在相应信息！";
                 return false;
                 break;
         }

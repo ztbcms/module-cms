@@ -52,7 +52,7 @@ function getCategory($catid, $field = '', $newCache = false)
     }
     if (empty($cache)) {
         //读取数据
-        $cache = \app\cms\model\CmsCategory::where('catid', $catid)->findOrEmpty();
+        $cache = \app\cms\model\category\Category::where('catid', $catid)->findOrEmpty();
         if (empty($cache)) {
             cache($key, 'false', 60);
             return false;
@@ -60,7 +60,7 @@ function getCategory($catid, $field = '', $newCache = false)
             //扩展配置
             $cache['setting'] = unserialize($cache['setting']);
             //栏目扩展字段
-            $cache['extend'] = $cache['setting']['extend'] ?? [];
+            $cache['extend'] = isset($cache['setting']['extend']) ?: [];
             cache($key, $cache, 3600);
         }
     }
@@ -75,5 +75,82 @@ function getCategory($catid, $field = '', $newCache = false)
     } else {
         return $cache;
     }
+}
+
+/**
+ * 递归实现无限极分类 根据给定的散列数组结构，整理成树状结构
+ *
+ * @param $array
+ * @param  int  $pid  父ID
+ * @param  int  $level  分类级别
+ * @return array 分好类的数组 直接遍历即可 $level可以用来遍历缩进
+ */
+function getTreeShapeArray(array $array = [], $pid = 0, $level = 0,$config = [])
+{
+    $curConfig = [
+        'idKey'       => isset($config['idKey']) ? $config['idKey'] : 'id',// 节点的ID字段名
+        'parentKey'   => isset($config['parentKey']) ? $config['parentKey'] : 'parentid', // 父节点的ID字段名
+        'levelKey'    => isset($config['levelKey']) ? $config['levelKey'] : 'level',// 层级的key名，按从1开始
+    ];
+
+    //声明静态数组,避免递归调用时,多次声明导致数组覆盖
+    static $list = [];
+    foreach ($array as $key => $value) {
+        //第一次遍历,找到父节点为根节点的节点 也就是pid=0的节点
+        if ($value[$curConfig['parentKey']] == $pid) {
+            //父节点为根节点的节点,级别为0，也就是第一级
+            $value[$curConfig['levelKey']] = $level;
+
+            if($value['child']) $value['catname'] .= '(目录)';
+            else $value['catname'] .= '(内容)';
+
+            //把数组放到list中
+            $list[] = $value;
+            //把这个节点从数组中移除,减少后续递归消耗
+            unset($array[$key]);
+
+            //开始递归,查找父ID为该节点ID的节点,级别则为原级别+1
+            getTreeShapeArray($array, $value[$curConfig['idKey']], $level + 1,$config);
+        }
+    }
+    return $list;
+}
+
+/**
+ * 根据给定的散列数组结构，整理成树状结构
+ * @param  array  $array  待处理数组
+ * @param  int|string  $pid  父节点ID
+ * @param  array  $config  配置
+ * @param  int  $level
+ *
+ * @return array 散列数组
+ */
+function arrayToTree(array $array, $pid, $config = [], $level = 0)
+{
+    $curConfig = [
+        'idKey'       => isset($config['idKey']) ? $config['idKey'] : 'id',// 节点的ID字段名
+        'parentKey'   => isset($config['parentKey']) ? $config['parentKey'] : 'pid', // 父节点的ID字段名
+        'childrenKey' => isset($config['childrenKey']) ? $config['childrenKey'] : 'children', // 子列表的key名
+        'maxLevel'    => isset($config['maxLevel']) ? $config['maxLevel'] : 0,// 最大层级，0为不限制。父节点算一层
+        'levelKey'    => isset($config['levelKey']) ? $config['levelKey'] : 'level',// 层级的key名，按从1开始
+    ];
+    $nodeList = [];
+    foreach ($array as $index => $item) {
+        if ($item[$curConfig['parentKey']] == $pid) {
+            // 寻找下一级
+            if ($curConfig['maxLevel'] === 0 || $level + 1 <= $curConfig['maxLevel']) {
+                if (!empty($curConfig['levelKey'])) {
+                    $item[$curConfig['levelKey']] = $level;
+                }
+
+                if($item['child']) $item['catname'] .= '(目录)';
+                else $item['catname'] .= '(内容)';
+
+                $item[$curConfig['childrenKey']] = arrayToTree($array, $item[$curConfig['idKey']], $config, $level + 1);
+            }
+            $nodeList[] = $item;
+        }
+    }
+    return $nodeList;
 }
 

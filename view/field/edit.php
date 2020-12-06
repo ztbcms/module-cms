@@ -295,7 +295,7 @@
                         issearch :false,
                         isfulltext : false,
                         isunique : false,
-                        formtype : true
+                        formtype : "{$isEditField}"
                     },
                     setting : '',
                     rules: {},
@@ -308,14 +308,13 @@
                 if("{$fieldid}" > 0) this.getDetails();
             },
             mounted: function() {
-                this.getParameter();
+
                 if("{$is_disabled_formtype}" <= 0) {
                     this.disabled.formtype = false;
                 } else {
                     this.disabled.formtype = true;
                 }
-
-
+                this.getParameter();
             },
             methods: {
                 getPatternVal : function () {
@@ -403,7 +402,7 @@
                             that.formData.modelid = '{$modelid}';
                             that.formData.fieldid = "{$fieldid}";
                             that.formData.formtype = res.data.data.formtype;
-                            that.formData.issystem = res.data.data.issystem;
+                            that.formData.issystem = String(res.data.data.issystem);
                             that.formData.field = String(res.data.data.field);
                             that.formData.name = res.data.data.name;
                             that.formData.tips = res.data.data.tips;
@@ -453,6 +452,7 @@
                             that.formData.setting.statistics = res.data.setting.statistics;
                             that.formData.setting.downloadlink = res.data.setting.downloadlink;
                             that.formData.setting.formtext = res.data.setting.formtext;
+
                         }
                     });
                 }
