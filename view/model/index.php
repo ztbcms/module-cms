@@ -11,9 +11,6 @@
                         模型导入
                     </el-button>
 
-                    <br>
-                    <br>
-
                     <el-button @click="searchField" size="small" type="primary">
                         手动填写表名导出字典
                     </el-button>
@@ -74,19 +71,19 @@
                         <el-table-column label="管理操作" align="center" width="400" class-name="small-padding fixed-width">
                             <template slot-scope="scope">
 
-                                <el-button type="primary" style="" size="mini"
-                                           @click="exportDictionary(scope.row.modelid)">导出数据字典
+                                <el-button type="text" size="mini" @click="edit(scope.row.modelid)">修改</el-button>
+
+                                <el-button type="text" size="mini" @click="modelField(scope.row.modelid)">字段管理</el-button>
+
+                                <el-button type="text" style="" size="mini" @click="exportDictionary(scope.row.modelid)">导出数据字典
                                 </el-button>
 
-                                <el-button type="primary" size="mini" @click="edit(scope.row.modelid)">修改</el-button>
-
-                                <el-button type="primary" size="mini" @click="modelField(scope.row.modelid)">字段管理</el-button>
-
-                                <div style="height: 5px;"></div>
-                                <el-button type="danger" size="mini" @click="clickDelteItem(scope.row.modelid)">删除
+                                <el-button type="text" size="mini" @click="exportModel(scope.row.modelid)">导出模型
                                 </el-button>
-                                <el-button type="primary" size="mini" @click="exportModel(scope.row.modelid)">导出模型
+
+                                <el-button type="text" style="color: #f56c6c;" size="mini" @click="clickDelteItem(scope.row.modelid)">删除
                                 </el-button>
+
                             </template>
                         </el-table-column>
                     </el-table>
@@ -148,11 +145,23 @@
                 },
                 // 导出全部模型数据字典
                 exportAllField:function() {
-                    window.location.href = "{:api_url('/cms/FieldExport/exportModelFields')}"
+                    var url = "{:api_url('/cms/FieldExport/exportModelFields')}"
+                    layer.open({
+                        type: 2,
+                        title: '数据字典',
+                        content: url,
+                        area: ['100%', '100%'],
+                    })
                 },
                 // 字段管理
                 modelField:function(modelid) {
-                    window.location.href = "{:api_url('/cms/Field/index')}" + '?modelid=' +  modelid
+                    var url = "{:api_url('/cms/Field/index')}" + '?modelid=' +  modelid
+                    layer.open({
+                        type: 2,
+                        title: '字段管理',
+                        content: url,
+                        area: ['100%', '100%'],
+                    })
                 },
                 // 添加模型
                 add: function () {
@@ -182,7 +191,17 @@
                 },
                 // 导出数据字典
                 exportDictionary: function (modelid) {
-                    window.location.href = "{:api_url('/cms/FieldExport/exportModelFields')}" + '?modelid=' + modelid
+                    var url = "{:api_url('/cms/FieldExport/exportModelFields')}" + '?modelid=' + modelid
+                    layer.open({
+                        type: 2,
+                        title: '导出数据字典',
+                        content: url,
+                        area: ['100%', '100%'],
+                    })
+                },
+                // 导出模型 下载
+                exportModel: function (modelid) {
+                    window.location.href = "{:api_url('/cms/model/export')}" + '?modelid=' + modelid
                 },
                 // 删除模型
                 clickDelteItem: function (modelid) {
@@ -225,11 +244,6 @@
                         }
                     })
                 },
-                // 导出模型 下载
-                exportModel: function (modelid) {
-                    var url = "{:api_url('/cms/model/export')}" + '?modelid=' + modelid
-                    window.open(url)
-                }
             },
             mounted: function () {
                 this.fetchData();
@@ -238,7 +252,7 @@
     });
 </script>
 
-<link href="/statics/css/admin_style.css" rel="stylesheet"/>
+
 <style>
 
 </style>

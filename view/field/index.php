@@ -11,10 +11,6 @@
             </div>
 
             <div class="filter-container">
-                <el-button @click="runBack" size="small" type="primary">
-                    返回列表
-                </el-button>
-
                 <el-button @click="add" size="small" type="primary">
                     添加字段
                 </el-button>
@@ -321,23 +317,20 @@
 
                 // 编辑字段
                 edit: function (modelid, fieldid) {
-                    location.href = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
+                    var url = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
+                    Ztbcms.openNewIframeByUrl('编辑字段', url)
                 },
 
                 // 添加字段
                 add: function () {
-                    location.href = "{:api_url('/cms/field/add')}" + '?modelid=' + this.modelid
+                    var url = "{:api_url('/cms/field/add')}" + '?modelid=' + this.modelid
+                    Ztbcms.openNewIframeByUrl('添加字段', url)
                 },
                 // 预览模型
                 showModel: function () {
                     var url = "{:api_url('/cms/field/priview')}" + '?modelid=' + this.modelid
-                    Ztbcms.openNewIframeByUrl('预览模型', url);
+                    Ztbcms.openNewIframeByUrl('预览模型', url)
                 },
-
-                // 返回列表
-                runBack: function () {
-                    window.location.href = "{:api_url('/cms/model/index')}"
-                }
             },
             mounted: function () {
                 this.fetchData();

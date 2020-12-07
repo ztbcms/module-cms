@@ -1,37 +1,43 @@
-<div id="app" style="padding: 8px;" v-cloak>
-    <el-card>
-        <el-col :span="4">
-            <template>
-                <div style="margin-bottom: 20px">
+<div id="app" style="height: 100%" v-cloak>
+    <el-col :span="4">
+        <template>
+            <div style="margin-top: 20px">
 
-                    <el-tree :data="data"
-                             default-expand-all
-                             :props="defaultProps"
-                             @node-click="handleNodeClick">
-                    </el-tree>
+                <el-tree :data="data"
+                         default-expand-all
+                         :props="defaultProps"
+                         @node-click="handleNodeClick">
+                </el-tree>
 
-                </div>
-            </template>
-        </el-col>
-
-        <el-col :span="19" style="margin-left: 5px;">
-
-            <div>
-                <div v-if="src != ''">
-                    <iframe  :src="src" id="iframe" style="height: 600px; width:100%;"></iframe>
-                </div>
-                <div v-else>
-                    <el-alert type="success">
-                        <p> 温馨提示 ： </p>
-                        <p> 一 ：终极目录才能进行管理 </p>
-                    </el-alert>
-                </div>
             </div>
+        </template>
+    </el-col>
+
+    <el-col :span="20" style="">
+
+        <div v-if="src != ''">
+            <iframe  :src="src" id="iframe" style="width:100%;border: 0;" :style="{height: iframeHeight + 'px'}"></iframe>
+        </div>
+        <div v-else>
+            <el-alert type="success">
+                <p> 温馨提示 ： </p>
+                <p> 一 ：终极目录才能进行管理 </p>
+            </el-alert>
+        </div>
 
 
-        </el-col>
-    </el-card>
+    </el-col>
 </div>
+
+<style>
+    html,body{
+        height: 100%;
+        margin: 0;
+    }
+    #app{
+        background: white;
+    }
+</style>
 
 <script>
     $(document).ready(function () {
@@ -47,7 +53,8 @@
                         children: 'children',
                         label: 'catname'
                     },
-                    src : ''
+                    src : '',
+                    iframeHeight: 400
                 }
             },
             computed: {},
@@ -60,6 +67,7 @@
             },
             mounted: function() {
                 this.getDetails();
+                this.iframeHeight = document.body.clientHeight
             },
             methods: {
                 //获取菜单列表
@@ -76,7 +84,7 @@
                 },
                 handleNodeClick : function (data) {
                     if(data.child <= 0) {
-                        this.src = "{:api_url('/cms/Content/list')}&catid=" + data.catid;
+                        this.src = "{:api_url('/cms/Content/list')}?catid=" + data.catid;
                     } else {
                         this.src = '';
                     }

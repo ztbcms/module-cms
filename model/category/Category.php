@@ -7,6 +7,7 @@
 
 namespace app\cms\model\category;
 
+use app\common\libs\helper\TreeHelper;
 use think\Model;
 use think\facade\App;
 use think\facade\Db;
@@ -532,7 +533,7 @@ class Category extends Model
         if (!$list->isEmpty()) $list = $list->toArray() ?: [];
         $config['idKey'] = 'catid';
         $config['parentKey'] = 'parentid';
-        $list = arrayToTree($list, 0, $config);
+        $list = TreeHelper::arrayToTree($list, 0, $config);
         return $list;
     }
 

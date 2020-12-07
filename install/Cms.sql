@@ -1,6 +1,4 @@
--- ----------------------------
--- Table structure for cms_category
--- ----------------------------
+
 DROP TABLE IF EXISTS `cms_content_category`;
 CREATE TABLE `cms_content_category` (
   `catid` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '栏目ID',
@@ -29,13 +27,6 @@ CREATE TABLE `cms_content_category` (
   KEY `siteid` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
 
--- ----------------------------
--- Records of cms_category
--- ----------------------------
-
--- ----------------------------
--- Table structure for cms_category_field
--- ----------------------------
 DROP TABLE IF EXISTS `cms_content_category_field`;
 CREATE TABLE `cms_content_category_field` (
   `fid` smallint(6) NOT NULL AUTO_INCREMENT COMMENT '自增长id',
@@ -47,13 +38,7 @@ CREATE TABLE `cms_content_category_field` (
   PRIMARY KEY (`fid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目扩展字段列表';
 
--- ----------------------------
--- Records of cms_category_field
--- ----------------------------
 
--- ----------------------------
--- Table structure for cms_category_priv
--- ----------------------------
 DROP TABLE IF EXISTS `cms_content_category_priv`;
 CREATE TABLE `cms_content_category_priv` (
   `catid` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -63,13 +48,7 @@ CREATE TABLE `cms_content_category_priv` (
   KEY `catid` (`catid`,`roleid`,`is_admin`,`action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目权限表';
 
--- ----------------------------
--- Records of cms_category_priv
--- ----------------------------
 
--- ----------------------------
--- Table structure for cms_model
--- ----------------------------
 DROP TABLE IF EXISTS `cms_content_model`;
 CREATE TABLE `cms_content_model` (
   `modelid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
@@ -95,13 +74,7 @@ CREATE TABLE `cms_content_model` (
   KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容模型列表';
 
--- ----------------------------
--- Records of cms_model
--- ----------------------------
 
--- ----------------------------
--- Table structure for cms_model_field
--- ----------------------------
 DROP TABLE IF EXISTS `cms_content_model_field`;
 CREATE TABLE `cms_content_model_field` (
   `fieldid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
