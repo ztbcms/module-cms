@@ -1,8 +1,4 @@
 ### 内容管理模块
-
-##### 安装以下内容（在tp6文件夹下）
-composer require liliuwei/thinkphp-jump
-
 ```
 │ 内容模块
 │
@@ -15,7 +11,11 @@ composer require liliuwei/thinkphp-jump
 │
 ```
 
+```
 暂未处理：
-1、模型管理-字段管理-预览模型
-2、\app\admin\libs\system\Rbac::ableAccess  鉴权失败，暂且直接return true
+1、字段设置没有进行样式的控制，部分字段没有制作编辑管理
+2、未进行推荐位的管理
+3、未进行权限的控制  
+```
+
 

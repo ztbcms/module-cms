@@ -116,15 +116,15 @@
             mounted: function() {
                 window.addEventListener('ZTBCMS_UPLOAD_IMAGE', this.onUploadedImage.bind(this));
 
+                var that = this;
                 //加载富文本编辑器
                 var editor = "{$editor}";
                 setInterval(function working(){
                     var arr = editor.split(',');
                     arr.filter(function (element,index, self) {
-                        UE.getEditor(element);
+                        that.editor[element] = UE.getEditor(element);
                     });
                 },2000);
-
             },
             methods: {
 
@@ -175,7 +175,7 @@
 
                     //处理富文本的信息
                     for(var i in that.editor){
-                        this.formData[i] = that.editor[i].getContent();
+                        where[i] = that.editor[i].getContent();
                     }
 
                     that.httpPost(url,where, function(res){

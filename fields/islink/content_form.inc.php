@@ -1,5 +1,4 @@
 <el-form-item :label="item.name" required >
-    <el-input v-model="formData[item.field]" :placeholder="'请输入'+item.name" clearable
-              :style="{width: '100%'}">
-    </el-input>
+    <el-radio v-model="formData[item.field]" label="1">是</el-radio>
+    <el-radio v-model="formData[item.field]" label="0">否</el-radio>
 </el-form-item>

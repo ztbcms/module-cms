@@ -107,14 +107,20 @@ class ContentService extends BaseService
         $modelid = $CategoryDetails['modelid'];
 
         $contentDetails = [];
+        $contentDataDetails = [];
         if($id > 0){
             $modelWhere[] = ['modelid','=',$modelid];
             $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
+
+            //获取主表的信息
             $tablename = $modelDetails['tablename'];
             $contentWhere[] = ['catid','=',$catid];
             $contentWhere[] = ['id','=',$id];
             $contentDetails = Db::name($tablename)->where($contentWhere)
                 ->find() ?: [];
+
+            //获取副表的信息
+            $contentDataDetails = Db::name($tablename.'_data')->where('id','=',$id)->find();
         }
 
         //列表中显示的字段
@@ -149,8 +155,18 @@ class ContentService extends BaseService
                 $formData[$v['field']] = $catid;
             } else {
                 if(isset($contentDetails[$v['field']])) {
-                    //是否存在值
+                    //主表是否存在值
                     $content = $contentDetails[$v['field']];
+                    if(is_numeric($content)) {
+                        $content = (string)$content;
+                    }
+                    if($v['formtype'] == 'datetime') {
+                        $content = date("Y-m-d H:i",$content);
+                    }
+                    $formData[$v['field']] = $content;
+                } else if(isset($contentDataDetails[$v['field']])) {
+                    //副表是否存在值
+                    $content = $contentDataDetails[$v['field']];
                     if(is_numeric($content)) {
                         $content = (string)$content;
                     }
