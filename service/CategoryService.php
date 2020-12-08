@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: asus
- * Date: 2020/12/6
- * Time: 12:54
- */
 
 namespace app\cms\service;
 
@@ -22,6 +16,7 @@ use app\admin\service\AdminUserService;
 class CategoryService extends BaseService
 {
 
+
     /**
      * 获取栏目列表
      * @return array
@@ -34,29 +29,14 @@ class CategoryService extends BaseService
         $Model = new Model();
         $models = $Model::model_cache();
 
-        // 类型
-        $type = [
-            0 => '内部栏目',
-            1 => '单网页',
-            2 => '外部链接',
-        ];
 
         foreach ($list as $k => &$v) {
-            $v['type_name'] = $type[$v['type']];
+            $v['type_name'] = Category::getCategoryTypeName($v['type']);
             $v['model_name'] = (!empty($models[$v['modelid']])) ? $models[$v['modelid']]['name'] : '';
 
-            $v['url'] = api_url("/cms/Content/list").'&catid='.$v['catid'];
-            $v['url_text'] = '访问';
-            $v['url_jump'] = 'open';
-//            if ($v['url']) {
-//                $v['url'] = api_url("/cms/category/public_cache");
-//                $v['url_text'] = '访问';
-//                $v['url_jump'] = 'open';
-//            } else {
-//                $v['url'] = api_url("/cms/category/public_cache");
-//                $v['url_text'] = '更新缓存';
-//                $v['url_jump'] = 'update';
-//            }
+            if(empty($v['url'])){
+                $v['url'] = api_url("/cms/Index/list").'?catid='.$v['catid'];
+            }
         }
         return self::createReturn(true, $list, '获取成功');
     }

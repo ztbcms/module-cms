@@ -2,14 +2,14 @@
 DROP TABLE IF EXISTS `cms_content_category`;
 CREATE TABLE `cms_content_category` (
   `catid` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '栏目ID',
-  `module` varchar(15) NOT NULL DEFAULT '' COMMENT '所属模块',
-  `type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '类别',
+  `module` varchar(15) NOT NULL DEFAULT '' COMMENT '所属模块[废弃]',
+  `type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '类型：0内容栏目， 1栏目组',
   `modelid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
-  `domain` varchar(200) NOT NULL DEFAULT '' COMMENT '栏目绑定域名',
+  `domain` varchar(200) NOT NULL DEFAULT '' COMMENT '栏目绑定域名[废弃]',
   `parentid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
   `arrparentid` varchar(255) NOT NULL DEFAULT '' COMMENT '所有父ID',
-  `child` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否存在子栏目，1存在',
-  `arrchildid` mediumtext COMMENT '所有子栏目ID',
+  `child` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否存在子栏目，1存在[废弃]',
+  `arrchildid` mediumtext COMMENT '所有子栏目ID[废弃]',
   `catname` varchar(30) NOT NULL DEFAULT '' COMMENT '栏目名称',
   `image` varchar(100) NOT NULL DEFAULT '' COMMENT '栏目图片',
   `description` mediumtext COMMENT '栏目描述',
@@ -20,13 +20,12 @@ CREATE TABLE `cms_content_category` (
   `setting` mediumtext COMMENT '相关配置信息',
   `listorder` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
   `ismenu` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '是否显示',
-  `sethtml` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否生成静态',
-  `letter` varchar(30) NOT NULL DEFAULT '' COMMENT '栏目拼音',
+  `sethtml` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否生成静态[废弃]',
+  `letter` varchar(30) NOT NULL DEFAULT '' COMMENT '栏目拼音[废弃]',
   PRIMARY KEY (`catid`),
-  KEY `module` (`module`,`parentid`,`listorder`,`catid`),
-  KEY `siteid` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
 
+-- TODO: 废弃
 DROP TABLE IF EXISTS `cms_content_category_field`;
 CREATE TABLE `cms_content_category_field` (
   `fid` smallint(6) NOT NULL AUTO_INCREMENT COMMENT '自增长id',

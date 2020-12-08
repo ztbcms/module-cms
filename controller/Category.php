@@ -10,9 +10,11 @@ namespace app\cms\controller;
 use app\cms\service\CategoryService;
 use app\common\controller\AdminController;
 use think\App;
+use think\facade\Request;
 use think\facade\View;
 use app\cms\model\model\Model;
 use app\cms\model\category\Category as CategoryModel;
+use think\response\Json;
 
 
 /**
@@ -32,7 +34,8 @@ class Category extends AdminController
             return CategoryService::deleteCatid($catid);
         } else if($action == 'getCategoyList') {
             //获取列表数据
-            return CategoryService::getCategoyList();
+            $res =  CategoryService::getCategoyList();
+            return json($res);
         } else if($action == 'listOrderCategoy'){
             //编辑列表排序
             $post = input('post.');
@@ -51,12 +54,21 @@ class Category extends AdminController
 
     /**
      * 栏目详情
-     * @return string|\think\response\Json
+     *
+     * @return string|Json
      */
-    public function details()
+    function details()
     {
-        $action = input('action', '', 'trim');
+        $action = input('_action', '', 'trim');
         $catid = input('catid', '0', 'trim');
+        if (Request::isGet() && $action == 'getFormParam') {
+            $categoryList = CategoryService::getCategoyList()['data'];
+            $modelList = (new Model())->getAvailableList();
+            return self::makeJsonReturn(true, [
+                'categoryList' => $categoryList,
+                'modelList' => $modelList
+            ]);
+        }
         if ($action == 'add_submit') {
             $post = input('post.');
             return CategoryService::addSubmit($post);

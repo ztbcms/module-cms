@@ -12,9 +12,12 @@
 
                         <el-form-item label="请选择模型" prop="info.modelid" required>
                             <el-select v-model="formData.info.modelid" placeholder="请选择模型" :style="{width: '100%'}">
-                                {volist name="models" id="vo"}
-                                <el-option label="{$vo.name}" value="{$vo.modelid}"></el-option>
-                                {/volist}
+
+                                <el-option v-for="item in modelList"
+                                           :id="item.modelid"
+                                           :label="item.name"
+                                           :value="item.modelid"></el-option>
+
                             </el-select>
                         </el-form-item>
 
@@ -22,9 +25,16 @@
                         <el-form-item label="上级栏目" prop="info.parentid" required>
                             <el-select v-model="formData.info.parentid" placeholder="请选择模型" :style="{width: '100%'}">
                                 <el-option label="作为一级栏目" value="0"></el-option>
-                                {volist name="category" id="vo"}
-                                <el-option label="{$vo.catname}" value="{$vo.catid}"></el-option>
-                                {/volist}
+                                <el-option
+                                        v-for="item in categoryList"
+                                        :key="item.id"
+                                        :label="item.catname"
+                                        :value="item.catid">
+                                    <template v-for="i in item.level * 2"><span>&nbsp;</span></template>
+                                    <template v-if="item.level > 0"><span> ∟</span></template>
+                                    <span>{{ item.catname }}</span>
+                                </el-option>
+
                             </el-select>
                         </el-form-item>
 
@@ -38,9 +48,10 @@
                                       :style="{width: '100%'}"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="是否为目录" prop="info.child" required>
-                            <el-radio v-model="formData.info.child" label="0">否</el-radio>
-                            <el-radio v-model="formData.info.child" label="1">是</el-radio>
+                        <el-form-item label="类型" prop="info.type" required>
+                            <el-radio v-model="formData.info.type" label="0">内容栏目</el-radio>
+                            <el-radio v-model="formData.info.type" label="1">栏目组</el-radio>
+                            <el-radio v-model="formData.info.type" label="2">外部链接</el-radio>
                         </el-form-item>
 
                         <el-form-item size="large">
@@ -72,11 +83,10 @@
                             parentid: '0',
                             catname: '',  //栏目名称
                             catdir: '',  //英文目录
-                            child: '0', //是否为终极目录
+                            type: '0', //是否为终极目录
                             description: '', //栏目简介
                             ismenu: '0', //是否在导航栏中显示
                             listorder: '0', //显示排序
-
                         },
                         setting: {
                             listoffmoving: '1', //关闭列表动态访问
@@ -106,6 +116,10 @@
                     disabled: {},
                     setting: '',
                     rules: {},
+                    // 栏目树状列表
+                    categoryList: [],
+                    // 模型列表
+                    modelList: []
                 }
             },
             computed: {},
@@ -113,6 +127,7 @@
             created: function () {
             },
             mounted: function () {
+                this.getFormParam()
                 if (this.formData.catid > 0) this.getDetails();
             },
             methods: {
@@ -121,9 +136,9 @@
                     var url = "{:api_url('/cms/category/details')}";
                     var data = that.formData;
                     if (that.formData.catid > 0) {
-                        data.action = 'edit_submit';
+                        data._action = 'edit_submit';
                     } else {
-                        data.action = 'add_submit';
+                        data._action = 'add_submit';
                     }
                     that.httpPost(url, data, function (res) {
                         layer.msg(res.msg);
@@ -137,23 +152,33 @@
                         }
                     })
                 },
-                runBack: function () {
-                    window.location.href = "{:api_url('/cms/Category/index')}"
-                },
+                // 详情
                 getDetails: function () {
                     var that = this;
                     var url = "{:api_url('/cms/category/details')}";
                     var data = {
                         'catid': this.formData.catid
                     };
-                    data.action = 'details';
+                    data._action = 'details';
                     that.httpPost(url, data, function (res) {
                         if (res.data) {
-                            that.formData.info.modelid = String(res.data.modelid);
+                            that.formData.info.modelid = res.data.modelid ;
                             that.formData.info.parentid = String(res.data.parentid);
                             that.formData.info.catname = res.data.catname;
                             that.formData.info.catdir = res.data.catdir;
-                            that.formData.info.child = String(res.data.child);
+                        }
+                    })
+                },
+                // 表单参数
+                getFormParam: function () {
+                    var that = this;
+                    var url = "{:api_url('/cms/category/details')}";
+                    var data = {};
+                    data._action = 'getFormParam';
+                    that.httpGet(url, data, function (res) {
+                        if (res.data) {
+                            that.categoryList = res.data.categoryList
+                            that.modelList = res.data.modelList
                         }
                     })
                 }

@@ -56,17 +56,9 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="访问" width="100px" align="center">
+            <el-table-column label="链接" width="100px" align="center">
                 <template slot-scope="{row}">
-                    <el-link @click="updateCache(row.url,row.url_jump)">{{row.url_text}}</el-link>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="域名绑定须知" align="">
-                <template slot-scope="scope">
-                    <template v-for="i in scope.row.level * 2"><span>&nbsp;</span></template>
-                    <template v-if="scope.row.level > 0"><span> ∟</span></template>
-                    <span>{{ scope.row.catname }}</span>
+                    <el-link :href="row.url" target="_blank">点击访问</el-link>
                 </template>
             </el-table-column>
 
