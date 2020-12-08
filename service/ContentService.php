@@ -154,29 +154,34 @@ class ContentService extends BaseService
             if($v['formtype'] == 'catid') {
                 $formData[$v['field']] = $catid;
             } else {
-                if(isset($contentDetails[$v['field']])) {
-                    //主表是否存在值
-                    $content = $contentDetails[$v['field']];
-                    if(is_numeric($content)) {
-                        $content = (string)$content;
+                if(isset($contentDetails[$v['field']]) || isset($contentDataDetails[$v['field']])) {
+                    //主表或者副表存在的情况
+                    if(isset($contentDetails[$v['field']])) {
+                        //主表存在
+                        $content = $contentDetails[$v['field']];
+                    } else {
+                        //副表存在
+                        $content = $contentDataDetails[$v['field']];
                     }
-                    if($v['formtype'] == 'datetime') {
-                        $content = date("Y-m-d H:i",$content);
-                    }
-                    $formData[$v['field']] = $content;
-                } else if(isset($contentDataDetails[$v['field']])) {
-                    //副表是否存在值
-                    $content = $contentDataDetails[$v['field']];
-                    if(is_numeric($content)) {
-                        $content = (string)$content;
-                    }
-                    if($v['formtype'] == 'datetime') {
-                        $content = date("Y-m-d H:i",$content);
-                    }
-                    $formData[$v['field']] = $content;
                 } else {
-                    $formData[$v['field']] = '';
+                    $content = '';
                 }
+                if(is_numeric($content)) {
+                    $content = (string)$content;
+                }
+                if($v['formtype'] == 'datetime') {
+                    //日期类型的进行日期处理
+                    if(is_numeric($content)) $content = date("Y-m-d H:i",$content);
+                }
+                if($v['formtype'] == 'images' || $v['formtype'] == 'downfiles'){
+                    //多图片或者多文件
+                    if($content) {
+                        $content = explode(',',$content);
+                    } else {
+                        $content = [];
+                    }
+                }
+                $formData[$v['field']] = $content;
             }
         }
         $res['form_data'] = $formData;
@@ -216,6 +221,11 @@ class ContentService extends BaseService
                 if($v['formtype'] == 'datetime') {
                     //时间类型的参数进行转换
                     $post[$v['field']] = strtotime($post[$v['field']]);
+                }
+
+                if($v['formtype'] == 'images' || $v['formtype'] == 'downfiles'){
+                    //多图片或者多文件
+                    $post[$v['field']] = implode (',',$post[$v['field']]);
                 }
 
                 //存在该参数

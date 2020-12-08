@@ -90,11 +90,12 @@ class Content extends AdminController
         $where[] = ['formtype','=','editor'];
         $editor = $ModelField->where($where)->group('field')->column('field') ?: [];
         $editor = implode(',',$editor);
-        return View::fetch('details',[
+        return View::fetch('content/details/admin_default/admin_default',[
             'catid' => $catid,
             'id' => $id,
             'editor' => $editor
         ]);
     }
+
 
 }
