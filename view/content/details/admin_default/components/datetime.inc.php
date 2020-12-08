@@ -1,16 +1,14 @@
 <script type="text/x-template" id="default-datetime">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name">
-                <el-date-picker
+    <div class="default-datetime">
+        <el-form-item :label="field.name">
+            <el-date-picker
                     v-model="field_data[field.field]"
                     type="datetime"
                     format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm"
                     placeholder="选择日期时间">
-                </el-date-picker>
-            </el-form-item>
-        </div>
+            </el-date-picker>
+        </el-form-item>
     </div>
 </script>
 

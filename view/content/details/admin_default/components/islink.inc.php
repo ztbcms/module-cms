@@ -1,13 +1,11 @@
 <script type="text/x-template" id="default-islink">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name">
+    <div class="default-islink">
+        <el-form-item :label="field.name">
 
-                <el-radio v-model="field_data[field.field]" :label="1">是</el-radio>
-                <el-radio v-model="field_data[field.field]" :label="0">否</el-radio>
+            <el-radio v-model="field_data[field.field]" :label="1">是</el-radio>
+            <el-radio v-model="field_data[field.field]" :label="0">否</el-radio>
 
-            </el-form-item>
-        </div>
+        </el-form-item>
     </div>
 </script>
 

@@ -1,20 +1,18 @@
 <script type="text/x-template" id="default-downfiles">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name">
-                <div>
-                    <template v-for="(items,index) in field_data[field.field]">
-                        <p style="margin-top: 0;">
-                            <a :href="items" target="_blank">
-                                <span style="color: #0e85d5">{{ items }}</span>
-                            </a>
-                            <span class="el-icon-delete" @click="deleteItem(index)"></span>
-                        </p>
-                    </template>
-                </div>
-                <el-button type="primary" @click="gotoUploadFile('source_file')">点击上传</el-button>
-            </el-form-item>
-        </div>
+    <div style="default-downfile">
+        <el-form-item :label="field.name">
+            <div>
+                <template v-for="(items,index) in field_data[field.field]">
+                    <p style="margin-top: 0;">
+                        <a :href="items" target="_blank">
+                            <span style="color: #0e85d5">{{ items }}</span>
+                        </a>
+                        <span class="el-icon-delete" @click="deleteItem(index)"></span>
+                    </p>
+                </template>
+            </div>
+            <el-button type="primary" @click="gotoUploadFile('source_file')">点击上传</el-button>
+        </el-form-item>
     </div>
 </script>
 

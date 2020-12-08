@@ -1,11 +1,9 @@
 <script type="text/x-template" id="default-tags">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name">
-                <el-input v-model="field_data[field.field]" :placeholder="'请输入'+field.name" clearable :style="{width: '100%'}"  @change="handleChange">
-                </el-input>
-            </el-form-item>
-        </div>
+    <div class="default-tags">
+        <el-form-item :label="field.name">
+            <el-input v-model="field_data[field.field]" :placeholder="'请输入'+field.name" clearable :style="{width: '100%'}"  @change="handleChange">
+            </el-input>
+        </el-form-item>
     </div>
 </script>
 

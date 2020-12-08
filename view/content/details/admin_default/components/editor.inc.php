@@ -1,12 +1,10 @@
 <script type="text/x-template" id="default-editor">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name">
-                <div style="line-height: 0;">
+    <div class="default-editor">
+        <el-form-item :label="field.name">
+            <div style="line-height: 0;">
                 <textarea :id="field.field" style="height: 400px;width: 375px">{{ field_data[field.field] }}</textarea>
-                </div>
-            </el-form-item>
-        </div>
+            </div>
+        </el-form-item>
     </div>
 </script>
 

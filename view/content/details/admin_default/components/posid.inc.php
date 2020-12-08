@@ -1,10 +1,8 @@
 <script type="text/x-template" id="default-posid">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name" required>
+    <div class="default-posid">
+        <el-form-item :label="field.name" required>
 
-            </el-form-item>
-        </div>
+        </el-form-item>
     </div>
 </script>
 

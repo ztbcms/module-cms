@@ -1,18 +1,14 @@
 <script type="text/x-template" id="default-box">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name" required>
-
-                <div>
-                    <el-radio v-for="(items,key) in field.setting.option_list"
-                              v-model="field_data[field.field]"
-                              :label="key">
-                        {{ items }}
-                    </el-radio>
-                </div>
-
-            </el-form-item>
-        </div>
+    <div class="default-box">
+        <el-form-item :label="field.name" required>
+            <div>
+                <el-radio v-for="(items,key) in field.setting.option_list"
+                          v-model="field_data[field.field]"
+                          :label="key">
+                    {{ items }}
+                </el-radio>
+            </div>
+        </el-form-item>
     </div>
 </script>
 

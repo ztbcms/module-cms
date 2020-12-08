@@ -1,25 +1,23 @@
 <script type="text/x-template" id="default-image">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name">
-                <template v-if="field_data[field.field] != ''">
-                    <div class="imgListItem">
-                        <img :src="field_data[field.field]" style="width: 120px;height: 120px;">
-                        <div class="deleteMask" @click="uploadImg()">
-                            <span style="line-height: 120px;font-size: 22px" class="el-icon-upload"></span>
-                        </div>
+    <div class="default-image">
+        <el-form-item :label="field.name">
+            <template v-if="field_data[field.field] != ''">
+                <div class="imgListItem">
+                    <img :src="field_data[field.field]" style="width: 120px;height: 120px;">
+                    <div class="deleteMask" @click="uploadImg()">
+                        <span style="line-height: 120px;font-size: 22px" class="el-icon-upload"></span>
                     </div>
-                </template>
-                <template v-else>
-                    <div class="imgListItem">
-                        <div
+                </div>
+            </template>
+            <template v-else>
+                <div class="imgListItem">
+                    <div
                             @click="uploadImg()" style="width: 120px;height: 120px;text-align: center;">
-                            <span style="line-height: 120px;font-size: 22px" class="el-icon-plus"></span>
-                        </div>
+                        <span style="line-height: 120px;font-size: 22px" class="el-icon-plus"></span>
                     </div>
-                </template>
-            </el-form-item>
-        </div>
+                </div>
+            </template>
+        </el-form-item>
     </div>
 </script>
 
@@ -30,30 +28,26 @@
             props: {
                 field: {
                     type: Object,
-                    defalut:function() {
+                    defalut: function () {
                         return {};
                     }
                 },
-                field_data : {
+                field_data: {
                     type: Object,
-                    defalut:function() {
+                    defalut: function () {
                         return {};
                     }
                 }
             },
-            watch: {
-
-            },
+            watch: {},
             template: '#default-image',
-            data: function() {
-                return {
-
-                }
+            data: function () {
+                return {}
             },
-            created: function() {
+            created: function () {
 
             },
-            mounted:function() {
+            mounted: function () {
                 window.addEventListener('ZTBCMS_UPLOAD_IMAGE', this.onUploadedImage.bind(this));
             },
             methods: {
@@ -79,7 +73,8 @@
 
 
 <style>
-    .imgListItem {
+
+    .default-image .imgListItem {
         height: 120px;
         border: 1px dashed #d9d9d9;
         border-radius: 6px;
@@ -90,7 +85,8 @@
         cursor: pointer;
         vertical-align: top;
     }
-    .deleteMask {
+
+    .default-image .deleteMask {
         position: absolute;
         top: 0;
         left: 0;
@@ -102,7 +98,9 @@
         font-size: 40px;
         opacity: 0;
     }
-    .deleteMask:hover {
+
+    .default-image.deleteMask:hover {
         opacity: 1;
     }
+
 </style>

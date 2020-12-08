@@ -1,11 +1,9 @@
 <script type="text/x-template" id="default-omnipotent">
-    <div>
-        <div class="block">
-            <el-form-item :label="field.name" required>
-                <el-input v-model="field_data[field.field]" :placeholder="'请输入'+field.name" clearable :style="{width: '100%'}"  @change="handleChange" disabled>
-                </el-input>
-            </el-form-item>
-        </div>
+    <div class="default-omnipotent">
+        <el-form-item :label="field.name" required>
+            <el-input v-model="field_data[field.field]" :placeholder="'请输入'+field.name" clearable :style="{width: '100%'}"  @change="handleChange" disabled>
+            </el-input>
+        </el-form-item>
     </div>
 </script>
 
