@@ -10,7 +10,7 @@
                 <div>
                     <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="210px">
 
-                        <el-form-item label="请选择模型" prop="formtype.info.modelid" required>
+                        <el-form-item label="请选择模型" prop="info.modelid" required>
                             <el-select v-model="formData.info.modelid" placeholder="请选择模型" :style="{width: '100%'}">
                                 {volist name="models" id="vo"}
                                 <el-option label="{$vo.name}" value="{$vo.modelid}"></el-option>
@@ -19,7 +19,7 @@
                         </el-form-item>
 
 
-                        <el-form-item label="上级栏目" prop="formtype.info.parentid" required>
+                        <el-form-item label="上级栏目" prop="info.parentid" required>
                             <el-select v-model="formData.info.parentid" placeholder="请选择模型" :style="{width: '100%'}">
                                 <el-option label="作为一级栏目" value="0"></el-option>
                                 {volist name="category" id="vo"}
@@ -28,17 +28,17 @@
                             </el-select>
                         </el-form-item>
 
-                        <el-form-item label="栏目名称" prop="formData.info.catname" required>
+                        <el-form-item label="栏目名称" prop="info.catname" required>
                             <el-input v-model="formData.info.catname" placeholder="请输入栏目名称" clearable
                                       :style="{width: '100%'}"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="英文目录" prop="formData.info.catdir" required>
+                        <el-form-item label="英文目录" prop="info.catdir" required>
                             <el-input v-model="formData.info.catdir" placeholder="请输入英文目录" clearable
                                       :style="{width: '100%'}"></el-input>
                         </el-form-item>
 
-                        <el-form-item label="是否为目录" prop="formData.info.child" required>
+                        <el-form-item label="是否为目录" prop="info.child" required>
                             <el-radio v-model="formData.info.child" label="0">否</el-radio>
                             <el-radio v-model="formData.info.child" label="1">是</el-radio>
                         </el-form-item>

@@ -1,11 +1,6 @@
 <div>
     <div id="app" v-cloak>
         <el-card>
-
-            <div slot="header" class="clearfix">
-                <span>消息模板列表</span>
-            </div>
-
             <div>
                 <el-form :inline="true" :model="searchData" class="demo-form-inline">
 
@@ -26,7 +21,6 @@
             <div>
                 <el-table
                     :data="list"
-                    border
                     style="width: 100%">
 
                     <div v-for="(item,key) in field_list">
@@ -45,8 +39,8 @@
                         align="center"
                         width="220">
                         <template slot-scope="scope">
-                            <el-button @click="detailsEvent(scope.row.id)" type="primary">编辑</el-button>
-                            <el-button @click="deleteEvent(scope.row.id)" type="danger">删除</el-button>
+                            <el-button @click="detailsEvent(scope.row.id)" type="text">编辑</el-button>
+                            <el-button @click="deleteEvent(scope.row.id)" type="text" style="color:#F56C6C ;">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -185,8 +179,8 @@
                     detailsEvent : function (id) {
                         var that = this;
                         var url = "{:api_url('/cms/content/details')}";
+                        url += '?catid=' + "{$catid}";
                         if(id) url += '&id=' + id;
-                        url += '&catid=' + "{$catid}";
                         layer.open({
                             type: 2,
                             title: '管理',

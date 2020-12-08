@@ -73,7 +73,7 @@
             <el-table-column label="操作" align="center" width="280" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="details(scope.row.catid)">修改</el-button>
-                    <el-button type="text" size="mini" @click="handleDelete(scope.row.catid)">删除</el-button>
+                    <el-button type="text" size="mini" @click="handleDelete(scope.row.catid)" style="color: #F56C6C">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -126,7 +126,7 @@
                 details : function (catid) {
                     var that = this;
                     var url = '{:api_url("/cms/category/details")}';
-                    if(catid) url += '&catid=' + catid;
+                    if(catid) url += '?catid=' + catid;
 
                     layer.open({
                         type: 2,
