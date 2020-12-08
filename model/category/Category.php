@@ -23,6 +23,26 @@ class Category extends Model
     protected $name = 'content_category';
 
     /**
+     * 获取栏目类型
+     * @param $type
+     *
+     * @return string
+     */
+    static function getCategoryTypeName($type)
+    {
+        switch ($type){
+            case 0:
+                return '内容栏目';
+            case 1:
+                return '栏目组';
+            case 2:
+                return '外部链接';
+            default:
+                return '';
+        }
+    }
+
+    /**
      * 获取可用列表
      * @return array
      */
@@ -518,7 +538,8 @@ class Category extends Model
         if (!$list->isEmpty()) {
             $list = $list->toArray();
             $config['idKey'] = 'catid';
-            return getTreeShapeArray($list, 0, 0, $config);
+            $config['parentKey'] = 'parentid';
+            return TreeHelper::arrayToTreeList($list, 0, $config);
         } else {
             return [];
         }

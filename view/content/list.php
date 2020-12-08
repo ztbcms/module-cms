@@ -181,11 +181,15 @@
                         var url = "{:api_url('/cms/content/details')}";
                         url += '?catid=' + "{$catid}";
                         if(id) url += '&id=' + id;
-                        layer.open({
+                        var _layer = layer
+                        if(window !== window.parent && window.parent.layer ){
+                            _layer = window.parent.layer
+                        }
+                        _layer.open({
                             type: 2,
                             title: '管理',
                             content: url,
-                            area: ['100%', '100%'],
+                            area: ['95%', '95%'],
                             end: function(){
                                 that.getTemplateList();
                             }
