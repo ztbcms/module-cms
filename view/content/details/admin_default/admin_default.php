@@ -142,64 +142,64 @@
 </div>
 
 
-<!--栏目主键-->
+<!--栏目组件-->
 {include file="../app/cms/view/content/details/admin_default/components/catid.inc.php"}
 
-<!--类别主键-->
+<!--类别组件-->
 {include file="../app/cms/view/content/details/admin_default/components/typeid.inc.php"}
 
-<!--单行文本主键-->
+<!--单行文本组件-->
 {include file="../app/cms/view/content/details/admin_default/components/title.inc.php"}
 
-<!--关键词主键-->
+<!--关键词组件-->
 {include file="../app/cms/view/content/details/admin_default/components/keyword.inc.php"}
 
-<!--标签主键-->
+<!--标签组件-->
 {include file="../app/cms/view/content/details/admin_default/components/tags.inc.php"}
 
-<!--多行文本主键-->
+<!--多行文本组件-->
 {include file="../app/cms/view/content/details/admin_default/components/textarea.inc.php"}
 
-<!--富文本主键-->
+<!--富文本组件-->
 {include file="../app/cms/view/content/details/admin_default/components/editor.inc.php"}
 
-<!--缩略图主键-->
+<!--缩略图组件-->
 {include file="../app/cms/view/content/details/admin_default/components/image.inc.php"}
 
-<!--相关文章主键-->
+<!--相关文章组件-->
 {include file="../app/cms/view/content/details/admin_default/components/omnipotent.inc.php"}
 
-<!--时间主键-->
+<!--时间组件-->
 {include file="../app/cms/view/content/details/admin_default/components/datetime.inc.php"}
 
-<!--推荐位主键-->
+<!--推荐位组件-->
 {include file="../app/cms/view/content/details/admin_default/components/posid.inc.php"}
 
-<!--单行文本主键-->
+<!--单行文本组件-->
 {include file="../app/cms/view/content/details/admin_default/components/text.inc.php"}
 
-<!--内容页模板主键-->
+<!--内容页模板组件-->
 {include file="../app/cms/view/content/details/admin_default/components/template.inc.php"}
 
-<!--内容页模板主键-->
+<!--内容页模板组件-->
 {include file="../app/cms/view/content/details/admin_default/components/box.inc.php"}
 
-<!--转向链接主键-->
+<!--转向链接组件-->
 {include file="../app/cms/view/content/details/admin_default/components/islink.inc.php"}
 
-<!--数字主键-->
+<!--数字组件-->
 {include file="../app/cms/view/content/details/admin_default/components/number.inc.php"}
 
-<!--多图片主键-->
+<!--多图片组件-->
 {include file="../app/cms/view/content/details/admin_default/components/images.inc.php"}
 
-<!--文件上传主键-->
+<!--文件上传组件-->
 {include file="../app/cms/view/content/details/admin_default/components/downfile.inc.php"}
 
-<!--作者主键-->
+<!--作者组件-->
 {include file="../app/cms/view/content/details/admin_default/components/author.inc.php"}
 
-<!--多文件上传主键-->
+<!--多文件上传组件-->
 {include file="../app/cms/view/content/details/admin_default/components/downfiles.inc.php"}
 
 
@@ -231,12 +231,13 @@
                 var that = this;
                 //加载富文本编辑器
                 var editor = "{$editor}";
-                setInterval(function working(){
-                    var arr = editor.split(',');
-                    arr.filter(function (element,index, self) {
-                        that.editor[element] = UE.getEditor(element);
-                    });
-                },1000);
+                // setInterval(function working(){
+                //     console.log('xxx')
+                //     var arr = editor.split(',');
+                //     arr.filter(function (element,index, self) {
+                //         that.editor[element] = UE.getEditor(element);
+                //     });
+                // },1000);
             },
             methods: {
                 //获取显示的字段
@@ -245,7 +246,7 @@
                     that.httpPost("{:api_url('/cms/content/details')}", {
                         catid: "{$catid}",
                         id: "{$id}",
-                        action: "getDisplaySettin"
+                        _action: "getDisplaySetting"
                     }, function (res) {
 
                         that.field_list = res.data.field_list;
@@ -258,7 +259,7 @@
                     var url = "{:api_url('/cms/Content/details')}";
 
                     var where = Object.assign({
-                        action: 'submitForm',
+                        _action: 'submitForm',
                         catid: "{$catid}"
                     }, this.formData);
 

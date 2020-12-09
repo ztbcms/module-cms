@@ -73,11 +73,17 @@ class Content extends AdminController
      * 获取详情信息
      */
     public function details(){
-        $action = input('action','','trim');
+        $action = input('_action','','trim');
         $catid = input('catid','','trim');
         $id = input('id','','trim');
 
-        if($action == 'getDisplaySettin'){
+        if($action == 'getCategoryList'){
+            //获取分类列表 TODO 精细化返回
+            $Category = new Category();
+            $list = $Category::getCategoryTree();
+            return self::createReturn(true, $list);
+        }
+        if($action == 'getDisplaySetting'){
             //获取显示设置
             return ContentService::getDetailsDisplaySettin($catid,$id);
         } else if($action == 'submitForm') {
