@@ -10,7 +10,7 @@ class Operation extends BaseService
 {
 
     const mainTableSql = 'data/Sql/cms_zhubiao.sql'; //模型主表SQL模板文件
-    const sideTablesSql = 'data/Sql/cms_zhubiao_data.sql'; //模型副表SQL模板文件
+//    const sideTablesSql = 'data/Sql/cms_zhubiao_data.sql'; //模型副表SQL模板文件
     const modelTablesInsert = 'data/Sql/cms_insert.sql'; //可用默认模型字段
     const membershipModelSql = 'data/Sql/cms_member.sql'; //会员模型
 
@@ -104,9 +104,9 @@ class Operation extends BaseService
         if (!is_file($this->libPath . self::mainTableSql)) {
             return false;
         }
-        if (!is_file($this->libPath . self::sideTablesSql)) {
-            return false;
-        }
+//        if (!is_file($this->libPath . self::sideTablesSql)) {
+//            return false;
+//        }
         if (!is_file($this->libPath . self::modelTablesInsert)) {
             return false;
         }
@@ -132,11 +132,11 @@ class Operation extends BaseService
         //读取模型主表SQL模板
         $mainTableSqll = file_get_contents($this->libPath . self::mainTableSql);
         //副表
-        $sideTablesSql = file_get_contents($this->libPath . self::sideTablesSql);
+//        $sideTablesSql = file_get_contents($this->libPath . self::sideTablesSql);
         //字段数据
         $modelTablesInsert = file_get_contents($this->libPath . self::modelTablesInsert);
         //表前缀，表名，模型id替换
-        $sqlSplit = str_replace(array('@cms@', '@zhubiao@', '@modelid@'), array($dbPrefix, $tableName, $modelId), $mainTableSqll . "\n" . $sideTablesSql . "\n" . $modelTablesInsert);
+        $sqlSplit = str_replace(array('@cms@', '@zhubiao@', '@modelid@'), array($dbPrefix, $tableName, $modelId), $mainTableSqll  . "\n" . $modelTablesInsert);
 
         return $this->sql_execute($sqlSplit);
     }

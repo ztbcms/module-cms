@@ -114,17 +114,17 @@ class Model extends PublicModel
                     $this->commit();
                     return createReturn(true, [
                         'modelid' => $data['id']
-                    ], '创建成功!');
+                    ], '创建成功');
                 } else {
                     //表创建失败
                     $this->where("modelid", $data['id'])->delete();
-                    return createReturn(false, '', '数据表创建失败!');
+                    return createReturn(false, '', '数据表创建失败');
                 }
             } else {
-                return createReturn(false, '', '创建模块失败!');
+                return createReturn(false, '', '创建模块失败');
             }
         } else {
-            return createReturn(false, '', '创建模块，检验失败!');
+            return createReturn(false, '', '创建模块，检验失败');
         }
     }
 

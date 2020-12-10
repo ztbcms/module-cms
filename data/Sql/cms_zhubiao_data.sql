@@ -1,3 +1,4 @@
+-- TODO 删除
 CREATE TABLE `@cms@@zhubiao@_data` (
   `id` int(11) unsigned DEFAULT '0',
   `content` text,
