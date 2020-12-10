@@ -318,13 +318,31 @@
                 // 编辑字段
                 edit: function (modelid, fieldid) {
                     var url = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
-                    Ztbcms.openNewIframeByUrl('编辑字段', url)
+                    // Ztbcms.openNewIframeByUrl('编辑字段', url)
+                    layer.open({
+                        type: 2,
+                        title: '字段编辑',
+                        content: url,
+                        area: ['100%', '100%'],
+                        end: function () {  //回调函数
+                            that.fetchData()
+                        }
+                    })
                 },
 
                 // 添加字段
                 add: function () {
                     var url = "{:api_url('/cms/field/add')}" + '?modelid=' + this.modelid
-                    Ztbcms.openNewIframeByUrl('添加字段', url)
+                    // Ztbcms.openNewIframeByUrl('添加字段', url)
+                    layer.open({
+                        type: 2,
+                        title: '字段编辑',
+                        content: url,
+                        area: ['100%', '100%'],
+                        end: function () {  //回调函数
+                            that.fetchData()
+                        }
+                    })
                 },
                 // 预览模型
                 showModel: function () {
