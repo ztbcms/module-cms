@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by FHYI.
- * Date 2020/10/30
- * Time 9:46
- */
 
 namespace app\cms\controller;
 
@@ -60,7 +55,7 @@ class Field extends AdminController
      * 添加字段
      * @return string|\think\response\Json
      */
-    public function add()
+    function add()
     {
         //模型ID
         $modelId = input('modelid',0,'intval');
@@ -80,7 +75,7 @@ class Field extends AdminController
      * 字段属性配置
      * @return array
      */
-    public function publicFieldSetting()
+    function publicFieldSetting()
     {
         //字段类型
         $fieldtype = input('fieldtype','','trim');
@@ -91,7 +86,7 @@ class Field extends AdminController
      * 获取字段详情
      * @return array
      */
-    public function getFieldDetails(){
+    function getFieldDetails(){
         //模型ID
         $modelId = input('modelid',0,'intval');
         //字段ID
@@ -104,7 +99,7 @@ class Field extends AdminController
      * 编辑字段信息
      * @return string|\think\response\Json
      */
-    public function edit()
+    function edit()
     {
         //模型ID
         $modelId = input('modelid',0,'intval');

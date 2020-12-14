@@ -116,6 +116,7 @@ class FieldService extends BaseService
 
     /**
      * 获取可使用的字段
+     * @deprecated  请使用 getAvailableFiles
      * @param $modelId
      * @return array
      */
@@ -160,6 +161,87 @@ class FieldService extends BaseService
         }
         return $res;
     }
+
+    static function getAvailableFiled(){
+        return [
+            [
+                'name' => '单行文本',
+                'type' => 'text',
+                'length' => 255
+            ],
+            [
+                'name' => '多行文本',
+                'type' => 'textarea',
+                'length' => 0
+            ],
+            [
+                'name' => '编辑器',
+                'type' => 'editor',
+                'length' => 0
+            ],
+            [
+                'name' => '数字',
+                'type' => 'number',
+                'length' => 11
+            ],
+            [
+                'name' => '日期',
+                'type' => 'time',
+                'length' => 11
+            ],
+            [
+                'name' => '单图片',
+                'type' => 'image',
+                'length' => 512
+            ],
+            [
+                'name' => '多图片',
+                'type' => 'images',
+                'length' => 1024
+            ],
+            [
+                'name' => '单视频',
+                'type' => 'video',
+                'length' => 512
+            ],
+            [
+                'name' => '多视频',
+                'type' => 'videos',
+                'length' => 1024
+            ],
+            [
+                'name' => '单文件',
+                'type' => 'file',
+                'length' => 512
+            ],
+            [
+                'name' => '多文件',
+                'type' => 'files',
+                'length' => 1024
+            ],
+            [
+                'name' => '单选',
+                'type' => 'files',
+                'length' => 512
+            ],
+            [
+                'name' => '多选',
+                'type' => 'files',
+                'length' => 512
+            ],
+            [
+                'name' => '下拉单选',
+                'type' => 'files',
+                'length' => 512
+            ],
+            [
+                'name' => '自定义',
+                'type' => 'files',
+                'length' => 255
+            ],
+        ];
+    }
+
 
     /**
      * 获取指定字段类型的配置
