@@ -7,6 +7,7 @@ use app\cms\service\FieldService;
 use app\common\controller\AdminController;
 use think\App;
 use think\facade\View;
+use think\Request;
 
 /**
  * 模型字段管理
@@ -99,7 +100,7 @@ class Field extends AdminController
      * 编辑字段信息
      * @return string|\think\response\Json
      */
-    function edit()
+    function edit1()
     {
         //模型ID
         $modelId = input('modelid',0,'intval');
@@ -132,6 +133,45 @@ class Field extends AdminController
             View::assign('isEditField', $FieldDetails['isEditField']);
             return View::fetch();
         }
+    }
+
+    /**
+     * 编辑字段信息
+     * @return string|\think\response\Json
+     */
+    function edit(Request $request)
+    {
+        $action = input('_action', '', 'trim');
+        //模型ID
+        $modelId = input('modelid', 0, 'intval');
+        //字段ID
+        $fieldId = input('fieldid', 0, 'intval');
+        // 提交更新
+        if ($request->isPost()) {
+            $post = input('post.');
+            return FieldService::editField($post, $modelId, $fieldId);
+        }
+
+        if ($request->isGet() && $action == 'getDetail') {
+            //获取字段信息
+            $FieldDetails = FieldService::getFieldDetail($modelId, $fieldId)['data'];
+
+            return self::makeJsonReturn(true, $FieldDetails);
+        }
+
+        if ($request->isGet() && $action == 'getFormParam') {
+            //获取可编辑的字段
+            $getAllFieldRes = FieldService::getAvailableFiled()['data'];
+
+            $data = [
+                'field_type' => $getAllFieldRes
+            ];
+
+            return self::makeJsonReturn(true, $data);
+        }
+
+
+        return view('edit');
     }
 
 }

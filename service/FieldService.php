@@ -163,7 +163,7 @@ class FieldService extends BaseService
     }
 
     static function getAvailableFiled(){
-        return [
+        $return =  [
             [
                 'name' => '单行文本',
                 'type' => 'text',
@@ -221,25 +221,27 @@ class FieldService extends BaseService
             ],
             [
                 'name' => '单选',
-                'type' => 'files',
+                'type' => 'radio',
                 'length' => 512
             ],
             [
                 'name' => '多选',
-                'type' => 'files',
+                'type' => 'checkbox',
                 'length' => 512
             ],
             [
                 'name' => '下拉单选',
-                'type' => 'files',
+                'type' => 'select',
                 'length' => 512
             ],
             [
                 'name' => '自定义',
-                'type' => 'files',
+                'type' => 'custom',
                 'length' => 255
             ],
         ];
+
+        return self::createReturn(true, $return);
     }
 
 
@@ -295,6 +297,7 @@ class FieldService extends BaseService
 
     /**
      * 获取字段详情
+     * @deprecated  请使用 getFieldDetail
      * @param $modelId
      * @param $fieldId
      * @return array
@@ -325,6 +328,32 @@ class FieldService extends BaseService
             'data' => $fieldData,
             'isEditField' => $OperationField->isEditField($fieldData['field'])
         ],'获取详情信息');
+
+    }
+
+    static function getFieldDetail($modelId, $fieldId)
+    {
+        $Model = new Model();
+        $ModelField = new ModelField();
+
+        //模型信息
+        $modeData = $Model->where("modelid", $modelId)->findOrEmpty();
+
+        //字段信息
+        $fieldWhere[] = ["fieldid", "=", $fieldId];
+        $fieldWhere[] = ["modelid", "=", $modelId];
+        $fieldData = $ModelField->where($fieldWhere)->findOrEmpty();
+
+        //字段设置
+        $fieldData['setting'] = unserialize($fieldData['setting']);
+
+        //填补默认值
+        $fieldData['setting'] = $ModelField->getDefaultSettingData($fieldData['setting']);
+
+        return self::createReturn(true, [
+            'model_info' => $modeData,
+            'field_info' => $fieldData,
+        ]);
 
     }
 

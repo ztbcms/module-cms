@@ -243,7 +243,7 @@ class ModelField extends PublicModel
      * @param array $setting
      * @return array
      */
-    public function getDefaultSettingData($setting = [])
+    function getDefaultSettingData($setting = [])
     {
         // 填充扩展配置
         //后台信息处理函数

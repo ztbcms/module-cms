@@ -9,10 +9,10 @@
             </div>
         </div>
 
-        <el-col :sm="24" :md="18">
+        <el-col :xs="24" :md="8">
             <template>
                 <div>
-                    <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="210px">
+                    <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="80px" >
 
                         <el-form-item label="字段属性" prop="formtype">
                             <el-select @change="getParameter()" v-model="formData.formtype" placeholder="请选择字段属性" :style="{width: '100%'}">
