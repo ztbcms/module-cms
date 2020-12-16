@@ -165,78 +165,146 @@ class FieldService extends BaseService
     static function getAvailableFiled(){
         $return =  [
             [
-                'name' => '单行文本',
+                'name' => '字符',
                 'type' => 'text',
-                'length' => 255
+                'sql_type' => 'VARCHAR',
+                'length' => 255,
+                'setting' => [
+                    'default' => '',
+                ]
             ],
             [
-                'name' => '多行文本',
+                'name' => '文本',
                 'type' => 'textarea',
-                'length' => 0
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                    'sql_type_list' => ['TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
+                ]
             ],
             [
                 'name' => '编辑器',
                 'type' => 'editor',
-                'length' => 0
+                'sql_type' => 'text',
+                'length' => 0,
+                'setting' => [
+                    'default' => '',
+                    'sql_type_list' => ['TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
+                ]
             ],
             [
                 'name' => '数字',
                 'type' => 'number',
-                'length' => 11
+                'sql_type' => 'int',
+                'length' => 11,
+                'setting' => [
+                    'default' => '',
+                    'decimals' => 0,// 小数点位数，0的时候位int 否则DECIMAL
+                    'sql_type_list' => ['INT', 'DECIMAL'],
+                ]
             ],
             [
+                //TODO
                 'name' => '日期',
                 'type' => 'time',
+                'sql_type' => 'int',
                 'length' => 11
             ],
             [
                 'name' => '单图片',
                 'type' => 'image',
-                'length' => 512
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                    'enable_watermark' => 0,
+                ]
             ],
             [
                 'name' => '多图片',
                 'type' => 'images',
-                'length' => 1024
+                'sql_type' => 'varchar',
+                'length' => 1024,
+                'setting' => [
+                    'default' => '',
+                    'enable_watermark' => 0,
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '单视频',
                 'type' => 'video',
-                'length' => 512
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '多视频',
                 'type' => 'videos',
-                'length' => 1024
+                'sql_type' => 'varchar',
+                'length' => 1024,
+                'setting' => [
+                    'default' => '',
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '单文件',
                 'type' => 'file',
-                'length' => 512
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                ]
             ],
             [
                 'name' => '多文件',
                 'type' => 'files',
-                'length' => 1024
+                'sql_type' => 'varchar',
+                'length' => 1024,
+                'setting' => [
+                    'default' => '',
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '单选',
                 'type' => 'radio',
-                'length' => 512
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '多选',
                 'type' => 'checkbox',
-                'length' => 512
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '下拉单选',
                 'type' => 'select',
-                'length' => 512
+                'sql_type' => 'varchar',
+                'length' => 512,
+                'setting' => [
+                    'default' => '',
+                    'max_item' => 0, // 最大个数
+                ]
             ],
             [
                 'name' => '自定义',
                 'type' => 'custom',
+                'sql_type' => 'varchar',
                 'length' => 255
             ],
         ];
