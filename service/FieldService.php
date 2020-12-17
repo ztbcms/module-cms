@@ -168,18 +168,18 @@ class FieldService extends BaseService
                 'name' => '字符',
                 'type' => 'text',
                 'sql_type' => 'VARCHAR',
-                'length' => 255,
+                'length' => 255,// 字段长度
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                 ]
             ],
             [
                 'name' => '文本',
                 'type' => 'textarea',
-                'sql_type' => 'varchar',
+                'sql_type' => 'TEXT',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                     'sql_type_list' => ['TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
                 ]
             ],
@@ -189,7 +189,7 @@ class FieldService extends BaseService
                 'sql_type' => 'text',
                 'length' => 0,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                     'sql_type_list' => ['TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
                 ]
             ],
@@ -199,7 +199,7 @@ class FieldService extends BaseService
                 'sql_type' => 'int',
                 'length' => 11,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                     'decimals' => 0,// 小数点位数，0的时候位int 否则DECIMAL
                     'sql_type_list' => ['INT', 'DECIMAL'],
                 ]
@@ -217,7 +217,7 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                     'enable_watermark' => 0,
                 ]
             ],
@@ -239,7 +239,6 @@ class FieldService extends BaseService
                 'length' => 512,
                 'setting' => [
                     'default' => '',
-                    'max_item' => 0, // 最大个数
                 ]
             ],
             [
@@ -278,7 +277,6 @@ class FieldService extends BaseService
                 'length' => 512,
                 'setting' => [
                     'default' => '',
-                    'max_item' => 0, // 最大个数
                 ]
             ],
             [
@@ -288,7 +286,6 @@ class FieldService extends BaseService
                 'length' => 512,
                 'setting' => [
                     'default' => '',
-                    'max_item' => 0, // 最大个数
                 ]
             ],
             [
@@ -298,7 +295,6 @@ class FieldService extends BaseService
                 'length' => 512,
                 'setting' => [
                     'default' => '',
-                    'max_item' => 0, // 最大个数
                 ]
             ],
             [

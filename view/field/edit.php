@@ -41,6 +41,14 @@
                             <small>数据库中的字段长度</small>
                         </el-form-item>
 
+                        <h3>相关参数</h3>
+
+                        <div v-if="formData.formtype === 'text'">
+                            {include file="../app/cms/view/common/fields/text/field_form.php"}
+                        </div>
+
+
+
                         <el-form-item size="large">
                             <el-button type="primary"  @click="submitForm">提交</el-button>
                         </el-form-item>
@@ -68,7 +76,10 @@
                         field : "", //字段名
                         name : "", //字段别名
                         tips : "", //字段提示
-                        length: 0
+                        length: 0,
+                        setting: {
+                            default_value: '',
+                        }
                     },
                     model_info: {
                         name: '',

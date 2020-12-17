@@ -64,7 +64,7 @@ class OperationField extends BaseService
      * 检查字段是否存在
      * $table 不带表前缀
      */
-    public function field_exists($table, $field)
+    function field_exists($table, $field)
     {
         $fields = $this->get_fields($table);
         return array_key_exists($field, $fields);
@@ -74,7 +74,7 @@ class OperationField extends BaseService
      * 获取表字段
      * $table 不带表前缀
      */
-    public function get_fields($table)
+    function get_fields($table)
     {
         $fields = array();
         $table = getDbConfig()['prefix'] . $table;
@@ -92,7 +92,7 @@ class OperationField extends BaseService
      * @param array $oldData
      * @return array
      */
-    public function createField($modelid = 0,$data = [],$oldData = []){
+    function createField($modelid = 0,$data = [],$oldData = []){
 
         if(!is_numeric($modelid)) {
             return createReturn(false, '', 'modelid必须为数字！');
@@ -187,7 +187,7 @@ class OperationField extends BaseService
      * @param array $oldData
      * @return array
      */
-    public function editField($modelid = 0,$info = [],$data = [],$oldData = []){
+    function editField($modelid = 0,$info = [],$data = [],$oldData = []){
 
         //字段附加配置
         $setting = $data['setting'];
@@ -283,7 +283,7 @@ class OperationField extends BaseService
      * @param string $modelid 模型
      * @return boolean
      */
-    public function isAddField($field, $field_type, $modelid)
+    function isAddField($field, $field_type, $modelid)
     {
         //判断是否唯一字段
         if (in_array($field, $this->unique_fields)) {
@@ -315,28 +315,6 @@ class OperationField extends BaseService
     }
 
     /**
-     * 判断字段是否允许被编辑
-     * @param string $field 字段名称
-     * @return boolean
-     */
-    public function isEditField($field)
-    {
-        //判断是否唯一字段
-        if (in_array($field, $this->unique_fields)) {
-            return false;
-        }
-        //禁止被禁用的字段列表（字段名）
-        if (in_array($field, $this->forbid_fields)) {
-            return false;
-        }
-        //禁止被删除的字段列表（字段名）
-        if (in_array($field, $this->forbid_delete)) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * 根据字段类型，增加对应的字段到相应表里面
      * @param string $field_type 字段类型
      * @param array $field 相关配置
@@ -352,7 +330,7 @@ class OperationField extends BaseService
      * )
      * @return boolean
      */
-    protected function addFieldSql($field_type, $field)
+    function addFieldSql($field_type, $field)
     {
         //表名
         $tablename = $field['tablename'];
@@ -528,6 +506,28 @@ class OperationField extends BaseService
     }
 
     /**
+     * 判断字段是否允许被编辑
+     * @param string $field 字段名称
+     * @return boolean
+     */
+    function isEditField($field)
+    {
+        //判断是否唯一字段
+        if (in_array($field, $this->unique_fields)) {
+            return false;
+        }
+        //禁止被禁用的字段列表（字段名）
+        if (in_array($field, $this->forbid_fields)) {
+            return false;
+        }
+        //禁止被删除的字段列表（字段名）
+        if (in_array($field, $this->forbid_delete)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 执行数据库表结构更改
      * @param string $field_type 字段类型
      * @param array $field 相关配置
@@ -544,7 +544,7 @@ class OperationField extends BaseService
      * )
      * @return boolean
      */
-    protected function editFieldSql($field_type, $field)
+    function editFieldSql($field_type, $field)
     {
         //表名
         $tablename = $field['tablename'];
@@ -729,7 +729,7 @@ class OperationField extends BaseService
      * @param string $tablename 完整表名
      * @return boolean
      */
-    public function deleteFieldSql($filename, $tablename)
+    function deleteFieldSql($filename, $tablename)
     {
         //不带表前缀的表名
         $noprefixTablename = str_replace($this->dbConfig['prefix'], '', $tablename);
