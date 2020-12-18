@@ -59,8 +59,13 @@
                             <field-setting-number v-model="formData.setting"></field-setting-number>
                         </div>
 
+                        <div v-if="formData.formtype === 'image'">
+                            <field-setting-image v-model="formData.setting"></field-setting-image>
+                        </div>
 
-
+                        <div v-if="formData.formtype === 'images'">
+                            <field-setting-images v-model="formData.setting"></field-setting-images>
+                        </div>
 
                         <el-form-item size="large">
                             <el-button type="primary"  @click="submitForm">提交</el-button>
@@ -81,6 +86,10 @@
 {include file="../app/cms/view/common/fields/editor/field_setting.inc.php"}
 <!--number-->
 {include file="../app/cms/view/common/fields/number/field_setting.inc.php"}
+<!--image-->
+{include file="../app/cms/view/common/fields/image/field_setting.inc.php"}
+<!--images-->
+{include file="../app/cms/view/common/fields/images/field_setting.inc.php"}
 
 <script>
     $(document).ready(function () {
