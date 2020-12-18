@@ -44,8 +44,21 @@
                         <h3>相关参数</h3>
 
                         <div v-if="formData.formtype === 'text'">
-                            {include file="../app/cms/view/common/fields/text/field_form.php"}
+                            <field-setting-text v-model="formData.setting"></field-setting-text>
                         </div>
+
+                        <div v-if="formData.formtype === 'textarea'">
+                            <field-setting-textarea v-model="formData.setting"></field-setting-textarea>
+                        </div>
+
+                        <div v-if="formData.formtype === 'editor'">
+                            <field-setting-editor v-model="formData.setting"></field-setting-editor>
+                        </div>
+
+                        <div v-if="formData.formtype === 'number'">
+                            <field-setting-number v-model="formData.setting"></field-setting-number>
+                        </div>
+
 
 
 
@@ -59,6 +72,15 @@
         </el-col>
     </el-card>
 </div>
+
+<!--text-->
+{include file="../app/cms/view/common/fields/text/field_setting.inc.php"}
+<!--textarea-->
+{include file="../app/cms/view/common/fields/textarea/field_setting.inc.php"}
+<!--editor-->
+{include file="../app/cms/view/common/fields/editor/field_setting.inc.php"}
+<!--number-->
+{include file="../app/cms/view/common/fields/number/field_setting.inc.php"}
 
 <script>
     $(document).ready(function () {
@@ -77,9 +99,7 @@
                         name : "", //字段别名
                         tips : "", //字段提示
                         length: 0,
-                        setting: {
-                            default_value: '',
-                        }
+                        setting: {}
                     },
                     model_info: {
                         name: '',
@@ -119,7 +139,6 @@
                 submitForm: function () {
                     var that = this
                     console.log(that.formData)
-                    return
                     that.$refs['elForm'].validate(function (valid) {
                         if (!valid) return;
                         var url = "{:api_url('/cms/field/edit')}";
