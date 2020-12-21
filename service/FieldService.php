@@ -177,10 +177,10 @@ class FieldService extends BaseService
                 'name' => '文本',
                 'type' => 'textarea',
                 'sql_type' => 'TEXT',
-                'length' => 512,
+                'length' => 0,
                 'setting' => [
                     'default_value' => '',
-                    'sql_type_list' => ['TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
+                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
                 ]
             ],
             [
@@ -190,7 +190,7 @@ class FieldService extends BaseService
                 'length' => 0,
                 'setting' => [
                     'default_value' => '',
-                    'sql_type_list' => ['TEXT', 'MEDIUMTEXT', 'LONGTEXT'],
+                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
                 ]
             ],
             [
@@ -200,8 +200,8 @@ class FieldService extends BaseService
                 'length' => 11,
                 'setting' => [
                     'default_value' => '',
-                    'decimals' => 0,// 小数点位数，0的时候位int 否则DECIMAL
-                    'sql_type_list' => ['INT', 'DECIMAL'],
+                    'decimals_amount' => 0,// 小数点位数，0的时候位int 否则DECIMAL
+                    'sql_type' => 'INT',//'INT', 'DECIMAL'
                 ]
             ],
             [
@@ -227,9 +227,9 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 1024,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                     'enable_watermark' => 0,
-                    'max_item' => 0, // 最大个数
+                    'max_amount' => 0, // 最大个数
                 ]
             ],
             [
@@ -238,7 +238,7 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                 ]
             ],
             [
@@ -247,8 +247,8 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 1024,
                 'setting' => [
-                    'default' => '',
-                    'max_item' => 0, // 最大个数
+                    'default_value' => '',
+                    'max_amount' => 0, // 最大个数
                 ]
             ],
             [
@@ -257,7 +257,7 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                 ]
             ],
             [
@@ -266,8 +266,8 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 1024,
                 'setting' => [
-                    'default' => '',
-                    'max_item' => 0, // 最大个数
+                    'default_value' => '',
+                    'max_amount' => 0, // 最大个数
                 ]
             ],
             [
@@ -276,7 +276,8 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
+                    'options' => ''// 格式： 选项名称1|选项值1 ，每行一个
                 ]
             ],
             [
@@ -285,7 +286,7 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                 ]
             ],
             [
@@ -294,15 +295,9 @@ class FieldService extends BaseService
                 'sql_type' => 'varchar',
                 'length' => 512,
                 'setting' => [
-                    'default' => '',
+                    'default_value' => '',
                 ]
-            ],
-            [
-                'name' => '自定义',
-                'type' => 'custom',
-                'sql_type' => 'varchar',
-                'length' => 255
-            ],
+            ]
         ];
 
         return self::createReturn(true, $return);
