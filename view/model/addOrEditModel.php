@@ -1,6 +1,6 @@
 <div id="app" style="padding: 8px;" v-cloak>
     <el-card>
-        <h3>模型设置</h3>
+        <h3>模型属性</h3>
         <el-row>
             <el-col :span="12">
                 <div class="grid-content ">
@@ -16,30 +16,18 @@
                         </el-form-item>
 
                         <el-form-item label="栏目首页模板">
-                            <el-select v-model="form.category_template" placeholder="">
-                                {volist name="tp_category" id="vo"}
-                                <el-option label="{$vo}" value="{$vo}"></el-option>
-                                {/volist}
-                            </el-select>
-                            <span class="gray">新增模板以category_x {$tmpl_template_suffix}形式</span>
+                            <el-input v-model="form.category_template" placeholder="默认后台列表页，如edit_xx.php"></el-input>
+                            <span class="gray">模板以category_x.php形式</span>
                         </el-form-item>
 
                         <el-form-item label="栏目列表模板">
-                            <el-select v-model="form.list_template" placeholder="">
-                                {volist name="tp_list" id="vo"}
-                                <el-option label="{$vo}" value="{$vo}"></el-option>
-                                {/volist}
-                            </el-select>
-                            <span class="gray">新增模板以list_x{$tmpl_template_suffix}形式</span>
+                            <el-input v-model="form.list_template" placeholder="默认后台列表页，如edit_xx.php"></el-input>
+                            <span class="gray">模板以list_x.php形式</span>
                         </el-form-item>
 
                         <el-form-item label="内容详情模板">
-                            <el-select v-model="form.show_template" placeholder="">
-                                {volist name="tp_show" id="vo"}
-                                <el-option value="{$vo}"></el-option>
-                                {/volist}
-                            </el-select>
-                            <span class="gray">新增模板以show_x{$tmpl_template_suffix}形式</span>
+                            <el-input v-model="form.show_template" placeholder="默认后台列表页，如edit_xx.php"></el-input>
+                            <span class="gray">模板以show_x.php形式</span>
                         </el-form-item>
 
                         <el-form-item label="后台列表模板：">
@@ -84,18 +72,39 @@
             el: '#app',
             data: {
                 form: {
-                    category_template: 'category{$tmpl_template_suffix}',
-                    list_template: 'list{$tmpl_template_suffix}',
-                    show_template: 'show{$tmpl_template_suffix}'
+                    modelid: '',
+                    category_template: 'category.php',
+                    list_template: 'list.php',
+                    show_template: 'show.php',
+                    list_customtemplate: '',
+                    add_customtemplate: '',
+                    edit_customtemplate: ''
                 }
             },
             watch: {},
             filters: {},
             methods: {
+                // 获取详情
+                getDetail:function(){
+                    var that = this;
+                    var url = "{:api_url('/cms/Model/addModel')}"
+                    if (this.form.modelid) {
+                        url = "{:api_url('/cms/Model/editModel')}"
+                    }
+                    this.httpGet(url, this.form, function (res) {
+                        if (res.status) {
+                            that.form = res.data
+                        }
+                    })
+                },
                 onSubmit: function () {
                     var that = this;
-                    this.httpPost("{:api_url('/cms/Model/add')}", this.form, function (res) {
-                        layer.msg(res.msg);
+                    var url = "{:api_url('/cms/Model/addModel')}"
+                    if (this.form.modelid) {
+                        url = "{:api_url('/cms/Model/editModel')}"
+                    }
+                    this.httpPost(url, this.form, function (res) {
+                        layer.msg(res.msg)
                         if (res.status) {
                             that.onCancel(1000)
                         }
@@ -107,11 +116,15 @@
                             window.parent.layer.closeAll();
                         }, time);
                     }
-                }
+                },
             },
             mounted: function () {
+                this.form.modelid = this.getUrlQuery('modelid')
+                if(this.form.modelid){
+                    this.getDetail()
+                }
+            },
 
-            }
         })
     })
 </script>

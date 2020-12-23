@@ -8,7 +8,7 @@
                         <el-form-item label="模型名称：">
                             <el-input v-model="form.name" placeholder="中文名"></el-input>
                         </el-form-item>
-                        <el-form-item label="模型表键名：">
+                        <el-form-item label="模型表名：">
                             <el-input v-model="form.tablename" placeholder="英文小写"></el-input>
                         </el-form-item>
                         <el-form-item label="描述：">
@@ -16,43 +16,31 @@
                         </el-form-item>
 
                         <el-form-item label="栏目首页模板">
-                            <el-select v-model="form.category_template" placeholder="">
-                                {volist name="tp_category" id="vo"}
-                                <el-option label="{$vo}" value="{$vo}"></el-option>
-                                {/volist}
-                            </el-select>
-                            <span class="gray">新增模板以category_x {$tmpl_template_suffix}形式</span>
+                            <el-input v-model="form.category_template" placeholder="默认后台列表页，如edit_xx.php"></el-input>
+                            <span class="gray">模板以category_x {$tmpl_template_suffix}形式</span>
                         </el-form-item>
 
                         <el-form-item label="栏目列表模板">
-                            <el-select v-model="form.list_template" placeholder="">
-                                {volist name="tp_list" id="vo"}
-                                <el-option label="{$vo}" value="{$vo}"></el-option>
-                                {/volist}
-                            </el-select>
-                            <span class="gray">新增模板以list_x{$tmpl_template_suffix}形式</span>
+                            <el-input v-model="form.list_template" placeholder="默认后台列表页，如edit_xx.php"></el-input>
+                            <span class="gray">模板以list_x{$tmpl_template_suffix}形式</span>
                         </el-form-item>
 
                         <el-form-item label="内容详情模板">
-                            <el-select v-model="form.show_template" placeholder="">
-                                {volist name="tp_show" id="vo"}
-                                <el-option value="{$vo}"></el-option>
-                                {/volist}
-                            </el-select>
-                            <span class="gray">新增模板以show_x{$tmpl_template_suffix}形式</span>
+                            <el-input v-model="form.show_template" placeholder="默认后台列表页，如edit_xx.php"></el-input>
+                            <span class="gray">模板以show_x{$tmpl_template_suffix}形式</span>
                         </el-form-item>
 
-                        <el-form-item label="后台信息列表模板：">
+                        <el-form-item label="后台列表模板：">
                             <el-input v-model="form.list_customtemplate" placeholder="默认后台列表页，如admin_xx.php"></el-input>
                             <span class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Listtemplate/里增加文件</span>
                         </el-form-item>
 
-                        <el-form-item label="后台信息添加模板：">
+                        <el-form-item label="后台添加模板：">
                             <el-input v-model="form.add_customtemplate" placeholder="默认后台列表页，如add_xx.php"></el-input>
                             <span class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Addtemplate/里增加文件</span>
                         </el-form-item>
 
-                        <el-form-item label="后台信息编辑模板：">
+                        <el-form-item label="后台编辑模板：">
                             <el-input v-model="form.edit_customtemplate" placeholder="默认后台列表页，如edit_xx.php"></el-input>
                             <span class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Edittemplate/里增加文件</span>
                         </el-form-item>

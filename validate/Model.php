@@ -1,8 +1,4 @@
 <?php
-/**
- * User: FHYI
- * Date: 2020/10/29
- */
 
 namespace app\cms\validate;
 
