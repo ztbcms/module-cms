@@ -6,13 +6,10 @@
 namespace app\cms\service;
 
 
-use app\cms\libs\module\Operation as ModuleOperation;
 use app\cms\libs\TableOperator;
 use app\cms\model\ContentModelModel;
 use app\cms\model\model\Model;
 use app\common\service\BaseService;
-use think\facade\Cache;
-use think\facade\Db;
 
 class ContentModelService extends BaseService
 {

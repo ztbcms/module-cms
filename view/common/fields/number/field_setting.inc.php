@@ -21,7 +21,7 @@
             </el-select>
         </el-form-item>
         <el-form-item label="整数类型">
-            <el-select v-model="integer_type" placeholder="请选择" :disabled="sql_type == 'DECIMAL'">
+            <el-select v-model="is_unsigned" placeholder="请选择" :disabled="sql_type == 'DECIMAL'">
                 <el-option label="无符号(UNSIGNED)" value="0"></el-option>
                 <el-option label="有符号" value="1"></el-option>
             </el-select>
@@ -52,7 +52,7 @@
                 },
                 sql_type: function (val) {
                     this.setting.sql_type = val
-                    this.setting.integer_type = '0'
+                    this.setting.is_unsigned = '0'
                     this.syncVModel()
                 },
                 decimals_amount: function (val) {
@@ -65,7 +65,7 @@
                     this.syncVModel()
                 },
                 integer_type: function (val) {
-                    this.setting.integer_type = val
+                    this.setting.is_unsigned = val
                     this.syncVModel()
                 }
             },
@@ -74,7 +74,7 @@
                     default_value: '',
                     sql_type: '',
                     decimals_amount: '',
-                    integer_type: '0',
+                    is_unsigned: '0',
                     disable_int: false
                 }
             },
@@ -83,7 +83,7 @@
                 this.default_value = this.setting.default_value || ''
                 this.sql_type = this.setting.sql_type || 'INT'
                 this.decimals_amount = this.setting.decimals_amount || 0
-                this.integer_type = this.setting.integer_type || '0'
+                this.is_unsigned = this.setting.is_unsigned || '0'
                 this.syncVModel()
             },
             methods: {
@@ -93,6 +93,7 @@
                         default_value: this.default_value,
                         sql_type: this.sql_type,
                         decimals_amount: this.decimals_amount,
+                        is_unsigned: this.is_unsigned,
                     }
                     this.$emit('change', setting)
                 }

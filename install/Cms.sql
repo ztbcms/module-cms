@@ -69,29 +69,37 @@ CREATE TABLE `cms_content_model` (
   `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '模块标识',
   `add_customtemplate` varchar(128) NOT NULL DEFAULT '' COMMENT '添加信息模板',
   `edit_customtemplate` varchar(128) NOT NULL DEFAULT '' COMMENT '编辑信息模板',
-  PRIMARY KEY (`modelid`),
-  KEY `type` (`type`)
+  `engine` varchar(32) NOT NULL DEFAULT 'InnoDB' COMMENT 'sql引擎',
+  `charset` varchar(32) NOT NULL DEFAULT 'utf8mb4' COMMENT 'sql字符集',
+  PRIMARY KEY (`modelid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容模型列表';
 
 
 DROP TABLE IF EXISTS `cms_content_model_field`;
 CREATE TABLE `cms_content_model_field` (
-  `fieldid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+   `fieldid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
   `modelid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
   `field` varchar(64) NOT NULL DEFAULT '' COMMENT '字段名',
   `name` varchar(128) NOT NULL DEFAULT '' COMMENT '别名',
-  `legnth` smallint(5) unsigned NOT NULL DEFAULT '255' COMMENT '字段长度',
   `tips` text COMMENT '字段提示',
+  `css` varchar(30) NOT NULL DEFAULT '' COMMENT '表单样式',
+  `minlength` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最小值',
+  `maxlength` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '最大值',
   `pattern` varchar(255) NOT NULL DEFAULT '' COMMENT '数据校验正则',
+  `errortips` varchar(255) NOT NULL DEFAULT '' COMMENT '数据校验未通过的提示信息',
   `formtype` varchar(20) NOT NULL DEFAULT '' COMMENT '字段类型',
   `setting` mediumtext,
-  `formattribute` varchar(255) NOT NULL DEFAULT '',
   `iscore` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否内部字段 1是',
   `issystem` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否系统字段 1 是',
-  `issearch` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '作为搜索条件',
-  `isadd` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '在前台投稿中显示',
+  `isunique` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '值唯一',
+  `isbase` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '作为基本信息',
   `listorder` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `disabled` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '1 禁用 0启用',
+  `legnth` smallint(5) unsigned NOT NULL DEFAULT '255' COMMENT '字段长度',
+  `default` varchar(255) NOT NULL DEFAULT '' COMMENT '默认值',
+  `field_type` varchar(32) NOT NULL DEFAULT '' COMMENT 'sql类型',
+  `field_is_null` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'sql字段是否可为NULL',
+  `field_key` varchar(32) NOT NULL DEFAULT '' COMMENT 'sql key类型',
+  `field_extra` varchar(32) NOT NULL DEFAULT '' COMMENT 'sql extra ',
   PRIMARY KEY (`fieldid`),
-  KEY `field` (`field`,`modelid`)
+  KEY `modelid` (`modelid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型字段列表';

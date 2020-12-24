@@ -169,18 +169,17 @@ class FieldService extends BaseService
                 'type' => 'text',
                 'sql_type' => 'VARCHAR',
                 'length' => 255,// 字段长度
-                'setting' => [
-                    'default_value' => '',
-                ]
+                'default_value' => '',
+                'setting' => []
             ],
             [
                 'name' => '文本',
                 'type' => 'textarea',
                 'sql_type' => 'TEXT',
                 'length' => 0,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
-                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
+//                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
                 ]
             ],
             [
@@ -188,9 +187,9 @@ class FieldService extends BaseService
                 'type' => 'editor',
                 'sql_type' => 'text',
                 'length' => 0,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
-                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
+//                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
                 ]
             ],
             [
@@ -198,26 +197,27 @@ class FieldService extends BaseService
                 'type' => 'number',
                 'sql_type' => 'int',
                 'length' => 11,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
                     'decimals_amount' => 0,// 小数点位数，0的时候位int 否则DECIMAL
-                    'sql_type' => 'INT',//'INT', 'DECIMAL'
+                    'is_unsigned' => 0,// 是否无符号 0否/1是
+//                    'sql_type' => 'INT',//'INT', 'DECIMAL'
                 ]
             ],
-            [
-                //TODO
-                'name' => '日期',
-                'type' => 'time',
-                'sql_type' => 'int',
-                'length' => 11
-            ],
+//            [
+//                //TODO
+//                'name' => '日期',
+//                'type' => 'time',
+//                'sql_type' => 'int',
+//                'length' => 11
+//            ],
             [
                 'name' => '单图片',
                 'type' => 'image',
                 'sql_type' => 'varchar',
                 'length' => 512,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
                     'enable_watermark' => 0,
                 ]
             ],
@@ -226,8 +226,8 @@ class FieldService extends BaseService
                 'type' => 'images',
                 'sql_type' => 'varchar',
                 'length' => 1024,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
                     'enable_watermark' => 0,
                     'max_amount' => 0, // 最大个数
                 ]
@@ -237,17 +237,16 @@ class FieldService extends BaseService
                 'type' => 'video',
                 'sql_type' => 'varchar',
                 'length' => 512,
-                'setting' => [
-                    'default_value' => '',
-                ]
+                'default_value' => '',
+                'setting' => []
             ],
             [
                 'name' => '多视频',
                 'type' => 'videos',
                 'sql_type' => 'varchar',
                 'length' => 1024,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
                     'max_amount' => 0, // 最大个数
                 ]
             ],
@@ -256,17 +255,16 @@ class FieldService extends BaseService
                 'type' => 'file',
                 'sql_type' => 'varchar',
                 'length' => 512,
-                'setting' => [
-                    'default_value' => '',
-                ]
+                'default_value' => '',
+                'setting' => []
             ],
             [
                 'name' => '多文件',
                 'type' => 'files',
                 'sql_type' => 'varchar',
                 'length' => 1024,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
                     'max_amount' => 0, // 最大个数
                 ]
             ],
@@ -275,8 +273,8 @@ class FieldService extends BaseService
                 'type' => 'radio',
                 'sql_type' => 'varchar',
                 'length' => 512,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
                     'options' => ''// 格式： 选项名称1|选项值1 ，每行一个
                 ]
             ],
@@ -285,8 +283,10 @@ class FieldService extends BaseService
                 'type' => 'checkbox',
                 'sql_type' => 'varchar',
                 'length' => 512,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
+                    'options' => '',// 格式： 选项名称1|选项值1 ，每行一个
+                    'max_amount' => ''
                 ]
             ],
             [
@@ -294,8 +294,9 @@ class FieldService extends BaseService
                 'type' => 'select',
                 'sql_type' => 'varchar',
                 'length' => 512,
+                'default_value' => '',
                 'setting' => [
-                    'default_value' => '',
+                    'options' => ''
                 ]
             ]
         ];
