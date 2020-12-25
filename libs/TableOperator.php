@@ -18,35 +18,62 @@ class TableOperator
     function addTable($tableConfig = [], $fieldConfigList = [])
     {
         $sql = $this->buildSql($tableConfig, $fieldConfigList);
-
         try {
             Db::execute($sql);
             return createReturn(true, null, '添加成功');
         } catch (\Exception $exception) {
             return createReturn(false, null, $exception->getMessage());
         }
-
     }
 
+    /**
+     * 构建sql
+     *
+     * @param  array  $tableConfig
+     * @param  array  $fieldConfigList
+     *
+     * @return string
+     */
     function buildSql($tableConfig = [], $fieldConfigList = [])
     {
         $_tableConfig = [
             'table'   => $tableConfig['table'] ?? '',
             'engine'  => $tableConfig['engine'] ?? 'InnoDB',
             'charset' => $tableConfig['charset'] ?? 'utf8mb4',
-            'comment' => $tableConfig['comment'] ?? '',
+            'comment' => $tableConfig['name'] ?? '',
         ];
 
         $_fieldConfigList = [];
         foreach ($fieldConfigList as $fieldConfig) {
+            switch (strtolower($fieldConfig['field_type'])) {
+                case 'int':
+                    $type = "int({$fieldConfig['field_length']}) ";
+                    if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
+                        $type .= ' unsigned ';
+                    }
+                    break;
+                case 'decimal':
+                    // 整数+小数最大位数为11，
+                    $decimals_amount = $fieldConfig['setting']['decimals_amount'] ?? 1;
+                    $type = "decimal({$fieldConfig['field_length']},{$decimals_amount}) ";
+                    if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
+                        $type .= ' unsigned ';
+                    }
+                    break;
+                case 'varchar':
+                    $type = "varchar({$fieldConfig['field_length']})";
+                    break;
+                default:
+                    $type = strtolower($fieldConfig['field_type']);
+            }
             $_fieldConfigList [] = [
                 'field'   => $fieldConfig['field'],
-                'type'    => $fieldConfig['type'],
+                'type'    => $type,
                 'default' => $fieldConfig['default'] ?? ($fieldConfig['null'] ? null : ''),
-                'null'    => $fieldConfig['null'] ?? false,
-                'comment' => $fieldConfig['comment'] ?? '',
-                'key'     => $fieldConfig['key'] ?? '', // PRI => PRIMARY KEY, UNI => UNIQUE KEY, MUL=>KEY
-                'extra'   => $fieldConfig['extra'] ?? '',// AUTO_INCREMENT
+                'null'    => $fieldConfig['field_is_null'] == 1,
+                'comment' => $fieldConfig['name'] ?? '',
+                'key'     => $fieldConfig['field_key'] ?? '', // PRI => PRIMARY KEY, UNI => UNIQUE KEY, MUL=>KEY
+                'extra'   => $fieldConfig['field_extra'] ?? '',// AUTO_INCREMENT
             ];
         }
 
@@ -68,7 +95,9 @@ class TableOperator
                     $default_str = "DEFAULT '{$config['default']}'";
                 }
             }
-            $sql_fields [] = "`{$config['field']}` {$config['type']} {$_null_str} {$default_str} {$config['extra']}";
+
+            $comment_str = !empty($config['comment']) ? "COMMENT '{$config['comment']}'" : '';
+            $sql_fields [] = "`{$config['field']}` {$config['type']} {$_null_str} {$default_str} {$config['extra']} {$comment_str}";
 
             if (!empty($config['key'])) {
                 switch ($config['key']) {
