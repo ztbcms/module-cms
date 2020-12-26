@@ -10,6 +10,7 @@ namespace app\cms\controller;
 use app\cms\service\ContentModelService;
 use app\common\controller\AdminController;
 use think\App;
+use think\facade\Config;
 use think\facade\View;
 use app\cms\service\ModelService;
 
@@ -50,7 +51,7 @@ class Model extends AdminController
 
     /**
      * 添加模型
-     *
+     * @deprecated
      * @return array|string
      */
     public function add()
@@ -66,7 +67,7 @@ class Model extends AdminController
 
     /**
      * 编辑模型
-     *
+     * @deprecated
      * @return array|\think\response\View
      */
     public function edit()
@@ -79,31 +80,66 @@ class Model extends AdminController
         }
     }
 
+    /**
+     * 添加模型
+     *
+     * @return \think\response\Json|\think\response\View
+     */
     function addModel()
     {
+        $action = input('_action', '');
+        if ($this->request->isGet() && $action == 'getFormParam') {
+            return $this->_getModelFormParam();
+        }
         if ($this->request->isPost()) {
             $data = input('post.');
-            return ModelService::addModel($data);
-        } else {
-            return View::fetch('addOrEditModel');
+            $res = ContentModelService::addModel($data);
+            return json($res);
         }
+
+        return view('addOrEditModel');
     }
 
+    /**
+     * @return array|\think\response\Json|\think\response\View|void
+     */
     function editModel()
     {
         $action = input('_action', '');
-
-        if ($this->request->isGet() && $action = 'getDetail') {
+        if ($this->request->isGet() && $action == 'getFormParam') {
+            return $this->_getModelFormParam();
+        }
+        if ($this->request->isGet() && $action == 'getDetail') {
             $modelid = input('modelid', 0, 'intval');
-            return ContentModelService::getModel($modelid);
+            $res = ContentModelService::getModel($modelid);
+            return json($res);
         }
 
         if ($this->request->isPost()) {
             $data = input('post.');
-            return ContentModelService::editModel($data);
+            $res =  ContentModelService::editModel($data);
+            return json($res);
         }
 
-        return View::fetch('addOrEditModel');
+        return view('addOrEditModel');
+    }
+
+    /**
+     * @return \think\response\Json
+     */
+    function _getModelFormParam()
+    {
+        $ret = [
+            'table_prefix'        => $tablepre = Config::get('database.connections.'.Config::get('database.default').'.prefix').'content_',
+            'category_template'   => 'category.php',
+            'list_template'       => 'list.php',
+            'show_template'       => 'show.php',
+            'list_customtemplate' => 'list.php',
+            'add_customtemplate'  => 'add.php',
+            'edit_customtemplate' => 'edit.php'
+        ];
+
+        return self::makeJsonReturn(true, $ret);
     }
 
     /**

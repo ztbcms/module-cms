@@ -32,11 +32,21 @@ class ContentModelService extends BaseService
      *
      * @return array
      */
-    static function addModel($data)
+    static function addModel($model_data)
     {
-        if (empty($data) && !isset($data)) {
-            return createReturn(false, '', '提交数据不能为空！');
-        }
+        $data = [
+            'name'                => $model_data['name'] ?? '',
+            'description'         => $model_data['description'] ?? '',
+            'table'               => strtolower($model_data['table'] ?? ''),
+            'category_template'   => $model_data['category_template'] ?? '',
+            'list_template'       => $model_data['list_template'] ?? '',
+            'show_template'       => $model_data['show_template'] ?? '',
+            'list_customtemplate' => $model_data['list_customtemplate'] ?? '',
+            'add_customtemplate'  => $model_data['add_customtemplate'] ?? '',
+            'edit_customtemplate' => $model_data['edit_customtemplate'] ?? '',
+            'engine'              => $model_data['engine'] ?? 'InnoDB',
+            'charset'             => $model_data['charset'] ?? 'utf8mb4',
+        ];
 
         //数据验证
         $validate = new \app\cms\validate\Model();
@@ -61,8 +71,6 @@ class ContentModelService extends BaseService
 
         // 默认模型
         $defaultModelInfo = require app_path().'data/default_model.php';
-
-        $data['table'] = strtolower($data['table']);
 
         $contentModelModel = new ContentModelModel();
         $contentModelModel->startTrans();

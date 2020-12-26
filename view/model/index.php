@@ -33,7 +33,7 @@
                         highlight-current-row
                         style="width: 100%;"
                     >
-                        <el-table-column label="ModelID" align="center">
+                        <el-table-column label="Model ID" align="center">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.modelid }}</span>
                             </template>
@@ -47,7 +47,7 @@
 
                         <el-table-column label="数据表" align="center">
                             <template slot-scope="scope">
-                                <span>{{ scope.row.tablename }}</span>
+                                <span>{{ scope.row.table }}</span>
                             </template>
                         </el-table-column>
 
@@ -182,7 +182,7 @@
                     layer.open({
                         type: 2,
                         title: '编辑',
-                        content: "{:api_url('/cms/model/edit')}" + '?modelid=' + modelid,
+                        content: "{:api_url('/cms/model/editModel')}" + '?modelid=' + modelid,
                         area: ['100%', '100%'],
                         end: function () {  //回调函数
                             that.fetchData()

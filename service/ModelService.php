@@ -28,7 +28,7 @@ class ModelService extends BaseService
      */
     static function getModelsList(){
         $Model = new Model();
-        $data = $Model->where("type", 0)->select();
+        $data = $Model->select();
         return self::createReturn(true, $data);
     }
 
