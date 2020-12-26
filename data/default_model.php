@@ -105,7 +105,7 @@ return [
             ]
         ],
         [
-            'name'          => '状态状态',// 99审核通过 1待审核 0审核不通过
+            'name'          => '状态',// 99审核通过 1待审核 0审核不通过
             'field'         => 'status',
             'form_type'     => 'radio',
             'field_type'    => 'varchar',
@@ -119,7 +119,7 @@ return [
         [
             'name'          => '用户ID',
             'field'         => 'user_id',
-            'type'          => 'text',
+            'form_type'     => 'text',
             'field_type'    => 'varchar',
             'field_length'  => 255,
             'field_is_null' => 0,

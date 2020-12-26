@@ -15,6 +15,13 @@ class TableOperator
 {
     private $table_name = '';
 
+    /**
+     * 添加表
+     * @param  array  $tableConfig
+     * @param  array  $fieldConfigList
+     *
+     * @return array
+     */
     function addTable($tableConfig = [], $fieldConfigList = [])
     {
         $sql = $this->buildSql($tableConfig, $fieldConfigList);
