@@ -15,6 +15,19 @@ class TableOperator
 {
     private $table_name = '';
 
+    static function getInstanceByModelId($model_id)
+    {
+        $instance = new self;
+        $model = ContentModelModel::where('modelid', $model_id)->findOrEmpty();
+        if (!$model) {
+            throw new InvalidArgumentException('找不到模型');
+        }
+        $dbConfig = Config::get('database');
+        // 补全字段
+        $instance->table_name = $dbConfig['connections'][$dbConfig['default']]['prefix'].$model->tablename;
+        return $instance;
+    }
+
     /**
      * 添加表
      * @param  array  $tableConfig
@@ -128,19 +141,6 @@ class TableOperator
         return $sql_first.$sql_field.$sql_last;
     }
 
-    static function getInstanceByModelId($model_id)
-    {
-        $instance = new self;
-        $model = ContentModelModel::where('modelid', $model_id)->findOrEmpty();
-        if (!$model) {
-            throw new InvalidArgumentException('找不到模型');
-        }
-        $dbConfig = Config::get('database');
-        // 补全字段
-        $instance->table_name = $dbConfig['connections'][$dbConfig['default']]['prefix'].$model->tablename;
-        return $instance;
-    }
-
     static function getInstanceByTableName($table_name)
     {
         if (empty($table_name)) {
@@ -152,6 +152,12 @@ class TableOperator
         return $instance;
     }
 
+    /**
+     * 重命名表名
+     * @param $table_name
+     *
+     * @return array
+     */
     function renameTable($table_name)
     {
         if (empty($table_name)) {
@@ -163,6 +169,34 @@ class TableOperator
 
         $old_table_name = $this->table_name;
         $sql = "RENAME TABLE  `{$old_table_name}` TO  `{$table_name}`;";
+        try {
+            Db::execute($sql);
+            return createReturn(true, null, '修改成功');
+        } catch (\Exception $exception) {
+            return createReturn(false, null, $exception->getMessage());
+        }
+    }
+
+    /**
+     * 更新表说明
+     *
+     * @param $table_name
+     *
+     * @param  string  $comoment
+     *
+     * @return array
+     */
+    function updateTableComment($table_name,string $comoment)
+    {
+        if (empty($table_name)) {
+            return createReturn(false, null, '请指定表名');
+        }
+        if (!$this->existTable($table_name)) {
+            return createReturn(false, null, '表 '.$table_name.' 已存在');
+        }
+
+        $old_table_name = $this->table_name;
+        $sql = "ALTER TABLE  `{$table_name}` COMMENT='{$comoment}';";
         try {
             Db::execute($sql);
             return createReturn(true, null, '修改成功');
