@@ -28,8 +28,20 @@ class TableOperator
         return $instance;
     }
 
+    static function getInstanceByTableName($table_name)
+    {
+        if (empty($table_name)) {
+            throw new InvalidArgumentException('参数 table_name 不能为空');
+        }
+        $instance = new self;
+        $instance->table_name = $table_name;
+
+        return $instance;
+    }
+
     /**
      * 添加表
+     *
      * @param  array  $tableConfig
      * @param  array  $fieldConfigList
      *
@@ -141,34 +153,24 @@ class TableOperator
         return $sql_first.$sql_field.$sql_last;
     }
 
-    static function getInstanceByTableName($table_name)
-    {
-        if (empty($table_name)) {
-            throw new InvalidArgumentException('参数 table_name 不能为空');
-        }
-        $instance = new self;
-        $instance->table_name = $table_name;
-
-        return $instance;
-    }
-
     /**
      * 重命名表名
-     * @param $table_name
+     *
+     * @param $old_table_name string 旧表名
+     * @param $table_name string  新表名
      *
      * @return array
      */
-    function renameTable($table_name)
+    function renameTable($old_table_name, $table_name)
     {
         if (empty($table_name)) {
             return createReturn(false, null, '请指定表名');
         }
-        if (!$this->existTable($table_name)) {
+        if ($this->existTable($table_name)) {
             return createReturn(false, null, '表 '.$table_name.' 已存在');
         }
-
-        $old_table_name = $this->table_name;
         $sql = "RENAME TABLE  `{$old_table_name}` TO  `{$table_name}`;";
+        var_dump($sql);
         try {
             Db::execute($sql);
             return createReturn(true, null, '修改成功');
@@ -186,7 +188,7 @@ class TableOperator
      *
      * @return array
      */
-    function updateTableComment($table_name,string $comoment)
+    function updateTableComment($table_name, string $comoment)
     {
         if (empty($table_name)) {
             return createReturn(false, null, '请指定表名');
@@ -244,7 +246,6 @@ class TableOperator
                 return true;
             }
         }
-
         return false;
     }
 

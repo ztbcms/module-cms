@@ -51,37 +51,6 @@ class Model extends AdminController
 
     /**
      * 添加模型
-     * @deprecated
-     * @return array|string
-     */
-    public function add()
-    {
-        if ($this->request->isPost()) {
-            $data = input('post.');
-            return ModelService::addModel($data);
-        } else {
-            return View::fetch('add', ModelService::getBasicsConfig());
-        }
-    }
-
-
-    /**
-     * 编辑模型
-     * @deprecated
-     * @return array|\think\response\View
-     */
-    public function edit()
-    {
-        if ($this->request->isPost()) {
-            $data = input('post.');
-            return ModelService::editModel($data);
-        } else {
-            return View('edit', ModelService::getBasicsConfig());
-        }
-    }
-
-    /**
-     * 添加模型
      *
      * @return \think\response\Json|\think\response\View
      */
@@ -101,6 +70,8 @@ class Model extends AdminController
     }
 
     /**
+     * 编辑模型
+     *
      * @return array|\think\response\Json|\think\response\View|void
      */
     function editModel()
@@ -117,7 +88,7 @@ class Model extends AdminController
 
         if ($this->request->isPost()) {
             $data = input('post.');
-            $res =  ContentModelService::editModel($data);
+            $res = ContentModelService::editModel($data);
             return json($res);
         }
 

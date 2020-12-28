@@ -169,7 +169,7 @@
                     layer.open({
                         type: 2,
                         title: '添加',
-                        content: "{:api_url('/cms/model/add')}",
+                        content: "{:api_url('/cms/model/addModel')}",
                         area: ['100%', '100%'],
                         end: function () {  //回调函数
                             that.fetchData()
