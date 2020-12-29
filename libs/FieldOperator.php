@@ -63,6 +63,43 @@ class FieldOperator
         $this->table_name = $table_name;
     }
 
+
+    function buildFieldConfig($fieldConfig){
+        switch (strtolower($fieldConfig['field_type'])) {
+            case 'int':
+                $type = "int({$fieldConfig['field_length']}) ";
+                if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
+                    $type .= ' unsigned ';
+                }
+                break;
+            case 'decimal':
+                // 整数+小数最大位数为11，
+                $decimals_amount = $fieldConfig['setting']['decimals_amount'] ?? 1;
+                $type = "decimal({$fieldConfig['field_length']},{$decimals_amount}) ";
+                if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
+                    $type .= ' unsigned ';
+                }
+                break;
+            case 'varchar':
+                $type = "varchar({$fieldConfig['field_length']})";
+                break;
+            default:
+                // TEXT MEDIUMTEXT LONGTEXT
+                $type = strtolower($fieldConfig['field_type']);
+        }
+        return [
+            'field'   => $fieldConfig['field'],
+            'type'    => $type,
+            'default' => $fieldConfig['default'] ?? ($fieldConfig['null'] ? null : ''),
+            'null'    => $fieldConfig['field_is_null'] == 1,
+            'comment' => $fieldConfig['name'] ?? '',
+            'key'     => $fieldConfig['field_key'] ?? '', // PRI => PRIMARY KEY, UNI => UNIQUE KEY, MUL=>KEY
+            'extra'   => $fieldConfig['field_extra'] ?? '',// AUTO_INCREMENT
+        ];
+
+
+    }
+
     /**
      * 添加字段
      *
@@ -73,20 +110,27 @@ class FieldOperator
     function addField($fieldConfig = [])
     {
         $tablename = $this->table_name;
-        $_field = [
-            'field'   => $fieldConfig['field'],
-            'type'    => $fieldConfig['type'],
-            'default' => $fieldConfig['default'] ?? '',
-            'null'    => $fieldConfig['null'] ?? false,
-            'comment' => $fieldConfig['comment'] ?? '',
-        ];
+        $_field = $this->buildFieldConfig($fieldConfig);
         if ($this->existField($_field['field'])) {
             return createReturn(false, null, '字段已存在');
         }
-        $not_null = !$_field['null'] ? 'NOT NULL' : '';
-        $sql = "ALTER TABLE `{$tablename}` ADD `{$_field['field']}` {$_field['type']} {$not_null} DEFAULT '{$_field['default']}'  COMMENT '{$_field['comment']}'";
+        $not_null_str = !$_field['null'] ? 'NOT NULL' : '';
+        $default_str = '';
+        if (is_null($_field['default'])) {
+            if ($_field['null']) {
+                $default_str = "DEFAULT NULL";
+            }
+        } else {
+            if ($_field['default'] !== '') {
+                $default_str = "DEFAULT '{$_field['default']}'";
+            }
+        }
+
+        $comment_str = !empty($_field['comment']) ? "COMMENT '{$_field['comment']}'" : '';
+        $sql = "ALTER TABLE `{$tablename}` ADD `{$_field['field']}` {$_field['type']} {$not_null_str} {$default_str} {$comment_str}";
         try {
             Db::execute($sql);
+            // TODO 字段添加索引
             return createReturn(true, null, '添加成功');
         } catch (\Exception $exception) {
             return createReturn(false, null, $exception->getMessage());

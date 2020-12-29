@@ -184,4 +184,12 @@ class ContentModelService extends BaseService
             throw $e;
         }
     }
+
+    /**
+     * 删除模型
+     * @param $modelid
+     */
+    static function deleteModel($modelid){
+        //TODO  删除模型、模型字段
+    }
 }

@@ -76,37 +76,10 @@ class TableOperator
         ];
 
         $_fieldConfigList = [];
+        $fieldOperator = new FieldOperator();
         foreach ($fieldConfigList as $fieldConfig) {
-            switch (strtolower($fieldConfig['field_type'])) {
-                case 'int':
-                    $type = "int({$fieldConfig['field_length']}) ";
-                    if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
-                        $type .= ' unsigned ';
-                    }
-                    break;
-                case 'decimal':
-                    // 整数+小数最大位数为11，
-                    $decimals_amount = $fieldConfig['setting']['decimals_amount'] ?? 1;
-                    $type = "decimal({$fieldConfig['field_length']},{$decimals_amount}) ";
-                    if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
-                        $type .= ' unsigned ';
-                    }
-                    break;
-                case 'varchar':
-                    $type = "varchar({$fieldConfig['field_length']})";
-                    break;
-                default:
-                    $type = strtolower($fieldConfig['field_type']);
-            }
-            $_fieldConfigList [] = [
-                'field'   => $fieldConfig['field'],
-                'type'    => $type,
-                'default' => $fieldConfig['default'] ?? ($fieldConfig['null'] ? null : ''),
-                'null'    => $fieldConfig['field_is_null'] == 1,
-                'comment' => $fieldConfig['name'] ?? '',
-                'key'     => $fieldConfig['field_key'] ?? '', // PRI => PRIMARY KEY, UNI => UNIQUE KEY, MUL=>KEY
-                'extra'   => $fieldConfig['field_extra'] ?? '',// AUTO_INCREMENT
-            ];
+            $_config = $fieldOperator->buildFieldConfig($fieldConfig);
+            $_fieldConfigList [] = $_config;
         }
 
         // 根据配置生成sql,并执行

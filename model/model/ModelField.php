@@ -18,6 +18,7 @@ class ModelField extends PublicModel
 
     /**
      * 添加字段
+     * @deprecated
      * @param $data
      * @return array
      */
@@ -62,6 +63,7 @@ class ModelField extends PublicModel
 
     /**
      * 编辑字段
+     * @deprecated
      * @param array $data
      * @param int $fieldid
      * @return array
