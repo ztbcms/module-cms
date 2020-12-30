@@ -317,7 +317,7 @@
 
                 // 编辑字段
                 edit: function (modelid, fieldid) {
-                    var url = "{:api_url('/cms/field/edit')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
+                    var url = "{:api_url('/cms/field/editField')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
                     // Ztbcms.openNewIframeByUrl('编辑字段', url)
                     layer.open({
                         type: 2,
@@ -332,7 +332,7 @@
 
                 // 添加字段
                 add: function () {
-                    var url = "{:api_url('/cms/field/add')}" + '?modelid=' + this.modelid
+                    var url = "{:api_url('/cms/field/addField')}" + '?modelid=' + this.modelid
                     // Ztbcms.openNewIframeByUrl('添加字段', url)
                     layer.open({
                         type: 2,

@@ -5,11 +5,8 @@
 
 namespace app\cms\libs;
 
-
 use app\cms\model\ContentModelModel;
-use app\common\service\BaseService;
 use think\exception\InvalidArgumentException;
-use think\facade\Config;
 use think\facade\Db;
 
 /**
@@ -30,9 +27,8 @@ class FieldOperator
         if (!$model) {
             throw new InvalidArgumentException('找不到模型');
         }
-        $dbConfig = Config::get('database');
         // 补全字段
-        $instance->table_name = $dbConfig['connections'][$dbConfig['default']]['prefix'].$model->tablename;
+        $instance->table_name = $model->table;
         return $instance;
     }
 
@@ -63,7 +59,12 @@ class FieldOperator
         $this->table_name = $table_name;
     }
 
-
+    /**
+     * 构建字段
+     * @param $fieldConfig
+     *
+     * @return array
+     */
     function buildFieldConfig($fieldConfig){
         switch (strtolower($fieldConfig['field_type'])) {
             case 'int':
@@ -73,7 +74,7 @@ class FieldOperator
                 }
                 break;
             case 'decimal':
-                // 整数+小数最大位数为11，
+                // 整数+小数最大位数为11
                 $decimals_amount = $fieldConfig['setting']['decimals_amount'] ?? 1;
                 $type = "decimal({$fieldConfig['field_length']},{$decimals_amount}) ";
                 if (isset($fieldConfig['setting']) && isset($fieldConfig['setting']['is_unsigned'])) {
@@ -96,8 +97,6 @@ class FieldOperator
             'key'     => $fieldConfig['field_key'] ?? '', // PRI => PRIMARY KEY, UNI => UNIQUE KEY, MUL=>KEY
             'extra'   => $fieldConfig['field_extra'] ?? '',// AUTO_INCREMENT
         ];
-
-
     }
 
     /**
@@ -125,7 +124,6 @@ class FieldOperator
                 $default_str = "DEFAULT '{$_field['default']}'";
             }
         }
-
         $comment_str = !empty($_field['comment']) ? "COMMENT '{$_field['comment']}'" : '';
         $sql = "ALTER TABLE `{$tablename}` ADD `{$_field['field']}` {$_field['type']} {$not_null_str} {$default_str} {$comment_str}";
         try {
@@ -147,19 +145,24 @@ class FieldOperator
     function editFeild($fieldConfig = [])
     {
         $tablename = $this->table_name;
-        $_field = [
-            'field'     => $fieldConfig['field'],
-            'old_field' => $fieldConfig['old_field'], // 原字段名
-            'type'      => $fieldConfig['type'],
-            'default'   => $fieldConfig['default'] ?? '',
-            'null'      => $fieldConfig['null'] ?? false,
-            'comment'   => $fieldConfig['comment'] ?? '',
-        ];
+        $_field = $this->buildFieldConfig($fieldConfig);
         if (!$this->existField($_field['field'])) {
             return createReturn(false, null, '字段不存在');
         }
-        $not_null = !$_field['null'] ? 'NOT NULL' : '';
-        $sql = "ALTER TABLE `{$tablename}` CHANGE `{$_field['old_field']}` `{$_field['field']}` {$_field['type']} {$not_null} DEFAULT '{$_field['default']}'  COMMENT '{$_field['comment']}'";
+        $old_field_str = $fieldConfig['old_field'];
+        $not_null_str = !$_field['null'] ? 'NOT NULL' : '';
+        $default_str = '';
+        if (is_null($_field['default'])) {
+            if ($_field['null']) {
+                $default_str = "DEFAULT NULL";
+            }
+        } else {
+            if ($_field['default'] !== '') {
+                $default_str = "DEFAULT '{$_field['default']}'";
+            }
+        }
+        $comment_str = !empty($_field['comment']) ? "COMMENT '{$_field['comment']}'" : '';
+        $sql = "ALTER TABLE `{$tablename}` CHANGE `{$old_field_str}` `{$_field['field']}` {$_field['type']} {$not_null_str} {$default_str}  {$comment_str};";
         try {
             Db::execute($sql);
             return createReturn(true, null, '更新成功');

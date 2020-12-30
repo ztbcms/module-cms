@@ -16,6 +16,7 @@ use think\facade\Db;
 
 /**
  * 字段管理
+ * @deprecated
  * Class FieldExportService
  * @package app\cms\service
  */
@@ -162,146 +163,12 @@ class FieldService extends BaseService
         return $res;
     }
 
+    /**
+     * @deprecated
+     * @return array
+     */
     static function getAvailableFiled(){
-        $return =  [
-            [
-                'name' => '字符',
-                'type' => 'text',
-                'sql_type' => 'VARCHAR',
-                'length' => 255,// 字段长度
-                'default_value' => '',
-                'setting' => []
-            ],
-            [
-                'name' => '文本',
-                'type' => 'textarea',
-                'sql_type' => 'TEXT',
-                'length' => 0,
-                'default_value' => '',
-                'setting' => [
-//                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
-                ]
-            ],
-            [
-                'name' => '编辑器',
-                'type' => 'editor',
-                'sql_type' => 'text',
-                'length' => 0,
-                'default_value' => '',
-                'setting' => [
-//                    'sql_type' => '',//'TEXT', 'MEDIUMTEXT', 'LONGTEXT'
-                ]
-            ],
-            [
-                'name' => '数字',
-                'type' => 'number',
-                'sql_type' => 'int',
-                'length' => 11,
-                'default_value' => '',
-                'setting' => [
-                    'decimals_amount' => 0,// 小数点位数，0的时候位int 否则DECIMAL
-                    'is_unsigned' => 0,// 是否无符号 0否/1是
-//                    'sql_type' => 'INT',//'INT', 'DECIMAL'
-                ]
-            ],
-//            [
-//                //TODO
-//                'name' => '日期',
-//                'type' => 'time',
-//                'sql_type' => 'int',
-//                'length' => 11
-//            ],
-            [
-                'name' => '单图片',
-                'type' => 'image',
-                'sql_type' => 'varchar',
-                'length' => 512,
-                'default_value' => '',
-                'setting' => [
-                    'enable_watermark' => 0,
-                ]
-            ],
-            [
-                'name' => '多图片',
-                'type' => 'images',
-                'sql_type' => 'varchar',
-                'length' => 1024,
-                'default_value' => '',
-                'setting' => [
-                    'enable_watermark' => 0,
-                    'max_amount' => 0, // 最大个数
-                ]
-            ],
-            [
-                'name' => '单视频',
-                'type' => 'video',
-                'sql_type' => 'varchar',
-                'length' => 512,
-                'default_value' => '',
-                'setting' => []
-            ],
-            [
-                'name' => '多视频',
-                'type' => 'videos',
-                'sql_type' => 'varchar',
-                'length' => 1024,
-                'default_value' => '',
-                'setting' => [
-                    'max_amount' => 0, // 最大个数
-                ]
-            ],
-            [
-                'name' => '单文件',
-                'type' => 'file',
-                'sql_type' => 'varchar',
-                'length' => 512,
-                'default_value' => '',
-                'setting' => []
-            ],
-            [
-                'name' => '多文件',
-                'type' => 'files',
-                'sql_type' => 'varchar',
-                'length' => 1024,
-                'default_value' => '',
-                'setting' => [
-                    'max_amount' => 0, // 最大个数
-                ]
-            ],
-            [
-                'name' => '单选',
-                'type' => 'radio',
-                'sql_type' => 'varchar',
-                'length' => 512,
-                'default_value' => '',
-                'setting' => [
-                    'options' => ''// 格式： 选项名称1|选项值1 ，每行一个
-                ]
-            ],
-            [
-                'name' => '多选',
-                'type' => 'checkbox',
-                'sql_type' => 'varchar',
-                'length' => 512,
-                'default_value' => '',
-                'setting' => [
-                    'options' => '',// 格式： 选项名称1|选项值1 ，每行一个
-                    'max_amount' => ''
-                ]
-            ],
-            [
-                'name' => '下拉单选',
-                'type' => 'select',
-                'sql_type' => 'varchar',
-                'length' => 512,
-                'default_value' => '',
-                'setting' => [
-                    'options' => ''
-                ]
-            ]
-        ];
-
-        return self::createReturn(true, $return);
+        return ContentModelFieldService::getAvailableFormTypeList();
     }
 
 
