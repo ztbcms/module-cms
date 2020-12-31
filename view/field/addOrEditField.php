@@ -67,6 +67,22 @@
                             <field-setting-images v-model="formData.setting"></field-setting-images>
                         </div>
 
+                        <div v-if="formData.form_type === 'video'">
+                            <field-setting-video v-model="formData.setting"></field-setting-video>
+                        </div>
+
+                        <div v-if="formData.form_type === 'videos'">
+                            <field-setting-videos v-model="formData.setting"></field-setting-videos>
+                        </div>
+
+                        <div v-if="formData.form_type === 'file'">
+                            <field-setting-file v-model="formData.setting"></field-setting-file>
+                        </div>
+
+                        <div v-if="formData.form_type === 'files'">
+                            <field-setting-files v-model="formData.setting"></field-setting-files>
+                        </div>
+
                         <el-form-item size="large">
                             <el-button type="primary"  @click="submitForm">提交</el-button>
                         </el-form-item>
@@ -90,6 +106,14 @@
 {include file="../app/cms/view/common/fields/image/field_setting.inc.php"}
 <!--images-->
 {include file="../app/cms/view/common/fields/images/field_setting.inc.php"}
+<!--video-->
+{include file="../app/cms/view/common/fields/video/field_setting.inc.php"}
+<!--videos-->
+{include file="../app/cms/view/common/fields/videos/field_setting.inc.php"}
+<!--file-->
+{include file="../app/cms/view/common/fields/file/field_setting.inc.php"}
+<!--files-->
+{include file="../app/cms/view/common/fields/files/field_setting.inc.php"}
 
 <script>
     $(document).ready(function () {
