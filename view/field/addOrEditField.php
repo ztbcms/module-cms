@@ -83,6 +83,11 @@
                             <field-setting-files v-model="formData.setting"></field-setting-files>
                         </div>
 
+                        <div v-if="formData.form_type === 'radio'">
+                            <field-setting-radio v-model="formData.setting"></field-setting-radio>
+                        </div>
+
+
                         <el-form-item size="large">
                             <el-button type="primary"  @click="submitForm">提交</el-button>
                         </el-form-item>
@@ -114,6 +119,8 @@
 {include file="../app/cms/view/common/fields/file/field_setting.inc.php"}
 <!--files-->
 {include file="../app/cms/view/common/fields/files/field_setting.inc.php"}
+<!--radio-->
+{include file="../app/cms/view/common/fields/radio/field_setting.inc.php"}
 
 <script>
     $(document).ready(function () {
@@ -209,7 +216,6 @@
                 getDetail: function () {
                     var that = this;
                     that.httpGet(this.request_url, {
-                        modelid: this.formData.modelid,
                         fieldid: this.formData.fieldid,
                         _action: 'getDetail'
                     }, function (res) {
@@ -221,6 +227,7 @@
                             that.formData.field_length= res.data.field_info.field_length || 0
                             that.formData.field = String(res.data.field_info.field)
                             that.formData.tips = res.data.field_info.tips || ''
+                            that.formData.setting = res.data.field_info.setting || {}
                             that.finishLoadAmount++
                         }
                     });

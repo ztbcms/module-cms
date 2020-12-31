@@ -2,14 +2,11 @@
 
 namespace app\cms\controller;
 
-use app\cms\model\model\Model;
 use app\cms\model\model\ModelField;
 use app\cms\service\ContentModelFieldService;
 use app\cms\service\ContentModelService;
-use app\cms\service\FieldService;
 use app\common\controller\AdminController;
 use think\App;
-use think\facade\View;
 use think\Request;
 
 /**
@@ -135,9 +132,9 @@ class Field extends AdminController
 
         if ($request->isGet() && $action == 'getDetail') {
             //获取字段信息
-            $FieldDetails = FieldService::getFieldDetail($modelId, $fieldId)['data'];
+            $FieldDetails = ContentModelFieldService::getFieldDetail($fieldId);
 
-            return self::makeJsonReturn(true, $FieldDetails);
+            return json($FieldDetails);
         }
 
         if ($request->isGet() && $action == 'getFormParam') {

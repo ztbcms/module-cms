@@ -375,30 +375,38 @@ class ContentModelFieldService extends BaseService
     /**
      * 获取字段详情
      *
-     * @param $modelId
-     * @param $fieldId
+     * @param $fieldid
      *
      * @return array
      */
-    static function getFieldDetail($modelId, $fieldId)
+    static function getFieldDetail($fieldid)
     {
         $Model = new Model();
         $ModelField = new ModelField();
 
-        //模型信息
-        $modeData = $Model->where("modelid", $modelId)->findOrEmpty();
-
         //字段信息
-        $fieldWhere[] = ["fieldid", "=", $fieldId];
-        $fieldWhere[] = ["modelid", "=", $modelId];
-        $fieldData = $ModelField->where($fieldWhere)->findOrEmpty();
+        $fieldWhere[] = ["fieldid", "=", $fieldid];
+        $field_info = $ModelField->where($fieldWhere)->find();
+
+        if (empty($field_info)) {
+            return self::createReturn(false, null, '找不到信息');
+        }
+
+        $field_info = $field_info->toArray();
+        //模型信息
+        $model_info = $Model->where("modelid", $field_info['modelid'])->find();
+
+        if (empty($field_info)) {
+            return self::createReturn(false, null, '找不到信息');
+        }
+        $model_info = $model_info->toArray();
 
         //字段设置
-        $fieldData['setting'] = unserialize($fieldData['setting']);
+        $field_info['setting'] = unserialize($field_info['setting']);
 
         return self::createReturn(true, [
-            'model_info' => $modeData,
-            'field_info' => $fieldData,
+            'model_info' => $model_info,
+            'field_info' => $field_info,
         ]);
     }
 
