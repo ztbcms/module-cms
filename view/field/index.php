@@ -3,10 +3,10 @@
         <el-col :sm="24" :md="24">
 
             <div style="margin-top: 10px">
-                <div class="h_a" style="font-weight: bold;font-size: 26px;">模型信息</div>
+                <div class="h_a" style="font-weight: bold;font-size: 26px;">字段信息</div>
                 <div class="prompt_text" style="font-weight: bold;">
-                    <p>模型名称: {$modelinfo['name']}</p>
-                    <p>表名: {$modelinfo['tablename']}</p>
+                    <p>模型名称: {{ model_info['name'] }}</p>
+                    <p>模型表名: {{ model_info['table'] }}</p>
                 </div>
             </div>
 
@@ -30,61 +30,35 @@
                         label="全选">
                     </el-table-column>
 
-                    <el-table-column label="排序" align="center">
+                    <el-table-column label="排序" align="center"  width="100">
                         <template slot-scope="scope">
                             <span><el-input v-model="scope.row.listorder"></el-input></span>
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="字段名" align="center">
+                    <el-table-column label="字段名">
                         <template slot-scope="scope">
                             <span>{{ scope.row.field }}</span>
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="别名" align="center">
+                    <el-table-column label="名称">
                         <template slot-scope="scope">
                             <span>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="字段类型" align="center">
+                    <el-table-column label="字段类型">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.formtype }}</span>
+                            <span>{{ scope.row.form_type }}</span>
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="主表" align="center">
-                        <template slot-scope="scope">
-                             <span class="el-icon-success" style="color: green;font-size: 24px;"
-                                   v-if="scope.row.issystem == '1'"></span>
-                            <span class="el-icon-error" style="color: red;font-size: 24px;"
-                                  v-else></span>
-                        </template>
-                    </el-table-column>
 
                     <el-table-column label="必填" align="center">
                         <template slot-scope="scope">
                              <span class="el-icon-success" style="color: green;font-size: 24px;"
                                    v-if="scope.row.minlength == '1'"></span>
-                            <span class="el-icon-error" style="color: red;font-size: 24px;"
-                                  v-else></span>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column label="搜索" align="center">
-                        <template slot-scope="scope">
-                             <span class="el-icon-success" style="color: green;font-size: 24px;"
-                                   v-if="scope.row.issearch == '1'"></span>
-                            <span class="el-icon-error" style="color: red;font-size: 24px;"
-                                  v-else></span>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column label="排序" align="center">
-                        <template slot-scope="scope">
-                             <span class="el-icon-success" style="color: green;font-size: 24px;"
-                                   v-if="scope.row.isorder == '1'"></span>
                             <span class="el-icon-error" style="color: red;font-size: 24px;"
                                   v-else></span>
                         </template>
@@ -108,18 +82,13 @@
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="管理操作" align="center" width="250" class-name="small-padding fixed-width">
+                    <el-table-column label="操作" align="center" width="250" class-name="small-padding fixed-width">
                         <template slot-scope="scope">
-                                <el-button type="primary" size="mini"
+                                <el-button type="text" size="mini"
                                            @click="edit(scope.row.modelid,scope.row.fieldid)">修改
                                 </el-button>
-                                <el-button :type="scope.row.disabled ? 'primary' : 'danger' " size="mini"
-                                           @click="changeStatus(scope.row.fieldid,scope.row.disabled)">
-                                    <span v-if="scope.row.disabled">启用</span>
-                                    <span v-else>禁用</span>
-                                </el-button>
 
-                                <el-button type="danger" size="mini"
+                                <el-button type="text" size="mini" style="color: rgb(245, 108, 108);"
                                            @click="clickDel(scope.row.modelid,scope.row.fieldid)">删除
                                 </el-button>
                         </template>
@@ -129,9 +98,7 @@
                 <div class="btn_wrap" style="margin-top: 20px;">
                     <div class="btn_wrap_pd">
                         <el-button type="primary" size="small" @click="listOrder">排序</el-button>
-                        <el-button type="primary" size="small" @click="changeStatusItems(0)">禁用字段</el-button>
-                        <el-button type="primary" size="small" @click="changeStatusItems(1)">启用字段</el-button>
-                        <el-button type="primary" size="small" @click="batchDel">删除</el-button>
+                        <el-button type="danger" size="small" @click="batchDel">删除</el-button>
                     </div>
                 </div>
             </div>
@@ -145,101 +112,50 @@
             el: '#app',
             data: {
                 tabSelected: "first",
-                modelid: "{:input('modelid')}",
+                modelid: "",
                 multipleSelection: [],
-                fieldsList: []
+                fieldsList: [],
+                model_info: {
+                    name: '',
+                    table: ''
+                }
             },
-            computed: {},
+            computed: {
+                request_url: function(){
+                    return "{:api_url('cms/field/index')}";
+                }
+            },
             methods: {
                 // 获取数据
                 fetchData: function () {
                     var that = this;
-                    $.ajax({
-                        url: "{:api_url('cms/field/index')}",
-                        type: "get",
-                        data: {
-                            'modelid' : "{:input('modelid')}",
-                            'action' : 'getFieldData'
-                        },
-                        dataType: "json",
-                        success: function (res) {
-                            if (res.status) {
-                                that.fieldsList = res.data;
-                            } else {
-                                layer.msg('操作繁忙，请稍后再试')
-                            }
-                        }
-                    })
-                },
-
-                // 启用/禁用
-                changeStatus: function (fieldid, disabled) {
-                    var that = this
-                    $.ajax({
-                        url: "{:api_url('/cms/field/index')}",
-                        type: "post",
-                        data: {
-                            fieldid: [fieldid],
-                            disabled: disabled,
-                            action : 'disabledField'
-                        },
-                        dataType: "json",
-                        success: function (res) {
-                            layer.msg(res.msg);
-                            if (res.status) {
-                                that.fetchData();
-                            }
-                        }
-                    })
-                },
-
-                // 批量启用/禁用
-                changeStatusItems: function (disabled) {
-                    var that = this;
-                    var fieldids = [];
-                    this.multipleSelection.forEach(function (val, index) {
-                        fieldids.push(val.fieldid)
-                    });
-                    if (fieldids.length > 0) {
-                        $.ajax({
-                            url: "{:api_url('/cms/field/index')}",
-                            type: "post",
-                            data: {
-                                fieldid: fieldids,
-                                disabled: disabled,
-                                action : 'disabledField'
-                            },
-                            dataType: "json",
-                            success: function (res) {
-                                layer.msg(res.msg)
-                                if (res.status) {
-                                    that.fetchData();
-                                }
-                            }
-                        })
-                    } else {
-                        layer.msg('请选择')
+                    var data = {
+                        'modelid' : "{:input('modelid')}",
+                        '_action' : 'getFieldData'
                     }
+                    that.httpGet(that.request_url, data, function(res){
+                        if (res.status) {
+                            that.fieldsList = res.data.field_list
+                            that.model_info = res.data.model_info
+                        } else {
+                            layer.msg('操作繁忙，请稍后再试')
+                        }
+                    })
                 },
 
                 // 删除字段
                 clickDel: function (modelid, fieldid) {
                     var that = this;
                     layer.confirm('确认要删除?', function () {
-                        $.ajax({
-                            url: "{:api_url('/cms/field/index')}",
-                            type: "post",
-                            data: {
-                                modelid: modelid,
-                                fieldid: [fieldid],
-                                action : 'delFields'
-                            },
-                            dataType: "json",
-                            success: function (res) {
-                                layer.msg(res.msg);
-                                if (res.status) {
-                                    that.fetchData();
-                                }
+                        var data = {
+                            modelid: modelid,
+                            fieldid: [fieldid],
+                            _action : 'delFields'
+                        }
+                        that.httpPost(that.request_url, data, function(res){
+                            layer.msg(res.msg)
+                            if (res.status) {
+                                that.fetchData();
                             }
                         })
                     });
@@ -254,20 +170,15 @@
                     });
                     if (fieldids.length > 0) {
                         layer.confirm('确认要删除?', function () {
-                            $.ajax({
-                                url: "{:api_url('/cms/field/index')}",
-                                type: "post",
-                                data: {
-                                    modelid: that.modelid,
-                                    fieldid: fieldids,
-                                    action : 'delFields'
-                                },
-                                dataType: "json",
-                                success: function (res) {
-                                    layer.msg(res.msg)
-                                    if (res.status) {
-                                        that.fetchData();
-                                    }
+                            var data = {
+                                modelid: that.modelid,
+                                fieldid: fieldids,
+                                _action : 'delFields'
+                            }
+                            that.httpPost(that.request_url, data, function(res){
+                                layer.msg(res.msg)
+                                if (res.status) {
+                                    that.fetchData();
                                 }
                             })
                         });
@@ -279,7 +190,6 @@
                 // 全选
                 handleSelectionChange: function (val) {
                     this.multipleSelection = val;
-                    console.log(this.multipleSelection)
                 },
 
                 // 排序批量
@@ -299,7 +209,7 @@
                                 type: "post",
                                 data: {
                                     'data': formData,
-                                    'action' : 'listOrderFields'
+                                    '_action' : 'listOrderFields'
                                 },
                                 dataType: "json",
                                 success: function (res) {
@@ -317,8 +227,8 @@
 
                 // 编辑字段
                 edit: function (modelid, fieldid) {
+                    var that = this
                     var url = "{:api_url('/cms/field/editField')}" + '?modelid=' + modelid + '&fieldid=' + fieldid;
-                    // Ztbcms.openNewIframeByUrl('编辑字段', url)
                     layer.open({
                         type: 2,
                         title: '字段编辑',
@@ -329,11 +239,10 @@
                         }
                     })
                 },
-
                 // 添加字段
                 add: function () {
+                    var that = this
                     var url = "{:api_url('/cms/field/addField')}" + '?modelid=' + this.modelid
-                    // Ztbcms.openNewIframeByUrl('添加字段', url)
                     layer.open({
                         type: 2,
                         title: '字段编辑',
@@ -343,14 +252,10 @@
                             that.fetchData()
                         }
                     })
-                },
-                // 预览模型
-                showModel: function () {
-                    var url = "{:api_url('/cms/field/priview')}" + '?modelid=' + this.modelid
-                    Ztbcms.openNewIframeByUrl('预览模型', url)
-                },
+                }
             },
             mounted: function () {
+                this.modelid = this.getUrlQuery('modelid')
                 this.fetchData();
             }
         })

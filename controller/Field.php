@@ -3,6 +3,7 @@
 namespace app\cms\controller;
 
 use app\cms\model\model\Model;
+use app\cms\model\model\ModelField;
 use app\cms\service\ContentModelFieldService;
 use app\cms\service\ContentModelService;
 use app\cms\service\FieldService;
@@ -28,38 +29,56 @@ class Field extends AdminController
     public function index()
     {
         $modelid = input('modelid', 0, 'intval');
-        $action = input('action', '', 'trim');
+        $action = input('_action', '', 'trim');
 
-        if ($action == 'getFieldData') {
-            //获取字段
-            return FieldService::getFieldData($modelid);
-        } else {
-            if ($action == 'disabledField') {
-                //字段的启用和禁用
-                $fieldIds = input('fieldid', [], 'intval');
-                $disabled = input('disabled');
-                $disabled = (int) $disabled ? 0 : 1;
-                return FieldService::disabledField($fieldIds, $disabled);
-            } else {
-                if ($action == 'delFields') {
-                    //删除字段
-                    $fieldIds = input('fieldid', [], 'intval');
-                    return FieldService::delFields($fieldIds);
-                } else {
-                    if ($action == 'listOrderFields') {
-                        //更新字段排序
-                        $postData = input('post.');
-                        return FieldService::listOrderFields($postData);
-                    }
-                }
+        if ($this->request->isPost() && $action == 'delFields') {
+            //删除字段
+            $fieldIds = input('fieldid', [], 'intval');
+            if (empty($fieldIds)) {
+                return self::makeJsonReturn(false, null, '请选择要删除的字段');
             }
+            if (is_array($fieldIds)) {
+                foreach ($fieldIds as $fieldId) {
+                    ContentModelFieldService::deleteModelField($fieldId, true);
+                }
+                return self::makeJsonReturn(true, null, '操作完成');
+            }
+            if (is_numeric($fieldIds)) {
+                $res = ContentModelFieldService::deleteModelField($fieldIds, true);
+                return json($res);
+            }
+            return self::makeJsonReturn(false, null, '参数异常');
         }
 
-        $modelId = input('modelid', 0, 'intval');
-        $Model = new Model();
-        $model = $Model->where("modelid", $modelId)->findOrEmpty();
-        View::assign("modelinfo", $model);
-        return View::fetch();
+        if ($this->request->isPost() && $action == 'listOrderFields') {
+            //更新字段排序
+            $postData = input('post.');
+            $list = $postData['data'];
+            $ModelField = new ModelField();
+            $res = $ModelField->transaction(function () use ($list)
+            {
+                foreach ($list as $item) {
+                    ModelField::where('fieldid', $item['fieldid'])->save(['listorder' => $item['listorder']]);
+                }
+                return true;
+            });
+            if ($res) {
+                return self::makeJsonReturn(true, null, '更新完成');
+            }
+            return self::makeJsonReturn(false, null, '操作失败');
+        }
+
+        if ($this->request->isGet() && $action == 'getFieldData') {
+            //获取字段
+            $field_list = ContentModelFieldService::getModelFieldList($modelid)['data'];
+            $model_info = ContentModelService::getModel($modelid)['data'];
+            return self::makeJsonReturn(true, [
+                'field_list' => $field_list,
+                'model_info' => $model_info,
+            ]);
+        }
+
+        return view('index');
     }
 
     /**

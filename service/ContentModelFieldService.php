@@ -8,6 +8,7 @@ namespace app\cms\service;
 
 use app\cms\libs\FieldOperator;
 use app\cms\model\ContentModelFieldModel;
+use app\cms\model\model\Model;
 use app\cms\model\model\ModelField;
 use app\common\service\BaseService;
 use think\exception\InvalidArgumentException;
@@ -171,15 +172,15 @@ class ContentModelFieldService extends BaseService
     /**
      * 删除字段
      *
-     * @param $fieldid
-     * @param $sync_table_structure
+     * @param $fieldid string 字段ID
+     * @param $sync_table_structure boolean 是否同步修改表结构
      *
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException
      * @throws \think\db\exception\ModelNotFoundException
      */
-    static function deleteModelField($fieldid, $sync_table_structure)
+    static function deleteModelField($fieldid, $sync_table_structure = false)
     {
         if (empty($fieldid)) {
             return self::createReturn(false, null, '参数异常');
@@ -192,6 +193,7 @@ class ContentModelFieldService extends BaseService
             return self::createReturn(false, null, '找不到字段');
         }
         $modelField = $modelField->toArray();
+        $contentFieldModel->where('fieldid', $fieldid)->delete();
         if ($sync_table_structure) {
             $fieldOperator = FieldOperator::getInstanceByModelId($modelField['modelid']);
             $res = $fieldOperator->deleteField($modelField['field']);
@@ -368,5 +370,58 @@ class ContentModelFieldService extends BaseService
             }
         }
         throw new InvalidArgumentException('找不到表单类型');
+    }
+
+    /**
+     * 获取字段详情
+     *
+     * @param $modelId
+     * @param $fieldId
+     *
+     * @return array
+     */
+    static function getFieldDetail($modelId, $fieldId)
+    {
+        $Model = new Model();
+        $ModelField = new ModelField();
+
+        //模型信息
+        $modeData = $Model->where("modelid", $modelId)->findOrEmpty();
+
+        //字段信息
+        $fieldWhere[] = ["fieldid", "=", $fieldId];
+        $fieldWhere[] = ["modelid", "=", $modelId];
+        $fieldData = $ModelField->where($fieldWhere)->findOrEmpty();
+
+        //字段设置
+        $fieldData['setting'] = unserialize($fieldData['setting']);
+
+        return self::createReturn(true, [
+            'model_info' => $modeData,
+            'field_info' => $fieldData,
+        ]);
+    }
+
+
+    /**
+     * 获取字段列表
+     *
+     * @param $modelid
+     *
+     * @return array
+     */
+    static function getModelFieldList($modelid = 0)
+    {
+        if (empty($modelid)) {
+            return self::createReturn(false, '', '参数错误');
+        }
+        $Model = new Model();
+        $model = $Model->where("modelid", $modelid)->findOrEmpty();
+        if ($model->isEmpty()) {
+            return self::createReturn(false, '', '该模型不存在');
+        }
+        $ModelField = new ModelField();
+        $list = $ModelField->where("modelid", $modelid)->order("listorder", "ASC")->select()->toArray();
+        return self::createReturn(true, $list);
     }
 }

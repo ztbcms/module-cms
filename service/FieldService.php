@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: asus
- * Date: 2020/12/5
- * Time: 19:33
- */
 
 namespace app\cms\service;
 

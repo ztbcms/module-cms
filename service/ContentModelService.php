@@ -13,8 +13,6 @@ use app\common\service\BaseService;
 
 class ContentModelService extends BaseService
 {
-    private static $instance = null;
-
     static function getModel($model_id)
     {
         $Model = new Model();
