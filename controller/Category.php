@@ -90,4 +90,26 @@ class Category extends AdminController
         return View::fetch();
     }
 
+    function addCategory(){
+        $action = input('_action', '', 'trim');
+        if ($this->request->isGet() && $action == 'getFormParam') {
+            $categoryList = CategoryService::getCategoyList()['data'];
+            $modelList = (new Model())->getAvailableList();
+            return self::makeJsonReturn(true, [
+                'categoryList' => $categoryList,
+                'modelList' => $modelList
+            ]);
+        }
+        if ($this->request->isPost()) {
+            $post = input('post.');
+            return CategoryService::addSubmit($post);
+        }
+
+        return view('addOrEditCategory');
+    }
+
+    function editCategory(){
+
+    }
+
 }

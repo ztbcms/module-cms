@@ -8,7 +8,7 @@
             <p>2、终极栏目为内容， 非终极栏目为目录！</p>
         </el-alert>
 
-        <el-button class="filter-item" style="margin-left: 10px;margin-bottom: 15px;" size="small" type="primary" @click="details('')">
+        <el-button class="filter-item" style="margin-left: 10px;margin-bottom: 15px;" size="small" type="primary" @click="toAdd">
             添加栏目
         </el-button>
 
@@ -64,7 +64,7 @@
 
             <el-table-column label="操作" align="center" width="280" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="details(scope.row.catid)">修改</el-button>
+                    <el-button type="text" size="mini" @click="toEdit(scope.row.catid)">修改</el-button>
                     <el-button type="text" size="mini" @click="handleDelete(scope.row.catid)" style="color: #F56C6C">删除</el-button>
                 </template>
             </el-table-column>
@@ -86,15 +86,6 @@
     </el-card>
 </div>
 
-<style>
-    .filter-container {
-        padding-bottom: 10px;
-    }
-
-    .pagination-container {
-        padding: 32px 16px;
-    }
-</style>
 
 <script>
     $(document).ready(function () {
@@ -123,6 +114,33 @@
                     layer.open({
                         type: 2,
                         title: '管理',
+                        content: url,
+                        area: ['95%', '95%'],
+                        end: function(){
+                            that.getList();
+                        }
+                    })
+                },
+                toAdd: function(){
+                    var that = this;
+                    var url = '{:api_url("/cms/category/addCategory")}';
+                    layer.open({
+                        type: 2,
+                        title: '编辑',
+                        content: url,
+                        area: ['95%', '95%'],
+                        end: function(){
+                            that.getList();
+                        }
+                    })
+                },
+                toEdit: function(catid){
+                    var that = this;
+                    var url = '{:api_url("/cms/category/editCategory")}';
+                    url += '?catid=' + catid;
+                    layer.open({
+                        type: 2,
+                        title: '编辑',
                         content: url,
                         area: ['95%', '95%'],
                         end: function(){
@@ -168,7 +186,6 @@
                         });
                     });
                 },
-
                 // 排序批量
                 listOrder: function () {
                     var that = this;

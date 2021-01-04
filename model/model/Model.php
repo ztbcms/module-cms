@@ -353,7 +353,6 @@ class Model extends PublicModel
      */
     public function getAvailableList(){
         $where[] = ['disabled','=',0];
-        $where[] = ['type','=',0];
         $availableList = $this->where($where)->select()->toArray() ?: [];
         return $availableList;
     }
