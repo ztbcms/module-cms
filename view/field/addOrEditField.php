@@ -87,6 +87,14 @@
                             <field-setting-radio v-model="formData.setting"></field-setting-radio>
                         </div>
 
+                        <div v-if="formData.form_type === 'checkbox'">
+                            <field-setting-checkbox v-model="formData.setting"></field-setting-checkbox>
+                        </div>
+
+                        <div v-if="formData.form_type === 'select'">
+                            <field-setting-select v-model="formData.setting"></field-setting-select>
+                        </div>
+
 
                         <el-form-item size="large">
                             <el-button type="primary"  @click="submitForm">提交</el-button>
@@ -121,6 +129,10 @@
 {include file="../app/cms/view/common/fields/files/field_setting.inc.php"}
 <!--radio-->
 {include file="../app/cms/view/common/fields/radio/field_setting.inc.php"}
+<!--checkbox-->
+{include file="../app/cms/view/common/fields/checkbox/field_setting.inc.php"}
+<!--select-->
+{include file="../app/cms/view/common/fields/select/field_setting.inc.php"}
 
 <script>
     $(document).ready(function () {
