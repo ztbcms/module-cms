@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by FHYI.
- * Date 2020/10/30
- * Time 14:24
- */
 
 namespace app\cms\validate;
 

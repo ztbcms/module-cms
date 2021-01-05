@@ -1,9 +1,4 @@
 <?php
-/**
- * User: cycle_3
- * Date: 2020/12/4
- * Time: 16:49
- */
 
 namespace app\cms\model\category;
 
@@ -324,6 +319,7 @@ class Category extends Model
 
     /**
      * 删除栏目
+     * @deprecated
      * @param $catid
      * @return array
      */

@@ -131,8 +131,11 @@
             created: function () {
             },
             mounted: function () {
+                this.formData.catid = this.getUrlQuery('catid') || ''
                 this.getFormParam()
-                if (this.formData.catid > 0) this.getDetails();
+                if (this.formData.catid) {
+                    this.getDetails();
+                }
             },
             methods: {
                 submitForm: function () {
@@ -153,14 +156,15 @@
                 getDetails: function () {
                     var that = this;
                     var data = {
+                        '_action': 'getDetail',
                         'catid': this.formData.catid
                     };
-                    data._action = 'getDetail';
-                    that.httpPost(this.request_url, data, function (res) {
+                    that.httpGet(this.request_url, data, function (res) {
                         if (res.data) {
                             that.formData.modelid = res.data.modelid ;
-                            that.formData.parentid = String(res.data.parentid);
+                            that.formData.parentid = parseInt(res.data.parentid);
                             that.formData.catname = res.data.catname;
+                            that.formData.catdir = res.data.catdir;
                         }
                     })
                 },

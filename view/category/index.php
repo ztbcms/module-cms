@@ -4,18 +4,13 @@
 
         <el-alert type="success" style="margin-bottom: 10px;">
             <p>温馨提示：</p>
-            <p>1、请在添加、修改栏目全部完成后，更新栏目缓存，否则可能出现未知错误！</p>
-            <p>2、终极栏目为内容， 非终极栏目为目录！</p>
+            <p>1、请在添加、修改栏目全部完成后，更新栏目缓存，否则可能出现未知错误</p>
+            <p>2、终极栏目为内容， 非终极栏目为目录</p>
         </el-alert>
 
         <el-button class="filter-item" style="margin-left: 10px;margin-bottom: 15px;" size="small" type="primary" @click="toAdd">
             添加栏目
         </el-button>
-
-        <el-button class="filter-item" style="margin-left: 10px;margin-bottom: 15px;" size="small" type="primary" @click="listOrder()">
-            排序
-        </el-button>
-
 
         <el-table
             :key="tableKey"
@@ -23,12 +18,6 @@
             highlight-current-row
             style="width: 100%;"
         >
-
-            <el-table-column label="排序" width="80px" align="center">
-                <template slot-scope="{row}">
-                    <el-input v-model="row.listorder"></el-input>
-                </template>
-            </el-table-column>
 
             <el-table-column label="栏目ID" align="center" width="100px">
                 <template slot-scope="scope">
@@ -56,15 +45,10 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="链接" width="100px" align="center">
-                <template slot-scope="{row}">
-                    <el-link :href="row.url" target="_blank">点击访问</el-link>
-                </template>
-            </el-table-column>
 
             <el-table-column label="操作" align="center" width="280" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
-                    <el-button type="text" size="mini" @click="toEdit(scope.row.catid)">修改</el-button>
+                    <el-button type="text" size="mini" @click="toEdit(scope.row.catid)">编辑</el-button>
                     <el-button type="text" size="mini" @click="handleDelete(scope.row.catid)" style="color: #F56C6C">删除</el-button>
                 </template>
             </el-table-column>
@@ -105,22 +89,6 @@
             watch: {},
             filters: {},
             methods: {
-                //获取栏目详情
-                details : function (catid) {
-                    var that = this;
-                    var url = '{:api_url("/cms/category/details")}';
-                    if(catid) url += '?catid=' + catid;
-
-                    layer.open({
-                        type: 2,
-                        title: '管理',
-                        content: url,
-                        area: ['95%', '95%'],
-                        end: function(){
-                            that.getList();
-                        }
-                    })
-                },
                 toAdd: function(){
                     var that = this;
                     var url = '{:api_url("/cms/category/addCategory")}';
@@ -186,57 +154,6 @@
                         });
                     });
                 },
-                // 排序批量
-                listOrder: function () {
-                    var that = this;
-                    var formData = [];
-                    this.list.forEach(function (val, index) {
-                        formData.push({
-                            catid: val.catid,
-                            listorder: val.listorder
-                        })
-                    });
-
-                    if (formData.length > 0) {
-                        layer.confirm('确认要进行排序?', function () {
-                            $.ajax({
-                                url: "{:api_url('/cms/category/index')}",
-                                type: "post",
-                                data: {
-                                    'data': formData,
-                                    'action' : 'listOrderCategoy'
-                                },
-                                dataType: "json",
-                                success: function (res) {
-                                    layer.msg(res.msg)
-                                    if (res.status) {
-                                        that.getList();
-                                    }
-                                }
-                            })
-                        });
-                    } else {
-                        layer.msg('请选择')
-                    }
-                },
-
-                // 更新缓存或者打开访问链接
-                updateCache:function(url,type){
-                    var that = this;
-                    if(type == 'update'){
-                        that.httpPost(url, {}, function(res){
-                            if(res.status){
-                                layer.msg('操作成功', {icon: 1});
-                                that.getList();
-                            } else {
-                                layer.msg(res.msg);
-                            }
-                        });
-                    }
-                    if(type == 'open'){
-                        window.open(url)
-                    }
-                }
             },
             mounted: function () {
                 this.getList();

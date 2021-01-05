@@ -10,6 +10,7 @@ use app\admin\service\AdminUserService;
 
 /**
  * 栏目管理
+ * @deprecated
  * Class FieldExportService
  * @package app\cms\service
  */
