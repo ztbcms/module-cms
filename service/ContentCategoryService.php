@@ -125,7 +125,7 @@ class ContentCategoryService extends BaseService
         if ($res->isEmpty()) {
             return self::createReturn(false, null, '找不到信息');
         }
-        return self::createReturn(true, null, $res->toArray());
+        return self::createReturn(true, $res->toArray());
     }
 
     /**

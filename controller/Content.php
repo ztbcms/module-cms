@@ -1,13 +1,10 @@
 <?php
-/**
- * User: cycle_3
- * Date: 2020/12/3
- * Time: 15:46
- */
 
 namespace app\cms\controller;
 
 use app\cms\model\model\ModelField;
+use app\cms\service\ContentCategoryService;
+use app\cms\service\ContentModelService;
 use app\cms\service\ContentService;
 use app\common\controller\AdminController;
 use think\facade\View;
@@ -15,8 +12,6 @@ use app\cms\model\category\Category;
 
 /**
  * 内容管理
- * Class Content
- * @package app\cms\controller
  */
 class Content extends AdminController
 {
@@ -24,7 +19,7 @@ class Content extends AdminController
      * 内容管理列表
      * @return array|string
      */
-    public function index(){
+    function index(){
 
         $action = input('action','','trim');
         if($action == 'category_list') {
@@ -37,10 +32,10 @@ class Content extends AdminController
     }
 
     /**
-     * 字段列表管理
+     * 栏目列表页
      * @return array|string
      */
-    public function list(){
+    function list(){
         $action = input('action','','trim');
         $catid = input('catid','','trim');
         if($action == 'getDisplaySettin'){
@@ -70,9 +65,66 @@ class Content extends AdminController
     }
 
     /**
+     * 栏目内容列表页
+     */
+    function content_list(){
+        $catid = input('catid','','trim');
+        $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
+        $list_customtemplate = $contentCategory['list_customtemplate'];
+        if(empty($list_customtemplate)){
+            $contentModel = ContentModelService::getModel($contentCategory['modelid'])['data'];
+            $list_customtemplate = $contentModel['list_customtemplate'];
+            if(empty($list_customtemplate)){
+                $list_customtemplate = 'content_list';
+            }
+        }
+
+        $list_customtemplate = 'content/list/'.$list_customtemplate;
+        return view($list_customtemplate);
+
+    }
+
+    function content_list_operate(){
+        $action = input('_action','','trim');
+        $catid = input('catid','','trim');
+        if($action === 'getContentList'){
+            //获取列表信息
+            $page = input('page', 1, 'intval');
+            $limit = input('limit', 15, 'intval');
+            $where = [];
+            $keywords = input('keywords');
+            if (isset($keywords) && !empty($keywords)) {
+                foreach ($keywords as $k => $v) {
+                    $where[] = [$k, 'like', '%'.$v.'%'];
+                }
+            }
+            $res = ContentService::getContentList($catid, $where, $page, $limit);
+            return json($res);
+        }
+        if($action === 'addContent'){
+            // 获取列表
+        }
+        if($action === 'editContent'){
+            // 获取列表
+        }
+        if($action === 'deleteContent'){
+            // 获取列表
+        }
+
+    }
+
+    function content_add(){}
+
+
+
+    function content_edit(){}
+
+
+
+    /**
      * 获取详情信息
      */
-    public function details(){
+    function details(){
         $action = input('_action','','trim');
         $catid = input('catid','','trim');
         $id = input('id','','trim');

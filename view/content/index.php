@@ -16,7 +16,7 @@
     <el-col :span="20" style="">
 
         <div v-if="src != ''">
-            <iframe  :src="src" id="iframe" style="width:100%;border: 0;" :style="{height: iframeHeight + 'px'}"></iframe>
+            <iframe :src="src" id="iframe" style="width:100%;border: 0;" :style="{height: iframeHeight + 'px'}"></iframe>
         </div>
         <div v-else>
             <el-alert type="success">
@@ -30,11 +30,12 @@
 </div>
 
 <style>
-    html,body{
+    html, body {
         height: 100%;
         margin: 0;
     }
-    #app{
+
+    #app {
         background: white;
     }
 </style>
@@ -46,26 +47,26 @@
             // 插入export default里面的内容
             components: {},
             props: [],
-            data: function() {
+            data: function () {
                 return {
                     data: [],
                     defaultProps: {
                         children: 'children',
                         label: 'catname'
                     },
-                    src : '',
+                    src: '',
                     iframeHeight: 400
                 }
             },
             computed: {},
             watch: {
-                filterText: function(val) {
+                filterText: function (val) {
                     this.$refs.tree.filter(val);
                 }
             },
-            created: function() {
+            created: function () {
             },
-            mounted: function() {
+            mounted: function () {
                 this.getDetails();
                 this.iframeHeight = document.body.clientHeight
             },
@@ -74,7 +75,7 @@
                 getDetails: function () {
                     var that = this;
                     var data = {
-                        action : 'category_list'
+                        action: 'category_list'
                     };
                     that.httpGet("{:api_url('/cms/Content/index')}", data, function (res) {
                         if (res.status) {
@@ -82,11 +83,9 @@
                         }
                     })
                 },
-                handleNodeClick : function (data) {
-                    if(data.child <= 0) {
-                        this.src = "{:api_url('/cms/Content/list')}?catid=" + data.catid;
-                    } else {
-                        this.src = '';
+                handleNodeClick: function (category_item) {
+                    if (category_item && parseInt(category_item.type) === 0) {
+                        this.src = "{:api_url('/cms/Content/list')}?catid=" + category_item.catid;
                     }
                 }
             }

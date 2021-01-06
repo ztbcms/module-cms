@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS `cms_content_category`;
 CREATE TABLE `cms_content_category` (
   `catid` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '栏目ID',
   `catname` varchar(64) NOT NULL COMMENT '栏目名称',
-  `type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '类别',
+  `type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '类别 0内容 1栏目组 2外部链接',
   `modelid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '模型ID',
   `parentid` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT '父ID',
   `arrparentid` varchar(255) NOT NULL DEFAULT '' COMMENT '所有父ID',
@@ -19,8 +19,8 @@ CREATE TABLE `cms_content_category` (
   `category_template` varchar(64) NOT NULL DEFAULT '',
   `list_template` varchar(64) NOT NULL DEFAULT '',
   `show_template` varchar(64) NOT NULL DEFAULT '',
-  `create_time` int(11) DEFAULT NULL,
-  `update_time` int(11) DEFAULT NULL,
+  `create_time` int(11) NOT NULL,
+  `update_time` int(11) NOT NULL,
   PRIMARY KEY (`catid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='栏目表';
 

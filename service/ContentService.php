@@ -256,4 +256,41 @@ class ContentService extends BaseService
     }
 
 
+    /**
+     * @param $catid
+     * @param  array  $where
+     * @param  int  $page
+     * @param  int  $limit
+     * @param  string[]  $order
+     *
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
+    static function getContentList($catid, array $where, $page = 1, $limit = 15, $order = ['id' => 'desc'])
+    {
+        $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
+        $contentModel = ContentModelService::getModel($contentCategory['modelid'])['data'];
+        $offset = ($page - 1) * $limit;
+        $total = Db::table($contentModel['table'])->where($where)->count();
+        $total_page = ceil($total / $limit);
+        $lists = Db::table($contentModel['table'])->where($where)->limit($offset, $limit)->order($order)->select()->toArray();
+
+        return self::createReturn(true, [
+            'items'      => $lists,
+            'page'       => $page,
+            'limit'      => $limit,
+            'total'      => $total,
+            'total_page' => $total_page,
+        ]);
+    }
+
+    static function addContent(){}
+
+    static function editContent(){}
+
+    static function deleteContent(){}
+
+
 }
