@@ -13,6 +13,12 @@ use app\common\service\BaseService;
 
 class ContentModelService extends BaseService
 {
+    /**
+     * 获取模型
+     * @param $model_id
+     *
+     * @return array
+     */
     static function getModel($model_id)
     {
         $Model = new Model();
@@ -21,6 +27,19 @@ class ContentModelService extends BaseService
             return self::createReturn(true, $data->toArray());
         }
         return self::createReturn(false, null, '找不到信息');
+    }
+
+    /**
+     * 根据栏目ID获取模型
+     *
+     * @param $catid
+     *
+     * @return array
+     */
+    static function getModelByCatid($catid)
+    {
+        $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
+        return $contentModel = self::getModel($contentCategory['modelid']);
     }
 
     /**

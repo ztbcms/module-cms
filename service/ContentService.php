@@ -16,6 +16,7 @@ use think\facade\Db;
 /**
  * 内容管理
  * Class ContentService
+ *
  * @package app\cms\service
  */
 class ContentService extends BaseService
@@ -23,126 +24,138 @@ class ContentService extends BaseService
 
     /**
      * 获取显示的字段
-     * @param int $catid
+     *
+     * @param  int  $catid
+     *
      * @return array
      */
-    static function getDisplaySettin($catid = 0){
+    static function getDisplaySettin($catid = 0)
+    {
 
         $Category = new Category();
         $ModelField = new ModelField();
-        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $CategoryDetails = $Category->where(['catid' => $catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         //列表中显示的字段
-        $where[] = ['issystem','=',1];
-        $where[] = ['modelid','=',$modelid];
+        $where[] = ['issystem', '=', 1];
+        $where[] = ['modelid', '=', $modelid];
 
-        $cmsModelIsaddWhere[] = ['isadd','=',1];
+        $cmsModelIsaddWhere[] = ['isadd', '=', 1];
         $fieldList = $ModelField->where($cmsModelIsaddWhere)->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         //筛选条件中显示的字段
-        $cmsModelIsbaseWhere[] = ['issearch','=',1];
+        $cmsModelIsbaseWhere[] = ['issearch', '=', 1];
         $baseList = $ModelField->where($cmsModelIsbaseWhere)->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         $res['field_list'] = $fieldList;
         $res['base_list'] = $baseList;
-        return self::createReturn(true,$res);
+        return self::createReturn(true, $res);
     }
 
     /**
      * 获取模板列表
-     * @param int $catid
+     *
+     * @param  int  $catid
      * @param $where
-     * @param int $limit
+     * @param  int  $limit
+     *
      * @return array
      */
-    static function getTemplateList($catid = 0,$where = []){
+    static function getTemplateList($catid = 0, $where = [])
+    {
         $Category = new Category();
         $Model = new Model();
-        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $CategoryDetails = $Category->where(['catid' => $catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
-        $modelWhere[] = ['modelid','=',$modelid];
+        $modelWhere[] = ['modelid', '=', $modelid];
         $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
         $tablename = $modelDetails['tablename'];
-        $where[] = ['catid','=',$catid];
+        $where[] = ['catid', '=', $catid];
         $lists = Db::name($tablename)->where($where)->order('id', 'DESC')->paginate(20);
         return self::createReturn(true, $lists);
     }
 
     /**
      * 删除数据信息
-     * @param int $catid
-     * @param int $id
+     *
+     * @param  int  $catid
+     * @param  int  $id
+     *
      * @return array
      */
-    static function delTemplate($catid = 0,$id = 0){
+    static function delTemplate($catid = 0, $id = 0)
+    {
         $Category = new Category();
         $Model = new Model();
 
-        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $CategoryDetails = $Category->where(['catid' => $catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
-        $modelWhere[] = ['modelid','=',$modelid];
+        $modelWhere[] = ['modelid', '=', $modelid];
         $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
         $tablename = $modelDetails['tablename'];
 
-        $where[] = ['catid','=',$catid];
-        $where[] = ['id','=',$id];
+        $where[] = ['catid', '=', $catid];
+        $where[] = ['id', '=', $id];
         Db::name($tablename)->where($where)->delete();
-        return self::createReturn(true, '','删除成功！');
+        return self::createReturn(true, '', '删除成功！');
     }
 
     /**
      * 获取详情页显示的字段
-     * @param int $catid
+     *
+     * @param  int  $catid
+     *
      * @return array
      */
-    static function getDetailsDisplaySettin($catid = 0,$id = 0){
+    static function getDetailsDisplaySettin($catid = 0, $id = 0)
+    {
 
         $Category = new Category();
         $Model = new Model();
         $ModelField = new ModelField();
-        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $CategoryDetails = $Category->where(['catid' => $catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
         $contentDetails = [];
         $contentDataDetails = [];
-        if($id > 0){
-            $modelWhere[] = ['modelid','=',$modelid];
+        if ($id > 0) {
+            $modelWhere[] = ['modelid', '=', $modelid];
             $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
 
             //获取主表的信息
             $tablename = $modelDetails['tablename'];
-            $contentWhere[] = ['catid','=',$catid];
-            $contentWhere[] = ['id','=',$id];
+            $contentWhere[] = ['catid', '=', $catid];
+            $contentWhere[] = ['id', '=', $id];
             $contentDetails = Db::name($tablename)->where($contentWhere)
                 ->find() ?: [];
 
             //获取副表的信息
-            $contentDataDetails = Db::name($tablename.'_data')->where('id','=',$id)->find();
+            $contentDataDetails = Db::name($tablename.'_data')->where('id', '=', $id)->find();
         }
 
         //列表中显示的字段
-        $where[] = ['modelid','=',$modelid];
+        $where[] = ['modelid', '=', $modelid];
         $fieldList = $ModelField->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         //处理解密后的数据
-        foreach ($fieldList as $k => $v){
-            if(isset($v['setting'])) {
+        foreach ($fieldList as $k => $v) {
+            if (isset($v['setting'])) {
                 $setting = unserialize($v['setting']);
-                if(isset($setting['options'])) {
-                    $options = explode("\n",$setting['options']);
+                if (isset($setting['options'])) {
+                    $options = explode("\n", $setting['options']);
                     $option = [];
                     foreach ($options as $k2 => $v2) {
                         $option_val = explode("|", $v2);
-                        if(isset($option_val[1])) {
+                        if (isset($option_val[1])) {
                             $option[trim($option_val[1])] = $option_val[0];
                         }
                     }
                     $setting['option_list'] = $option;
                 }
-                $fieldList[$k]['setting']  = $setting;
+                $fieldList[$k]['setting'] = $setting;
             }
         }
 
@@ -150,13 +163,13 @@ class ContentService extends BaseService
 
         $formData = [];
         $formData['id'] = $id;
-        foreach ($fieldList as $k => $v){
-            if($v['formtype'] == 'catid') {
+        foreach ($fieldList as $k => $v) {
+            if ($v['formtype'] == 'catid') {
                 $formData[$v['field']] = $catid;
             } else {
-                if(isset($contentDetails[$v['field']]) || isset($contentDataDetails[$v['field']])) {
+                if (isset($contentDetails[$v['field']]) || isset($contentDataDetails[$v['field']])) {
                     //主表或者副表存在的情况
-                    if(isset($contentDetails[$v['field']])) {
+                    if (isset($contentDetails[$v['field']])) {
                         //主表存在
                         $content = $contentDetails[$v['field']];
                     } else {
@@ -166,17 +179,19 @@ class ContentService extends BaseService
                 } else {
                     $content = '';
                 }
-                if(is_numeric($content)) {
-                    $content = (string)$content;
+                if (is_numeric($content)) {
+                    $content = (string) $content;
                 }
-                if($v['formtype'] == 'datetime') {
+                if ($v['formtype'] == 'datetime') {
                     //日期类型的进行日期处理
-                    if(is_numeric($content)) $content = date("Y-m-d H:i",$content);
+                    if (is_numeric($content)) {
+                        $content = date("Y-m-d H:i", $content);
+                    }
                 }
-                if($v['formtype'] == 'images' || $v['formtype'] == 'downfiles'){
+                if ($v['formtype'] == 'images' || $v['formtype'] == 'downfiles') {
                     //多图片或者多文件
-                    if($content) {
-                        $content = explode(',',$content);
+                    if ($content) {
+                        $content = explode(',', $content);
                     } else {
                         $content = [];
                     }
@@ -185,17 +200,22 @@ class ContentService extends BaseService
             }
         }
         $res['form_data'] = $formData;
-        return self::createReturn(true,$res);
+        return self::createReturn(true, $res);
     }
 
     /**
      * 提交信息
-     * @param array $post
+     *
+     * @param  array  $post
+     *
      * @return array
      */
-    static function submitForm($post = []){
+    static function submitForm($post = [])
+    {
 
-        if(!$post['catid']) return self::createReturn(false,'','栏目id不能为空');
+        if (!$post['catid']) {
+            return self::createReturn(false, '', '栏目id不能为空');
+        }
 
         $catid = $post['catid'];
 
@@ -204,32 +224,32 @@ class ContentService extends BaseService
         $ModelField = new ModelField();
 
 
-        $CategoryDetails = $Category->where(['catid'=>$catid])->find()->toArray() ?: [];
+        $CategoryDetails = $Category->where(['catid' => $catid])->find()->toArray() ?: [];
         $modelid = $CategoryDetails['modelid'];
 
-        $modelWhere[] = ['modelid','=',$modelid];
+        $modelWhere[] = ['modelid', '=', $modelid];
         $modelDetails = $Model->where($modelWhere)->find()->toArray() ?: [];
         $tablename = $modelDetails['tablename'];
 
-        $where[] = ['modelid','=',$modelid];
+        $where[] = ['modelid', '=', $modelid];
         $fieldList = $ModelField->where($where)->order('listorder asc')->select()->toArray() ?: [];
 
         $issystem_content = [];
         $no_issystem_content = [];
         foreach ($fieldList as $k => $v) {
-            if(isset($post[$v['field']])) {
-                if($v['formtype'] == 'datetime') {
+            if (isset($post[$v['field']])) {
+                if ($v['formtype'] == 'datetime') {
                     //时间类型的参数进行转换
                     $post[$v['field']] = strtotime($post[$v['field']]);
                 }
 
-                if($v['formtype'] == 'images' || $v['formtype'] == 'downfiles'){
+                if ($v['formtype'] == 'images' || $v['formtype'] == 'downfiles') {
                     //多图片或者多文件
-                    $post[$v['field']] = implode (',',$post[$v['field']]);
+                    $post[$v['field']] = implode(',', $post[$v['field']]);
                 }
 
                 //存在该参数
-                if($v['issystem']) {
+                if ($v['issystem']) {
                     //判断是否为主表
                     $issystem_content[$v['field']] = $post[$v['field']];
                 } else {
@@ -238,21 +258,21 @@ class ContentService extends BaseService
             }
         }
         unset($no_issystem_content['pages']);
-        $tableWhere[] = ['catid','=',$catid];
-        if($post['id'] <= 0) {
+        $tableWhere[] = ['catid', '=', $catid];
+        if ($post['id'] <= 0) {
             //新增信息
             $id = Db::name($tablename)->insertGetId($issystem_content);
             $no_issystem_content['id'] = $id;
             Db::name($tablename.'_data')->insertGetId($no_issystem_content);
         } else {
             //编辑信息
-            $tableWhere[] = ['id','=',$post['id']];
+            $tableWhere[] = ['id', '=', $post['id']];
             Db::name($tablename)->where($tableWhere)->update($issystem_content);
             Db::name($tablename.'_data')->where([
-                ['id','=',$post['id']]
+                ['id', '=', $post['id']]
             ])->update($no_issystem_content);
         }
-        return self::createReturn(true,'','操作成功');
+        return self::createReturn(true, '', '操作成功');
     }
 
 
@@ -270,8 +290,7 @@ class ContentService extends BaseService
      */
     static function getContentList($catid, array $where, $page = 1, $limit = 15, $order = ['id' => 'desc'])
     {
-        $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
-        $contentModel = ContentModelService::getModel($contentCategory['modelid'])['data'];
+        $contentModel = ContentModelService::getModelByCatid($catid)['data'];
         $offset = ($page - 1) * $limit;
         $total = Db::table($contentModel['table'])->where($where)->count();
         $total_page = ceil($total / $limit);
@@ -286,11 +305,37 @@ class ContentService extends BaseService
         ]);
     }
 
-    static function addContent(){}
+    static function addContent()
+    {
+    }
 
-    static function editContent(){}
+    static function editContent()
+    {
+    }
 
-    static function deleteContent(){}
+    /**
+     * 删除内容
+     *
+     * @param $catid
+     * @param $id
+     *
+     * @return array
+     * @throws \think\db\exception\DbException
+     */
+    static function deleteContent($catid, $id)
+    {
+        if (empty($catid) || empty($id)) {
+            return self::createReturn(false, null, '参数异常');
+        }
+        $contentModel = ContentModelService::getModelByCatid($catid)['data'];
+        $tablename = $contentModel['table'];
+
+        $res = Db::table($contentModel['table'])->where('id', $id)->delete();
+        if ($res) {
+            return self::createReturn(true, null, '删除成功');
+        }
+        return self::createReturn(false, null, '删除失败');
+    }
 
 
 }

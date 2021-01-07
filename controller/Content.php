@@ -15,6 +15,8 @@ use app\cms\model\category\Category;
  */
 class Content extends AdminController
 {
+
+    public $noNeedPermission = ['content_list_operate'];
     /**
      * 内容管理列表
      * @return array|string
@@ -84,6 +86,7 @@ class Content extends AdminController
 
     }
 
+    // 内容列表页操作
     function content_list_operate(){
         $action = input('_action','','trim');
         $catid = input('catid','','trim');
@@ -91,12 +94,14 @@ class Content extends AdminController
             //获取列表信息
             $page = input('page', 1, 'intval');
             $limit = input('limit', 15, 'intval');
+            $_where = input('where', []);;
             $where = [];
-            $keywords = input('keywords');
-            if (isset($keywords) && !empty($keywords)) {
-                foreach ($keywords as $k => $v) {
-                    $where[] = [$k, 'like', '%'.$v.'%'];
+            foreach ($_where as $item) {
+                $value = $item['value'];
+                if (strtolower($item['operator']) == 'like') {
+                    $value = '%'.$value.'%';
                 }
+                $where [] = [$item['field'], $item['operator'], $value];
             }
             $res = ContentService::getContentList($catid, $where, $page, $limit);
             return json($res);
@@ -107,8 +112,11 @@ class Content extends AdminController
         if($action === 'editContent'){
             // 获取列表
         }
-        if($action === 'deleteContent'){
-            // 获取列表
+        if ($action === 'deleteContent') {
+            // 删除内容
+            $id = input('id', '', 'trim');
+            $res = ContentService::deleteContent($catid, $id);
+            return json($res);
         }
 
     }

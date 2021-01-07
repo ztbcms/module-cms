@@ -10,7 +10,7 @@
                 </template>
 
                 <el-form-item>
-                    <el-button type="primary" @click="searchEvent">查询</el-button>
+                    <el-button type="primary" @click="doSearch">查询</el-button>
 
                     <el-button @click="detailsEvent(0)" type="primary">新增</el-button>
                 </el-form-item>
@@ -38,7 +38,7 @@
                         width="220">
                         <template slot-scope="scope">
                             <el-button @click="detailsEvent(scope.row.id)" type="text">编辑</el-button>
-                            <el-button @click="deleteEvent(scope.row.id)" type="text" style="color:#F56C6C ;">删除</el-button>
+                            <el-button @click="deleteItem(scope.row.id)" type="text" style="color:#F56C6C ;">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -125,12 +125,9 @@
                 },
                 mounted:function() {
                     this.catid = this.getUrlQuery('catid')
-                    // this.getDisplaySettin();
-                    // this.getTemplateList();
                     this.getContentList()
                 },
                 methods: {
-
                     //获取显示的字段
                     getDisplaySettin: function () {
                         var that = this;
@@ -145,12 +142,23 @@
                     // 获取列表信息
                     getContentList: function () {
                         var that = this
+                        var where = []
+                        for(var i=0;i<this.searchList.length;i++){
+                            var item = this.searchList[i]
+                            if(item['value'] !== ''){
+                                where.push({
+                                    field: item['field'],
+                                    operator: item['operator'],
+                                    value: item['value']
+                                })
+                            }
+                        }
                         var data = {
                             _action: 'getContentList',
                             catid: this.catid,
                             page: this.page,
                             limit: this.limit,
-                            where: [],
+                            where: where,
                         }
                         this.httpGet("{:api_url('/cms/content/content_list_operate')}", data, function (res) {
                             if (res.status) {
@@ -164,24 +172,24 @@
                     },
 
                     //删除内容
-                    deleteEvent:function(id) {
-                        var postData = {
-                            id: id,
-                            action : 'delTemplate',
-                            catid : this.catid
-                        };
-                        var _this = this;
+                    deleteItem: function(id) {
+                        var that = this
                         this.$confirm('是否确认删除该记录', '提示', {
                             callback: function (e) {
                                 if (e !== 'confirm') {
                                     return;
                                 }
-                                _this.httpPost('{:api_url("/cms/content/list")}', postData, function (res) {
+                                var data = {
+                                    _action : 'deleteContent',
+                                    catid : that.catid,
+                                    id: id
+                                };
+                                that.httpPost('{:api_url("/cms/content/content_list_operate")}', data, function (res) {
                                     if (res.status) {
-                                        _this.$message.success('删除成功');
-                                        _this.getTemplateList();
+                                        that.$message.success('删除成功');
+                                        that.getContentList();
                                     } else {
-                                        _this.$message.error(res.msg);
+                                        that.$message.error(res.msg);
                                     }
                                 })
                             }
@@ -189,15 +197,15 @@
                     },
 
                     //筛选
-                    searchEvent:function() {
-                        this.page = 1;
-                        this.getTemplateList();
+                    doSearch:function() {
+                        this.page = 1
+                        this.getContentList()
                     },
 
                     //翻页
                     currentChangeEvent:function(page) {
                         this.page = page;
-                        this.getTemplateList();
+                        this.getContentList();
                     },
 
                     //详情
