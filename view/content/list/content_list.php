@@ -12,7 +12,7 @@
                 <el-form-item>
                     <el-button type="primary" @click="doSearch">查询</el-button>
 
-                    <el-button @click="detailsEvent(0)" type="primary">新增</el-button>
+                    <el-button @click="editContent(0)" type="primary">添加</el-button>
                 </el-form-item>
             </el-form>
 
@@ -37,7 +37,7 @@
                         align="center"
                         width="220">
                         <template slot-scope="scope">
-                            <el-button @click="detailsEvent(scope.row.id)" type="text">编辑</el-button>
+                            <el-button @click="editContent(scope.row.id)" type="text">编辑</el-button>
                             <el-button @click="deleteItem(scope.row.id)" type="text" style="color:#F56C6C ;">删除</el-button>
                         </template>
                     </el-table-column>
@@ -207,27 +207,27 @@
                         this.page = page;
                         this.getContentList();
                     },
-
+                    
                     //详情
-                    detailsEvent : function (id) {
+                    editContent: function (id) {
                         var that = this;
-                        var url = "{:api_url('/cms/content/details')}";
+                        var url = "{:api_url('/cms/content/content_edit')}";
                         url += '?catid=' + this.catid;
-                        if(id) url += '&id=' + id;
+                        if (id) url += '&id=' + id;
                         var _layer = layer
-                        if(window !== window.parent && window.parent.layer ){
+                        if (window !== window.parent && window.parent.layer) {
                             _layer = window.parent.layer
                         }
                         _layer.open({
                             type: 2,
-                            title: '管理',
+                            title: '编辑',
                             content: url,
                             area: ['95%', '95%'],
-                            end: function(){
-                                that.getTemplateList();
+                            end: function () {
+                                that.getContentList();
                             }
                         })
-                    }
+                    },
                 }
             })
         });

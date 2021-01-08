@@ -414,11 +414,11 @@ class ContentModelFieldService extends BaseService
     /**
      * 获取字段列表
      *
-     * @param $modelid
+     * @param $modelid int|string 模型ID
      *
      * @return array
      */
-    static function getModelFieldList($modelid = 0)
+    static function getModelFieldList($modelid)
     {
         if (empty($modelid)) {
             return self::createReturn(false, '', '参数错误');
@@ -430,6 +430,9 @@ class ContentModelFieldService extends BaseService
         }
         $ModelField = new ModelField();
         $list = $ModelField->where("modelid", $modelid)->order("listorder", "ASC")->select()->toArray();
+        foreach ($list as &$item){
+            $item['setting'] = unserialize($item['setting']);
+        }
         return self::createReturn(true, $list);
     }
 }

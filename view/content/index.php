@@ -21,7 +21,7 @@
         <div v-else>
             <el-alert type="success">
                 <p> 温馨提示 ： </p>
-                <p> 一 ：终极目录才能进行管理 </p>
+                <p> 一 ：内容栏目才能进行管理 </p>
             </el-alert>
         </div>
 
@@ -85,7 +85,7 @@
                 },
                 handleNodeClick: function (category_item) {
                     if (category_item && parseInt(category_item.type) === 0) {
-                        this.src = "{:api_url('/cms/Content/list')}?catid=" + category_item.catid;
+                        this.src = "{:api_url('/cms/Content/content_list')}?catid=" + category_item.catid;
                     }
                 }
             }
