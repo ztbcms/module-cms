@@ -1,5 +1,5 @@
-<script type="text/x-template" id="field-form-image">
-    <div class="field-form-image">
+<script type="text/x-template" id="field-form-images">
+    <div class="field-form-images">
         <el-form-item :label="name">
             <div>
                 <template v-for="(file, index) in uploadedImageList">
@@ -17,7 +17,7 @@
     </div>
 </script>
 <style>
-    .field-form-image .imgListItem {
+    .field-form-images .imgListItem {
         height: 128px;
         border: 1px dashed #d9d9d9;
         border-radius: 6px;
@@ -29,7 +29,7 @@
         vertical-align: top;
     }
 
-    .field-form-image .deleteMask {
+    .field-form-images .deleteMask {
         position: absolute;
         top: 0;
         left: 0;
@@ -42,14 +42,14 @@
         opacity: 0;
     }
 
-    .field-form-image .deleteMask:hover {
+    .field-form-images .deleteMask:hover {
         opacity: 1;
     }
 </style>
 <script>
     $(function () {
-        Vue.component('field-form-image', {
-            template: '#field-form-image',
+        Vue.component('field-form-images', {
+            template: '#field-form-images',
             model: {
                 // 指定接收 v-model 值/修改事件
                 prop: 'value',
@@ -69,14 +69,17 @@
                     this.syncVModel()
                 },
                 uploadedImageList: function(){
+                    var result = [];
                     if(this.uploadedImageList.length > 0){
-                        this.field_value = this.uploadedImageList[0]['fileurl']
-                    } else {
-                        this.field_value = ''
+                        for(var i=0; i<this.uploadedImageList.length; i++){
+                            result.push(this.uploadedImageList[i]['fileurl'])
+                        }
                     }
+                    this.field_value = result
                 }
             },
-            computed: {},
+            computed: {
+            },
             data: function () {
                 return {
                     field_value: '',
