@@ -117,9 +117,7 @@
                 },
                 // 图片回调
                 onUploadedImage: function (event) {
-                    console.log(event);
                     var files = event.detail.files;
-                    console.log(files);
                     if (files && files.length > 0) {
                         this.uploadedImageList = [files[0]]
                     }

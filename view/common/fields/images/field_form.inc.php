@@ -71,7 +71,7 @@
                 uploadedImageList: function(){
                     var result = [];
                     if(this.uploadedImageList.length > 0){
-                        for(var i=0; i<this.uploadedImageList.length; i++){
+                        for (var i = 0; i < this.uploadedImageList.length; i++) {
                             result.push(this.uploadedImageList[i]['fileurl'])
                         }
                     }
@@ -82,7 +82,7 @@
             },
             data: function () {
                 return {
-                    field_value: '',
+                    field_value: [],
                     name: '',
                     fieldid: '',
                     options: '',
@@ -94,7 +94,11 @@
 
                 this.name = this.config.name || ''
                 this.fieldid = this.config.fieldid || ''
-                this.field_value = this.config.default || ''
+                if(this.config.default ){
+                    this.field_value = [this.config.default]
+                } else {
+                    this.field_value = []
+                }
                 this.options = this.config.setting.options || ''
                 this.syncVModel()
 
@@ -120,11 +124,11 @@
                 },
                 // 图片回调
                 onUploadedImage: function (event) {
-                    console.log(event);
                     var files = event.detail.files;
-                    console.log(files);
                     if (files && files.length > 0) {
-                        this.uploadedImageList = [files[0]]
+                        for (var i = 0; i < files.length; i++) {
+                            this.uploadedImageList.push(files[i])
+                        }
                     }
                 },
                 // 删除

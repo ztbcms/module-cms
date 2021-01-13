@@ -42,6 +42,11 @@
                                 </field-form-image>
                             </div>
 
+                            <div v-if="item.form_type === 'images'">
+                                <field-form-images v-model="formData[item.field]" :config="item">
+                                </field-form-images>
+                            </div>
+
 
                         </div>
 
@@ -70,6 +75,8 @@
 {include file="../app/cms/view/common/fields/select/field_form.inc.php"}
 <!--image-->
 {include file="../app/cms/view/common/fields/image/field_form.inc.php"}
+<!--images-->
+{include file="../app/cms/view/common/fields/images/field_form.inc.php"}
 
 
 
