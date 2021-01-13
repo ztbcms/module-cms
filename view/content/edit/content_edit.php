@@ -79,8 +79,6 @@
 {include file="../app/cms/view/common/fields/images/field_form.inc.php"}
 
 
-
-
 <script>
     $(document).ready(function () {
         new Vue({
@@ -90,10 +88,11 @@
             props: [],
             data: function () {
                 return {
-                    catid: '',
-                    id: '',
                     field_list: [],
-                    formData: {},
+                    formData: {
+                        catid: '',
+                        id: ''
+                    },
                     editor: {}
                 }
             },
@@ -106,71 +105,60 @@
                 }
             },
             watch: {},
-            created: function () {
-                var that = this;
-
-                // that.getDisplaySettin();
-
-            },
+            created: function () {},
             mounted: function () {
-                this.catid = this.getUrlQuery('catid') || ''
-                this.id = this.getUrlQuery('catid') || ''
-
+                this.formData.catid = this.getUrlQuery('catid') || ''
+                this.formData.id = this.getUrlQuery('id') || ''
                 this.getFormSetting()
             },
             methods: {
-                //获取显示的字段
-                getDisplaySettin: function () {
-                    var that = this;
-                    this.httpPost("{:api_url('/cms/content/details')}", {
-                        catid: this.catid,
-                        id: this.id,
-                        _action: "getDisplaySetting"
-                    }, function (res) {
-
-                        that.field_list = res.data.field_list;
-                        that.formData = res.data.form_data;
-
-                    });
-                },
+                // 提交
                 submitForm: function () {
-                    var that = this;
-                    var url = "{:api_url('/cms/Content/details')}";
-
-                    var where = Object.assign({
+                    var that = this
+                    var data = {
                         _action: 'submitForm',
-                        catid: this.catid
-                    }, this.formData);
-
-                    //处理富文本的信息
-                    for (var i in that.editor) {
-                        where[i] = that.editor[i].getContent();
+                        content: this.formData
                     }
-
-                    that.httpPost(url, where, function (res) {
+                    that.httpPost(that.request_url, data, function (res) {
                         layer.msg(res.msg);
                         if (res.status) {
                             //添加成功
-                            if (window !== window.parent) {
-                                setTimeout(function () {
-                                    location.href = res.url;
-                                }, 1000);
+                            if (window !== window.parent && window.parent.layer) {
+                                window.parent.layer.closeAll()
                             }
                         }
                     })
                 },
+                // 表单设置
                 getFormSetting: function (){
                     var that = this;
                     var data = {
-                        catid: this.catid,
+                        catid: this.formData.catid,
                         _action: "getFormSetting"
                     }
                     this.httpGet(this.request_url, data, function (res) {
                         that.field_list = res.data;
-                    });
+
+                        if(that.formData.id){
+                            that.getDetail()
+                        }
+                    })
                 },
                 getDetail: function(){
-
+                    var that = this
+                    var data = {
+                        catid: this.formData.catid,
+                        id: this.formData.id,
+                        _action: "getDetail"
+                    }
+                    this.httpGet(this.request_url, data, function (res) {
+                        if(res.status){
+                            that.formData = res.data
+                            console.log(that.formData)
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    })
                 }
             }
         });

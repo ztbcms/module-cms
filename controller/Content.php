@@ -123,28 +123,7 @@ class Content extends AdminController
     }
 
     function content_add(){
-        $catid = input('catid','','trim');
-        $action = input('_action','','trim');
-
-        if($this->request->isGet() && $action == 'getFormSetting'){
-            $model = ContentModelService::getModelByCatid($catid)['data'];
-            $res = ContentModelFieldService::getModelFieldList($model['modelid']);
-            return json($res);
-        }
-
-
-        $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
-        $list_customtemplate = $contentCategory['add_customtemplate'];
-        if(empty($list_customtemplate)){
-            $contentModel = ContentModelService::getModel($contentCategory['modelid'])['data'];
-            $list_customtemplate = $contentModel['add_customtemplate'];
-            if(empty($list_customtemplate)){
-                $list_customtemplate = 'content_edit';
-            }
-        }
-
-        $list_customtemplate = 'content/edit/'.$list_customtemplate;
-        return view($list_customtemplate);
+        return $this->content_edit();
     }
 
 
@@ -152,13 +131,29 @@ class Content extends AdminController
     function content_edit(){
         $catid = input('catid','','trim');
         $action = input('_action','','trim');
-
+        // 表单设置
         if($this->request->isGet() && $action == 'getFormSetting'){
             $model = ContentModelService::getModelByCatid($catid)['data'];
             $res = ContentModelFieldService::getModelFieldList($model['modelid']);
             return json($res);
         }
 
+        // 获取内容信息
+        if($this->request->isGet() && $action == 'getDetail'){
+            $id = input('id','','trim');
+            $res = ContentService::getDetail($catid, $id);
+            return json($res);
+        }
+
+        // 添加、编辑
+        if($this->request->isPost() && $action == 'submitForm'){
+            $content = input('content');
+            $res = ContentService::addOrEditContent($content);
+            return json($res);
+        }
+
+
+        // 展示页面
         $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
         $list_customtemplate = $contentCategory['edit_customtemplate'];
         if(empty($list_customtemplate)){

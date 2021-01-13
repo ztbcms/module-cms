@@ -10,6 +10,7 @@ namespace app\cms\service;
 use app\cms\model\category\Category;
 use app\cms\model\model\Model;
 use app\cms\model\model\ModelField;
+use app\common\libs\helper\ArrayHelper;
 use app\common\service\BaseService;
 use think\facade\Db;
 
@@ -305,12 +306,44 @@ class ContentService extends BaseService
         ]);
     }
 
-    static function addContent()
+    static function addOrEditContent($data)
     {
-    }
+        if (empty($data['catid'])) {
+            return self::createReturn(false, null, '栏目ID不能为空');
+        }
 
-    static function editContent()
-    {
+        $id = $data['id'] ?? null;
+        unset($data['id']);
+
+        $model = ContentModelService::getModelByCatid($data['catid'])['data'];
+        $fieldList = ContentModelFieldService::getModelFieldList($model['modelid'])['data'];
+        $fieldMap = ArrayHelper::arrayToMap($fieldList, 'field');
+
+        $content = [];
+        foreach ($data as $key => $val) {
+            if (isset($fieldMap[$key])) {
+                switch ($fieldMap[$key]['form_type']) {
+                    case 'images':
+                        $content[$key] = serialize($val);
+                        break;
+                    default:
+                        $content[$key] = $val;
+
+                }
+            }
+        }
+        if (empty($id)) {
+            //新增
+            $res = Db::table($model['table'])->insertGetId($content);
+        } else {
+            //编辑
+            $tableWhere[] = ['id', '=', $data['id']];
+            $res = Db::table($model['table'])->where('id', $id)->update($content);
+        }
+        if ($res) {
+            return self::createReturn(true, null, '操作成功');
+        }
+        return self::createReturn(false, null, '操作成功');
     }
 
     /**
@@ -328,13 +361,42 @@ class ContentService extends BaseService
             return self::createReturn(false, null, '参数异常');
         }
         $contentModel = ContentModelService::getModelByCatid($catid)['data'];
-        $tablename = $contentModel['table'];
-
         $res = Db::table($contentModel['table'])->where('id', $id)->delete();
         if ($res) {
             return self::createReturn(true, null, '删除成功');
         }
         return self::createReturn(false, null, '删除失败');
+    }
+
+    /**
+     * 获取详情
+     * @param $catid
+     * @param $id
+     *
+     * @return array
+     */
+    static function getDetail($catid, $id)
+    {
+        if (empty($catid) || empty($id)) {
+            return self::createReturn(false, null, '参数异常');
+        }
+        $model = ContentModelService::getModelByCatid($catid)['data'];
+        $fieldList = ContentModelFieldService::getModelFieldList($model['modelid'])['data'];
+        $fieldMap = ArrayHelper::arrayToMap($fieldList, 'field');
+        $result = Db::table($model['table'])->where('id', $id)->findOrEmpty();
+        if (empty($result)) {
+            return self::createReturn(false, null, '找不到内容');
+        }
+        foreach ($result as $field => $val) {
+            if (isset($fieldMap[$field])) {
+                switch ($fieldMap[$field]['form_type']) {
+                    case 'images':
+                        $result[$field] = unserialize($val);
+                        break;
+                }
+            }
+        }
+        return self::createReturn(true, $result);
     }
 
 
