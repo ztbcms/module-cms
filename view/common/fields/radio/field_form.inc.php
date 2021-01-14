@@ -26,6 +26,9 @@
                 }
             },
             watch: {
+                value: function(){
+                    this.field_value = this.value
+                },
                 field_value: function(val){
                     this.syncVModel()
                 }

@@ -65,6 +65,9 @@
                 }
             },
             watch: {
+                value: function(){
+                    this.field_value = this.value
+                },
                 field_value: function(val){
                     this.syncVModel()
                 },
@@ -88,7 +91,6 @@
                 }
             },
             mounted: function () {
-
                 this.name = this.config.name || ''
                 this.fieldid = this.config.fieldid || ''
                 this.field_value = this.config.default || ''

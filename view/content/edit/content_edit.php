@@ -138,12 +138,13 @@
                     }
                     this.httpGet(this.request_url, data, function (res) {
                         that.field_list = res.data;
-
+                        // 获取详情
                         if(that.formData.id){
                             that.getDetail()
                         }
                     })
                 },
+                // 获取详情
                 getDetail: function(){
                     var that = this
                     var data = {
