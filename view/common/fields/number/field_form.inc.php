@@ -39,7 +39,12 @@
             },
             mounted: function () {
                 this.name = this.config.name || ''
-                this.field_value = this.config.default || ''
+                if (this.value !== undefined) {
+                    this.field_value = this.value
+                } else {
+                    this.field_value = this.config.default || ''
+                }
+
                 this.syncVModel()
             },
             methods: {

@@ -47,6 +47,16 @@
                                 </field-form-images>
                             </div>
 
+                            <div v-if="item.form_type === 'video'">
+                                <field-form-video v-model="formData[item.field]" :config="item">
+                                </field-form-video>
+                            </div>
+
+                            <div v-if="item.form_type === 'videos'">
+                                <field-form-videos v-model="formData[item.field]" :config="item">
+                                </field-form-videos>
+                            </div>
+
 
                         </div>
 
@@ -77,6 +87,10 @@
 {include file="../app/cms/view/common/fields/image/field_form.inc.php"}
 <!--images-->
 {include file="../app/cms/view/common/fields/images/field_form.inc.php"}
+<!--video-->
+{include file="../app/cms/view/common/fields/video/field_form.inc.php"}
+<!--videos-->
+{include file="../app/cms/view/common/fields/videos/field_form.inc.php"}
 
 
 <script>

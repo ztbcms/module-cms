@@ -306,6 +306,13 @@ class ContentService extends BaseService
         ]);
     }
 
+    /**
+     * 新增或编辑内容
+     * @param $data
+     *
+     * @return array
+     * @throws \think\db\exception\DbException
+     */
     static function addOrEditContent($data)
     {
         if (empty($data['catid'])) {
@@ -323,6 +330,8 @@ class ContentService extends BaseService
         foreach ($data as $key => $val) {
             if (isset($fieldMap[$key])) {
                 switch ($fieldMap[$key]['form_type']) {
+                    case 'videos':
+                    case 'files':
                     case 'images':
                         $content[$key] = serialize($val);
                         break;
@@ -391,6 +400,8 @@ class ContentService extends BaseService
             if (isset($fieldMap[$field])) {
                 switch ($fieldMap[$field]['form_type']) {
                     case 'images':
+                    case 'files':
+                    case 'videos':
                         $result[$field] = unserialize($val);
                         break;
                 }
