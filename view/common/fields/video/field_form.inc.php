@@ -67,16 +67,12 @@
             watch: {
                 value: function(){
                     this.field_value = this.value
+                    if(this.value){
+                        this.uploadedList = [{'fileurl': this.value}]
+                    }
                 },
                 field_value: function(val){
                     this.syncVModel()
-                },
-                uploadedList: function(){
-                    if(this.uploadedList.length > 0){
-                        this.field_value = this.uploadedList[0]['fileurl']
-                    } else {
-                        this.field_value = ''
-                    }
                 }
             },
             computed: {},
@@ -122,11 +118,13 @@
                     var files = event.detail.files;
                     if (files && files.length > 0) {
                         this.uploadedList = [files[0]]
+                        this.field_value = files[0]['fileurl']
                     }
                 },
                 // 删除
                 deleteVideoItem: function (index) {
                     this.uploadedList.splice(index, 1)
+                    this.field_value = ''
                 },
                 // 预览
                 previewVideoItem: function (index) {

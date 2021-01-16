@@ -66,22 +66,21 @@
             },
             watch: {
                 value: function(){
+                    console.log('value:change..', this.value)
                     this.field_value = this.value
+                    var result = [];
+                    for (var i = 0; i < this.value.length; i++) {
+                        result.push({
+                            filethumb: this.value[i]['thumb'] || '/statics/admin/upload/video.png',
+                            fileurl: this.value[i]['url']
+                        })
+                    }
+                    this.uploadedList = result
                 },
                 field_value: function(val){
+                    console.log('change field_value', this.field_value)
+
                     this.syncVModel()
-                },
-                uploadedList: function(){
-                    var result = [];
-                    if(this.uploadedList.length > 0){
-                        for (var i = 0; i < this.uploadedList.length; i++) {
-                            result.push({
-                                name: this.uploadedList[i]['filename'],
-                                url: this.uploadedList[i]['fileurl']
-                            })
-                        }
-                    }
-                    this.field_value = result
                 }
             },
             computed: {},
@@ -98,7 +97,7 @@
             mounted: function () {
                 this.name = this.config.name || ''
                 this.fieldid = this.config.fieldid || ''
-                this.field_value = this.config.default || ''
+                this.field_value = this.config.default || []
                 this.options = this.config.setting.options || ''
                 this.syncVModel()
 
@@ -128,12 +127,17 @@
                     if (files && files.length > 0) {
                         for (var i = 0; i < files.length; i++) {
                             this.uploadedList.push(files[i])
+                            this.field_value.push({
+                                thumb: files[i]['filethumb'] || '/statics/admin/upload/video.png',
+                                url: files[i]['fileurl']
+                            })
                         }
                     }
                 },
                 // 删除
                 deleteVideoItem: function (index) {
                     this.uploadedList.splice(index, 1)
+                    this.field_value.splice(index, 1)
                 },
                 // 预览
                 previewVideoItem: function (index) {
