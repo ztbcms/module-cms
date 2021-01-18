@@ -12,10 +12,24 @@ use app\cms\model\model\Model;
 use app\cms\model\model\ModelField;
 use app\common\service\BaseService;
 use think\exception\InvalidArgumentException;
-use think\facade\Db;
 
+/**
+ * 模型字段
+ *
+ * @package app\cms\service
+ */
 class ContentModelFieldService extends BaseService
 {
+    /**
+     * 添加字段
+     * @param  array  $modelField
+     * @param  false  $sync_table_structure
+     *
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     static function addModelField(array $modelField, $sync_table_structure = false)
     {
         $contentFieldModel = new ContentModelFieldModel();
@@ -92,8 +106,13 @@ class ContentModelFieldService extends BaseService
     /**
      * 更新字段
      *
+     * @param  array  $modelField
+     * @param  bool  $sync_table_structure
      *
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
      */
     static function updateModelField(array $modelField, $sync_table_structure = false)
     {
@@ -300,24 +319,25 @@ class ContentModelFieldService extends BaseService
                     'max_amount' => 0, // 最大个数
                 ]
             ],
-            [
-                'name'          => '单文件',
-                'type'          => 'file',
-                'sql_type'      => 'varchar',
-                'length'        => 512,
-                'default_value' => '',
-                'setting'       => []
-            ],
-            [
-                'name'          => '多文件',
-                'type'          => 'files',
-                'sql_type'      => 'varchar',
-                'length'        => 1024,
-                'default_value' => '',
-                'setting'       => [
-                    'max_amount' => 0, // 最大个数
-                ]
-            ],
+            //
+//            [
+//                'name'          => '单文件',
+//                'type'          => 'file',
+//                'sql_type'      => 'varchar',
+//                'length'        => 512,
+//                'default_value' => '',
+//                'setting'       => []
+//            ],
+//            [
+//                'name'          => '多文件',
+//                'type'          => 'files',
+//                'sql_type'      => 'varchar',
+//                'length'        => 1024,
+//                'default_value' => '',
+//                'setting'       => [
+//                    'max_amount' => 0, // 最大个数
+//                ]
+//            ],
             [
                 'name'          => '单选',
                 'type'          => 'radio',

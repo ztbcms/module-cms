@@ -23,7 +23,7 @@ use app\cms\service\ModelService;
 class Model extends AdminController
 {
     /**
-     * 显示模型列表
+     * 模型列表
      */
     public function index()
     {
@@ -96,6 +96,7 @@ class Model extends AdminController
     }
 
     /**
+     * 表单参数
      * @return \think\response\Json
      */
     function _getModelFormParam()
@@ -115,7 +116,7 @@ class Model extends AdminController
 
     /**
      * 获取模型详情
-     *
+     * @deprecated
      * @return array
      */
     public function getDetail()
@@ -126,7 +127,7 @@ class Model extends AdminController
 
     /**
      * 模型导入
-     *
+     * @deprecated
      * @return array|\think\response\View
      */
     public function import()
@@ -144,7 +145,7 @@ class Model extends AdminController
 
     /**
      * 模型导出
-     *
+     * @deprecated
      * @return \think\response\Json
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\DbException

@@ -24,7 +24,11 @@ return [
             'setting'       => [
                 'decimals_amount' => 0,
                 'is_unsigned'     => 1
-            ]
+            ],
+            'enable_edit_show' => 0,// 编辑页是否可编辑 0否 1是(默认)
+            'enable_delete' => 0, // 字段是否可以删除 0否 1是(默认)
+            'enable_list_show' => 1,//列表页中是否展示 0否 1是（默认）
+
         ],
         [
             'name'          => '分类ID',
@@ -39,7 +43,10 @@ return [
             'setting'       => [
                 'decimals_amount' => 0,
                 'is_unsigned'     => 1
-            ]
+            ],
+            'enable_edit_show' => 1,
+            'enable_delete' => 0,
+            'enable_list_show' => 0,
         ],
         [
             'name'          => '标题',
@@ -51,7 +58,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '关键字',
@@ -63,7 +73,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '描述',
@@ -75,7 +88,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '缩略图',
@@ -87,7 +103,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '序号',
@@ -102,7 +121,10 @@ return [
             'setting'       => [
                 'decimals_amount' => 0,
                 'is_unsigned'     => 1
-            ]
+            ],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '状态',// 99审核通过 1待审核 0审核不通过
@@ -114,7 +136,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '1',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 0,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '用户ID',
@@ -126,7 +151,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '管理员ID',
@@ -138,7 +166,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 1,
+            'enable_list_show' => 1,
         ],
         [
             'name'          => '添加时间',
@@ -150,7 +181,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 0,
+            'enable_list_show' => 1,
         ],
         [
             'field'         => 'update_time',
@@ -162,7 +196,10 @@ return [
             'field_key'     => '',
             'field_extra'   => '',
             'default'       => '',
-            'setting'       => []
+            'setting'       => [],
+            'enable_edit_show' => 1,
+            'enable_delete' => 0,
+            'enable_list_show' => 1,
         ],
 
     ]

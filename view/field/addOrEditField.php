@@ -35,13 +35,26 @@
                             <el-input v-model="formData.tips" placeholder="请输入字段提示" clearable></el-input>
                         </el-form-item>
 
-
                         <el-form-item label="字符长度">
                             <el-input v-model="formData.field_length" value="0" size="5" placeholder="" clearable  type="number"></el-input>
                             <small>数据库中的字段长度</small>
                         </el-form-item>
 
-                        <h3>相关参数</h3>
+                        <el-form-item label="编辑页展示">
+                            <el-radio-group v-model="formData.enable_edit_show">
+                                <el-radio label="0">隐藏</el-radio>
+                                <el-radio label="1">展示</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+
+                        <el-form-item label="列表页展示">
+                            <el-radio-group v-model="formData.enable_list_show">
+                                <el-radio label="0">隐藏</el-radio>
+                                <el-radio label="1">展示</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+
+                        <h3>属性相关参数</h3>
 
                         <div v-if="formData.form_type === 'text'">
                             <field-setting-text v-model="formData.setting"></field-setting-text>
@@ -151,7 +164,8 @@
                         field : "", //字段名
                         name : "", //字段别名
                         tips : "", //字段提示
-
+                        enable_edit_show: '0',
+                        enable_list_show: '0',
                         setting: {}
                     },
                     model_info: {
@@ -240,6 +254,9 @@
                             that.formData.field = String(res.data.field_info.field)
                             that.formData.tips = res.data.field_info.tips || ''
                             that.formData.setting = res.data.field_info.setting || {}
+                            that.formData.enable_edit_show = String(res.data.field_info.enable_edit_show || '1')
+                            that.formData.enable_list_show = String(res.data.field_info.enable_list_show || '1')
+
                             that.finishLoadAmount++
                         }
                     });

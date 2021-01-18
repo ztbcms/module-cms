@@ -55,40 +55,34 @@
                     </el-table-column>
 
 
-                    <el-table-column label="必填" align="center">
+                    <el-table-column label="编辑页展示" align="center">
                         <template slot-scope="scope">
                              <span class="el-icon-success" style="color: green;font-size: 24px;"
-                                   v-if="scope.row.minlength == '1'"></span>
+                                   v-if="scope.row.enable_edit_show == '1'"></span>
                             <span class="el-icon-error" style="color: red;font-size: 24px;"
                                   v-else></span>
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="列表中显示" align="center">
+                    <el-table-column label="列表展示" align="center">
                         <template slot-scope="scope">
                              <span class="el-icon-success" style="color: green;font-size: 24px;"
-                                   v-if="scope.row.isadd == '1'"></span>
+                                   v-if="scope.row.enable_list_show == '1'"></span>
                             <span class="el-icon-error" style="color: red;font-size: 24px;"
                                   v-else></span>
                         </template>
                     </el-table-column>
 
-                    <el-table-column label="基本信息" align="center">
-                        <template slot-scope="scope">
-                             <span class="el-icon-success" style="color: green;font-size: 24px;"
-                                   v-if="scope.row.isbase == '1'"></span>
-                            <span class="el-icon-error" style="color: red;font-size: 24px;"
-                                  v-else></span>
-                        </template>
-                    </el-table-column>
 
                     <el-table-column label="操作" align="center" width="250" class-name="small-padding fixed-width">
                         <template slot-scope="scope">
                                 <el-button type="text" size="mini"
+                                           v-if="scope.row.enable_delete == 1"
                                            @click="edit(scope.row.modelid,scope.row.fieldid)">修改
                                 </el-button>
 
                                 <el-button type="text" size="mini" style="color: rgb(245, 108, 108);"
+                                           v-if="scope.row.enable_delete == 1"
                                            @click="clickDel(scope.row.modelid,scope.row.fieldid)">删除
                                 </el-button>
                         </template>
