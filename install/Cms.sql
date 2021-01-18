@@ -92,6 +92,9 @@ CREATE TABLE `cms_content_model_field` (
   `field_extra` varchar(32) NOT NULL DEFAULT '' COMMENT 'sql extra ',
   `create_time` int(11) NOT NULL COMMENT '创建时间',
   `update_time` int(11) NOT NULL COMMENT '更新时间',
+  `enable_edit_show` tinyint(1) NOT NULL DEFAULT '1' COMMENT '编辑页是否可编辑 0否 1是(默认)',
+  `enable_delete` tinyint(1) NOT NULL DEFAULT '1' COMMENT '字段是否可以删除 0否 1是(默认)',
+  `enable_list_show` tinyint(4) NOT NULL DEFAULT '1' COMMENT '列表页中是否展示 0否 1是（默认）',
   PRIMARY KEY (`fieldid`),
   KEY `modelid` (`modelid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='模型字段列表';

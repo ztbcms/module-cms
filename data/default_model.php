@@ -172,7 +172,7 @@ return [
             'enable_list_show' => 1,
         ],
         [
-            'name'          => '添加时间',
+            'name'          => '创建时间',
             'field'         => 'create_time',
             'form_type'     => 'number',
             'field_type'    => 'int',

@@ -134,7 +134,7 @@ class Content extends AdminController
         // 表单设置
         if($this->request->isGet() && $action == 'getFormSetting'){
             $model = ContentModelService::getModelByCatid($catid)['data'];
-            $res = ContentModelFieldService::getModelFieldList($model['modelid']);
+            $res = ContentModelFieldService::getEditableModelFieldList($model['modelid']);
             return json($res);
         }
 

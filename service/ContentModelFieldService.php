@@ -455,4 +455,20 @@ class ContentModelFieldService extends BaseService
         }
         return self::createReturn(true, $list);
     }
+
+    /**
+     * 获取可编辑的字段
+     * @param $modelid
+     */
+    static function getEditableModelFieldList($modelid)
+    {
+        $list = self::getModelFieldList($modelid)['data'];
+        $result = [];
+        foreach ($list as $item) {
+            if ($item['enable_edit_show'] == 1) {
+                $result [] = $item;
+            }
+        }
+        return self::createReturn(true, $result);
+    }
 }
