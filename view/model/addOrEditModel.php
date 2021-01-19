@@ -5,14 +5,14 @@
             <el-col :span="12">
                 <div class="grid-content ">
                     <el-form ref="form" :model="form" label-width="150px">
-                        <el-form-item label="模型名称：">
+                        <el-form-item label="模型名称">
                             <el-input v-model="form.name" placeholder="中文名"></el-input>
                         </el-form-item>
-                        <el-form-item label="模型表名：">
+                        <el-form-item label="模型表名">
                             <el-input v-model="form.table" placeholder="英文小写"></el-input>
                             <small v-if="formParam.table_prefix" class="gray">建议前缀为: {{ formParam.table_prefix }}</small>
                         </el-form-item>
-                        <el-form-item label="描述：">
+                        <el-form-item label="描述">
                             <el-input v-model="form.description"></el-input>
                         </el-form-item>
 
@@ -31,19 +31,15 @@
                             <small class="gray">模板以show_x.php形式</small>
                         </el-form-item>
 
-                        <el-form-item label="后台列表模板：">
-                            <el-input v-model="form.list_customtemplate" placeholder="默认后台列表页，如admin_xx.php"></el-input>
-                            <small class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Listtemplate/里增加文件</small>
+                        <el-form-item label="后台列表模板">
+                            <el-input v-model="form.list_customtemplate" placeholder="如 content_list.php"></el-input>
+                            <small class="gray">不设置为使用默认列表，模板在 /cms/view/content/list/ 默认 content_list.php</small>
                         </el-form-item>
 
-                        <el-form-item label="后台添加模板：">
-                            <el-input v-model="form.add_customtemplate" placeholder="默认后台列表页，如add_xx.php"></el-input>
-                            <small class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Addtemplate/里增加文件</small>
-                        </el-form-item>
 
-                        <el-form-item label="后台编辑模板：">
-                            <el-input v-model="form.edit_customtemplate" placeholder="默认后台列表页，如edit_xx.php"></el-input>
-                            <small class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Edittemplate/里增加文件</small>
+                        <el-form-item label="后台编辑模板">
+                            <el-input v-model="form.edit_customtemplate" placeholder="如 content_edit.php"></el-input>
+                            <small class="gray">不设置为使用默认列表，模板在 /cms/view/content/edit/ 默认 content_edit.php</small>
                         </el-form-item>
 
                         <el-form-item>

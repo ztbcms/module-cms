@@ -15,7 +15,6 @@
                                            :id="item.modelid"
                                            :label="item.name"
                                            :value="item.modelid"></el-option>
-
                             </el-select>
                         </el-form-item>
 
@@ -51,22 +50,17 @@
                             <el-radio v-model="formData.type" label="2">外部链接</el-radio>
                         </el-form-item>
 
-                        <el-form-item label="后台列表模板：">
-                            <el-input v-model="formData.list_customtemplate" placeholder="默认后台列表页，如admin_xx.php"></el-input>
-                            <small class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Listtemplate/里增加文件</small>
+                        <el-form-item label="后台列表模板">
+                            <el-input v-model="formData.list_customtemplate" placeholder="如 content_list.php"></el-input>
+                            <small class="gray">不设置为使用默认列表，模板在 /cms/view/content/list/ 默认 content_list.php</small>
                         </el-form-item>
 
-                        <el-form-item label="后台添加模板：">
-                            <el-input v-model="formData.add_customtemplate" placeholder="默认后台列表页，如add_xx.php"></el-input>
-                            <small class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Addtemplate/里增加文件</small>
+                        <el-form-item label="后台编辑模板">
+                            <el-input v-model="formData.edit_customtemplate" placeholder="如 content_edit.php"></el-input>
+                            <small class="gray">不设置为使用默认列表，模板在 /cms/view/content/edit/ 默认 content_edit.php</small>
                         </el-form-item>
 
-                        <el-form-item label="后台编辑模板：">
-                            <el-input v-model="formData.edit_customtemplate" placeholder="默认后台列表页，如edit_xx.php"></el-input>
-                            <small class="gray">模板名称<b>不需要</b>后缀，不设置为使用默认列表，增加列表模板可在/app/Application/Content/View/Edittemplate/里增加文件</small>
-                        </el-form-item>
-
-                        <el-form-item size="large">
+                        <el-form-item >
                             <el-button type="primary" @click="submitForm">提交</el-button>
                         </el-form-item>
 
@@ -162,7 +156,7 @@
                     that.httpGet(this.request_url, data, function (res) {
                         if (res.data) {
                             that.formData.modelid = res.data.modelid ;
-                            that.formData.parentid = parseInt(res.data.parentid);
+                            that.formData.parentid = String(res.data.parentid);
                             that.formData.catname = res.data.catname;
                             that.formData.catdir = res.data.catdir;
                         }

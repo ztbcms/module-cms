@@ -79,6 +79,9 @@ class ContentModelFieldService extends BaseService
             'tips'          => $modelField['tips'] ?? '',
             'setting'       => $modelField['setting'] ? serialize($modelField['setting']) : serialize([]),
             'create_time'   => time(),
+            'enable_edit_show' => $modelField['enable_edit_show'] ?? 1,
+            'enable_delete' => $modelField['enable_delete'] ?? 1,
+            'enable_list_show' => $modelField['enable_list_show'] ?? 1,
         ];
         //进行数据验证
         $validate = new \app\cms\validate\Field();
@@ -160,6 +163,8 @@ class ContentModelFieldService extends BaseService
             'field_extra'   => $modelField['field_extra'] ?? '',
             'tips'          => $modelField['tips'] ?? '',
             'setting'       => $modelField['setting'] ? serialize($modelField['setting']) : serialize([]),
+            'enable_edit_show' => $modelField['enable_edit_show'] ?? 1,
+            'enable_list_show' => $modelField['enable_list_show'] ?? 1,
             'update_time'   => time(),
         ];
 
