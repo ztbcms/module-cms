@@ -12,7 +12,7 @@
         <el-col :xs="24" :md="8">
             <template>
                 <div>
-                    <el-form ref="elForm" :model="formData" :rules="rules" size="medium" label-width="100px">
+                    <el-form ref="elForm" :model="formData"  size="medium" label-width="100px">
 
                         <el-form-item label="字段属性" prop="form_type">
                             <el-select v-model="formData.form_type" placeholder="请选择字段属性" @change="changeFormtype" >
@@ -22,16 +22,16 @@
                             </el-select>
                         </el-form-item>
 
-                        <el-form-item label="字段名" prop="field" required>
+                        <el-form-item label="字段名"  required>
                             <el-input v-model="formData.field" placeholder="请输入字段名" clearable></el-input>
                             <small>只能由英文字母、数字和下划线组成，并且仅能字母开头，不以下划线结尾</small>
                         </el-form-item>
 
-                        <el-form-item label="字段别名" prop="name" required>
+                        <el-form-item label="字段别名" required>
                             <el-input v-model="formData.name" placeholder="请输入字段别名" clearable></el-input>
                         </el-form-item>
 
-                        <el-form-item label="字段提示" prop="tips">
+                        <el-form-item label="字段提示">
                             <el-input v-model="formData.tips" placeholder="请输入字段提示" clearable></el-input>
                         </el-form-item>
 
@@ -108,6 +108,9 @@
                             <field-setting-select v-model="formData.setting"></field-setting-select>
                         </div>
 
+                        <div v-if="formData.form_type === 'datetime'">
+                            <field-setting-datetime v-model="formData.setting"></field-setting-datetime>
+                        </div>
 
                         <el-form-item size="large">
                             <el-button type="primary"  @click="submitForm">提交</el-button>
@@ -146,6 +149,8 @@
 {include file="../app/cms/view/common/fields/checkbox/field_setting.inc.php"}
 <!--select-->
 {include file="../app/cms/view/common/fields/select/field_setting.inc.php"}
+<!--datetime-->
+{include file="../app/cms/view/common/fields/datetime/field_setting.inc.php"}
 
 <script>
     $(document).ready(function () {
@@ -254,8 +259,8 @@
                             that.formData.field = String(res.data.field_info.field)
                             that.formData.tips = res.data.field_info.tips || ''
                             that.formData.setting = res.data.field_info.setting || {}
-                            that.formData.enable_edit_show = String(res.data.field_info.enable_edit_show || '1')
-                            that.formData.enable_list_show = String(res.data.field_info.enable_list_show || '1')
+                            that.formData.enable_edit_show = String(res.data.field_info.enable_edit_show)
+                            that.formData.enable_list_show = String(res.data.field_info.enable_list_show)
 
                             that.finishLoadAmount++
                         }

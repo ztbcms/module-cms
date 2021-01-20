@@ -335,6 +335,9 @@ class ContentService extends BaseService
                     case 'images':
                         $content[$key] = serialize($val);
                         break;
+                    case 'datetime':
+                        $content[$key] = strtotime($val);
+                        break;
                     default:
                         $content[$key] = $val;
 
@@ -403,6 +406,9 @@ class ContentService extends BaseService
                     case 'files':
                     case 'videos':
                         $result[$field] = unserialize($val);
+                        break;
+                    case 'datetime':
+                        $result[$field] = date($fieldMap[$field]['setting']['format'], $val);
                         break;
                 }
             }

@@ -57,6 +57,11 @@
                                 </field-form-videos>
                             </div>
 
+                            <div v-if="item.form_type === 'datetime'">
+                                <field-form-datetime v-model="formData[item.field]" :config="item">
+                                </field-form-datetime>
+                            </div>
+
 
                         </div>
 
@@ -91,6 +96,8 @@
 {include file="../app/cms/view/common/fields/video/field_form.inc.php"}
 <!--videos-->
 {include file="../app/cms/view/common/fields/videos/field_form.inc.php"}
+<!--datetime-->
+{include file="../app/cms/view/common/fields/datetime/field_form.inc.php"}
 
 
 <script>

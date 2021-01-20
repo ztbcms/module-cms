@@ -174,14 +174,16 @@ return [
         [
             'name'             => '创建时间',
             'field'            => 'create_time',
-            'form_type'        => 'number',
+            'form_type'        => 'datetime',
             'field_type'       => 'int',
             'field_length'     => 11,
             'field_is_null'    => 0,
             'field_key'        => '',
             'field_extra'      => '',
             'default'          => '',
-            'setting'          => [],
+            'setting'          => [
+                'format' => 'Y-m-d H:i:s'
+            ],
             'enable_edit_show' => 0,
             'enable_delete'    => 0,
             'enable_list_show' => 1,
@@ -189,14 +191,16 @@ return [
         [
             'field'            => 'update_time',
             'name'             => '更新时间',
-            'form_type'        => 'number',
+            'form_type'        => 'datetime',
             'field_type'       => 'int',
             'field_length'     => 11,
             'field_is_null'    => 0,
             'field_key'        => '',
             'field_extra'      => '',
             'default'          => '',
-            'setting'          => [],
+            'setting'          => [
+                'format' => 'Y-m-d H:i:s'
+            ],
             'enable_edit_show' => 0,
             'enable_delete'    => 0,
             'enable_list_show' => 1,

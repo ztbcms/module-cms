@@ -373,6 +373,16 @@ class ContentModelFieldService extends BaseService
                 'setting'       => [
                     'options' => ''
                 ]
+            ],
+            [
+                'name'          => '日期时间',
+                'type'          => 'datetime',
+                'sql_type'      => 'int',
+                'length'        => 11,
+                'default_value' => '',
+                'setting'       => [
+                    'format' => 'Y-m-d H:i:s' //Y-m-d H:i
+                ]
             ]
         ];
 
