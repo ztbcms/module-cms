@@ -62,6 +62,11 @@
                                 </field-form-datetime>
                             </div>
 
+                            <div v-if="item.form_type === 'editor'">
+                                <field-form-editor v-model="formData[item.field]" :config="item">
+                                </field-form-editor>
+                            </div>
+
 
                         </div>
 
@@ -98,6 +103,9 @@
 {include file="../app/cms/view/common/fields/videos/field_form.inc.php"}
 <!--datetime-->
 {include file="../app/cms/view/common/fields/datetime/field_form.inc.php"}
+<!--editor-->
+{include file="../app/common/view/ueditor_simplicity.php"}
+{include file="../app/cms/view/common/fields/editor/field_form.inc.php"}
 
 
 <script>
