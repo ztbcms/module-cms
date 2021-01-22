@@ -2,9 +2,9 @@
     <div class="field-form-image">
         <el-form-item :label="name">
             <div>
-                <template v-for="(file, index) in uploadedImageList">
+                <template v-for="(file, index) in uploadedList">
                     <div class="imgListItem">
-                        <img :src="file.fileurl" :alt="file.filename" style="width: 128px;height: 128px;">
+                        <img :src="file.fileurl"  style="width: 128px;height: 128px;">
                         <div class="deleteMask" >
                             <span style="line-height: 128px;font-size: 22px" class="el-icon-delete" @click="deleteImageItem(index)"></span>
                             <span style="line-height: 128px;font-size: 22px" class="el-icon-zoom-in" @click="previewImageItem(index)"></span>
@@ -67,16 +67,12 @@
             watch: {
                 value: function(){
                     this.field_value = this.value
+                    if(this.field_value){
+                        this.uploadedList = [{fileurl: this.field_value}]
+                    }
                 },
                 field_value: function(val){
                     this.syncVModel()
-                },
-                uploadedImageList: function(){
-                    if(this.uploadedImageList.length > 0){
-                        this.field_value = this.uploadedImageList[0]['fileurl']
-                    } else {
-                        this.field_value = ''
-                    }
                 }
             },
             computed: {},
@@ -85,18 +81,22 @@
                     field_value: '',
                     name: '',
                     fieldid: '',
-                    options: '',
                     upload_callback: 'UPLOAD_IMAGE_',
-                    uploadedImageList: []
+                    uploadedList: []
                 }
             },
-            mounted: function () {
+            created: function(){
                 this.name = this.config.name || ''
                 this.fieldid = this.config.fieldid || ''
-                this.field_value = this.config.default || ''
-                this.options = this.config.setting.options || ''
-                this.syncVModel()
+                if (this.value !== undefined) {
+                    this.field_value = this.value
+                } else {
+                    this.field_value = this.config.default || ''
+                }
 
+                this.syncVModel()
+            },
+            mounted: function () {
                 this.upload_callback = this.upload_callback + this.fieldid
                 window.addEventListener(this.upload_callback, this.onUploadedImage.bind(this));
             },
@@ -121,16 +121,18 @@
                 onUploadedImage: function (event) {
                     var files = event.detail.files;
                     if (files && files.length > 0) {
-                        this.uploadedImageList = [files[0]]
+                        this.uploadedList = [files[0]]
+                        this.field_value = files[0]['fileurl']
                     }
                 },
                 // 删除
                 deleteImageItem: function (index) {
-                    this.uploadedImageList.splice(index, 1)
+                    this.uploadedList.splice(index, 1)
+                    this.field_value = ''
                 },
                 // 预览
                 previewImageItem: function (index) {
-                    window.open(this.uploadedImageList[index]['fileurl'])
+                    window.open(this.uploadedList[index]['fileurl'])
                 }
             }
         });

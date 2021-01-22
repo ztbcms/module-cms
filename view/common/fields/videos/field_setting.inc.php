@@ -1,9 +1,5 @@
 <script type="text/x-template" id="field-setting-videos">
     <div class="field-setting-videos">
-        <el-form-item label="默认视频">
-            <el-input v-model="default_value" clearable placeholder="视频链接"></el-input>
-        </el-form-item>
-
         <el-form-item label="限制个数">
             <el-select v-model="max_amount" placeholder="请选择">
                 <template v-for="(item, index) in limit_amount">
@@ -32,10 +28,6 @@
                 },
             },
             watch: {
-                default_value: function (val) {
-                    this.setting.default_value = val
-                    this.syncVModel()
-                },
                 enable_watermark: function (val) {
                     this.setting.enable_watermark = val
                     this.syncVModel()
@@ -43,7 +35,6 @@
             },
             data: function () {
                 return {
-                    default_value: '',
                     enable_watermark: '0',
                     max_amount: 0,
                     limit_amount: 17
@@ -51,7 +42,6 @@
             },
             computed: {},
             mounted: function () {
-                this.default_value = this.setting.default_value || ''
                 this.enable_watermark = this.setting.enable_watermark || '0'
                 this.syncVModel()
             },
@@ -59,7 +49,6 @@
                 // 向父组件更新绑定值
                 syncVModel: function () {
                     var setting = {
-                        default_value: this.default_value,
                         enable_watermark: this.enable_watermark,
                     }
                     this.$emit('change', setting)

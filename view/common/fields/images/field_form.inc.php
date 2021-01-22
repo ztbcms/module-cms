@@ -2,9 +2,9 @@
     <div class="field-form-images">
         <el-form-item :label="name">
             <div>
-                <template v-for="(file, index) in uploadedImageList">
+                <template v-for="(file, index) in uploadedList">
                     <div class="imgListItem">
-                        <img :src="file.fileurl" :alt="file.filename" style="width: 128px;height: 128px;">
+                        <img :src="file.fileurl" style="width: 128px;height: 128px;">
                         <div class="deleteMask" >
                             <span style="line-height: 128px;font-size: 22px" class="el-icon-delete" @click="deleteImageItem(index)"></span>
                             <span style="line-height: 128px;font-size: 22px" class="el-icon-zoom-in" @click="previewImageItem(index)"></span>
@@ -67,18 +67,16 @@
             watch: {
                 value: function(){
                     this.field_value = this.value
+                    var result = [];
+                    for (var i = 0; i < this.value.length; i++) {
+                        result.push({
+                            fileurl: this.value[i]
+                        })
+                    }
+                    this.uploadedList = result
                 },
                 field_value: function(val){
                     this.syncVModel()
-                },
-                uploadedImageList: function(){
-                    var result = [];
-                    if(this.uploadedImageList.length > 0){
-                        for (var i = 0; i < this.uploadedImageList.length; i++) {
-                            result.push(this.uploadedImageList[i]['fileurl'])
-                        }
-                    }
-                    this.field_value = result
                 }
             },
             computed: {
@@ -90,7 +88,7 @@
                     fieldid: '',
                     options: '',
                     upload_callback: 'UPLOAD_IMAGE_',
-                    uploadedImageList: []
+                    uploadedList: []
                 }
             },
             mounted: function () {
@@ -130,17 +128,17 @@
                     var files = event.detail.files;
                     if (files && files.length > 0) {
                         for (var i = 0; i < files.length; i++) {
-                            this.uploadedImageList.push(files[i])
+                            this.uploadedList.push(files[i])
                         }
                     }
                 },
                 // 删除
                 deleteImageItem: function (index) {
-                    this.uploadedImageList.splice(index, 1)
+                    this.uploadedList.splice(index, 1)
                 },
                 // 预览
                 previewImageItem: function (index) {
-                    window.open(this.uploadedImageList[index]['fileurl'])
+                    window.open(this.uploadedList[index]['fileurl'])
                 }
             }
         });

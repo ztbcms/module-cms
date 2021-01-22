@@ -66,7 +66,6 @@
             },
             watch: {
                 value: function(){
-                    console.log('value:change..', this.value)
                     this.field_value = this.value
                     var result = [];
                     for (var i = 0; i < this.value.length; i++) {
@@ -78,15 +77,13 @@
                     this.uploadedList = result
                 },
                 field_value: function(val){
-                    console.log('change field_value', this.field_value)
-
                     this.syncVModel()
                 }
             },
             computed: {},
             data: function () {
                 return {
-                    field_value: '',
+                    field_value: [],
                     name: '',
                     fieldid: '',
                     options: '',
@@ -97,7 +94,6 @@
             mounted: function () {
                 this.name = this.config.name || ''
                 this.fieldid = this.config.fieldid || ''
-                this.field_value = this.config.default || []
                 this.options = this.config.setting.options || ''
                 this.syncVModel()
 

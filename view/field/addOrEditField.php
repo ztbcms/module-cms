@@ -169,7 +169,7 @@
                         field : "", //字段名
                         name : "", //字段别名
                         tips : "", //字段提示
-                        enable_edit_show: '0',
+                        enable_edit_show: '1',
                         enable_list_show: '0',
                         setting: {}
                     },
