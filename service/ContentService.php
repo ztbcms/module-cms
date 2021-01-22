@@ -333,7 +333,11 @@ class ContentService extends BaseService
                     case 'videos':
                     case 'files':
                     case 'images':
-                        $content[$key] = serialize($val);
+                        if(is_array($val)){
+                            $content[$key] = serialize($val);
+                        } else {
+                            $content[$key] = serialize([]);
+                        }
                         break;
                     case 'datetime':
                         $content[$key] = strtotime($val);
@@ -349,7 +353,7 @@ class ContentService extends BaseService
             $res = Db::table($model['table'])->insertGetId($content);
         } else {
             //编辑
-            $tableWhere[] = ['id', '=', $data['id']];
+            $tableWhere[] = ['id', '=', $id];
             $res = Db::table($model['table'])->where('id', $id)->update($content);
         }
         if ($res) {
@@ -406,6 +410,9 @@ class ContentService extends BaseService
                     case 'files':
                     case 'videos':
                         $result[$field] = unserialize($val);
+                        if ($result[$field] === false) {
+                            $result[$field] = [];
+                        }
                         break;
                     case 'datetime':
                         $result[$field] = date($fieldMap[$field]['setting']['format'], $val);

@@ -127,19 +127,19 @@
             },
             computed: {
                 request_url: function(){
-                    if(this.id){
+                    if(this.formData.id){
                         return "{:api_url('/cms/content/content_edit')}"
                     }
                     return "{:api_url('/cms/content/content_add')}"
                 }
             },
             watch: {},
-            created: function () {},
-            mounted: function () {
+            created: function () {
                 this.formData.catid = this.getUrlQuery('catid') || ''
                 this.formData.id = this.getUrlQuery('id') || ''
                 this.getFormSetting()
             },
+            mounted: function () {},
             methods: {
                 // 提交
                 submitForm: function () {
