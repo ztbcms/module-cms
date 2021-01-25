@@ -2,6 +2,8 @@
 
 namespace app\cms\controller;
 
+use app\cms\model\ContentCategoryModel;
+use app\cms\model\ContentModelModel;
 use app\cms\model\model\ModelField;
 use app\cms\service\ContentCategoryService;
 use app\cms\service\ContentModelFieldService;
@@ -145,6 +147,14 @@ class Content extends AdminController
             return json($res);
         }
 
+        // 字段信息
+        if($this->request->isGet() && $action == 'getFieldParam'){
+            $category_list = $this->_getCategoryList();
+            return json([
+                'category_list' => $category_list
+            ]);
+        }
+
         // 添加、编辑
         if($this->request->isPost() && $action == 'submitForm'){
             $content = input('content');
@@ -166,6 +176,26 @@ class Content extends AdminController
 
         $list_customtemplate = 'content/edit/'.$list_customtemplate;
         return view($list_customtemplate);
+    }
+
+    // 栏目列表
+    private function _getCategoryList()
+    {
+        $list = ContentCategoryService::getCategoryTree()['data'];
+        // 获取全部模型
+        $contentModelModel = new ContentModelModel();
+        $model_list = $contentModelModel->select()->toArray();
+        $models = [];
+        foreach ($model_list as $i => $item) {
+            $models[$item['modelid']] = $item;
+        }
+
+        foreach ($list as $k => &$v) {
+            $v['type_name'] = ContentCategoryModel::getCategoryTypeName($v['type']);
+            $v['model_name'] = (!empty($models[$v['modelid']])) ? $models[$v['modelid']]['name'] : '';
+
+        }
+        return $list;
     }
 
 

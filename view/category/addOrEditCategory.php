@@ -19,7 +19,7 @@
                         </el-form-item>
 
                         <el-form-item label="上级栏目" required>
-                            <el-select v-model="formData.parentid" placeholder="请选择模型" :style="{width: '100%'}">
+                            <el-select v-model="formData.parentid" placeholder="请选择上级栏目" :style="{width: '100%'}">
                                 <el-option label="作为一级栏目" value="0"></el-option>
                                 <el-option
                                         v-for="item in categoryList"

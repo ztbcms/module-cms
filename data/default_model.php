@@ -33,7 +33,7 @@ return [
         [
             'name'             => '分类ID',
             'field'            => 'catid',
-            'form_type'        => 'number',
+            'form_type'        => 'catid',
             'field_type'       => 'int',
             'field_length'     => 11,
             'field_is_null'    => 0,
