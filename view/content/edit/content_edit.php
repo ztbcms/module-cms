@@ -67,6 +67,11 @@
                                 </field-form-editor>
                             </div>
 
+                            <div v-if="item.form_type === 'catid'">
+                                <field-form-catid v-model="formData[item.field]" :config="item" :category-list="categoryList">
+                                </field-form-catid>
+                            </div>
+
 
                         </div>
 
@@ -106,6 +111,8 @@
 <!--editor-->
 {include file="../app/common/view/ueditor_simplicity.php"}
 {include file="../app/cms/view/common/fields/editor/field_form.inc.php"}
+<!--catid-->
+{include file="../app/cms/view/common/fields/catid/field_form.inc.php"}
 
 
 <script>
@@ -122,7 +129,8 @@
                         catid: '',
                         id: ''
                     },
-                    editor: {}
+                    categoryList: []
+
                 }
             },
             computed: {
@@ -166,7 +174,8 @@
                         _action: "getFormSetting"
                     }
                     this.httpGet(this.request_url, data, function (res) {
-                        that.field_list = res.data;
+                        that.field_list = res.data.field_list
+                        that.categoryList = res.data.category_list
                         // 获取详情
                         if(that.formData.id){
                             that.getDetail()

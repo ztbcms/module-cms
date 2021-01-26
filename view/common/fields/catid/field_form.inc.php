@@ -8,7 +8,7 @@
                         v-for="item in categoryList"
                         :key="item.id"
                         :label="item.catname"
-                        :value="item.catid">
+                        :value="item.catid+''">
                     <template v-for="i in item.level * 2"><span>&nbsp;</span></template>
                     <template v-if="item.level > 0"><span> ∟</span></template>
                     <span>{{ item.catname }}</span>
@@ -35,11 +35,11 @@
                         return {};
                     }
                 },
-                category_list: [] // 栏目列表
+                categoryList: [] // 栏目列表
             },
             watch: {
                 value: function(){
-                    this.field_value = this.value
+                    this.field_value = this.value + ''
                 },
                 field_value: function(val){
                     this.syncVModel()

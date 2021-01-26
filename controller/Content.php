@@ -136,8 +136,13 @@ class Content extends AdminController
         // 表单设置
         if($this->request->isGet() && $action == 'getFormSetting'){
             $model = ContentModelService::getModelByCatid($catid)['data'];
-            $res = ContentModelFieldService::getEditableModelFieldList($model['modelid']);
-            return json($res);
+            $field_list = ContentModelFieldService::getEditableModelFieldList($model['modelid'])['data'];
+
+            $category_list = $this->_getCategoryList();
+            return json(self::createReturn(true, [
+                'field_list' => $field_list,
+                'category_list' => $category_list
+            ]));
         }
 
         // 获取内容信息
@@ -145,14 +150,6 @@ class Content extends AdminController
             $id = input('id','','trim');
             $res = ContentService::getDetail($catid, $id);
             return json($res);
-        }
-
-        // 字段信息
-        if($this->request->isGet() && $action == 'getFieldParam'){
-            $category_list = $this->_getCategoryList();
-            return json([
-                'category_list' => $category_list
-            ]);
         }
 
         // 添加、编辑
