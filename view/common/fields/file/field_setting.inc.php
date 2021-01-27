@@ -17,7 +17,7 @@
             props: {
                 setting: {
                     type: Object,
-                    defalut: function () {
+                    default: function () {
                         return {};
                     }
                 },

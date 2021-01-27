@@ -24,7 +24,7 @@
                 value: {},
                 config: {
                     type: Object,
-                    defalut: function () {
+                    default: function () {
                         return {};
                     }
                 }
