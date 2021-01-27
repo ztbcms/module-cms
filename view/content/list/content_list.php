@@ -76,22 +76,22 @@
                     catid: '',
                     //显示的字段
                     field_list : [
-                        {
-                            'field': 'id',
-                            'name': 'ID',
-                        },
-                        {
-                            'field': 'title',
-                            'name': '标题',
-                        },
-                        {
-                            'field': 'keywords',
-                            'name': '关键字',
-                        },
-                        {
-                            'field': 'description',
-                            'name': '描述',
-                        },
+                        // {
+                        //     'field': 'id',
+                        //     'name': 'ID',
+                        // },
+                        // {
+                        //     'field': 'title',
+                        //     'name': '标题',
+                        // },
+                        // {
+                        //     'field': 'keywords',
+                        //     'name': '关键字',
+                        // },
+                        // {
+                        //     'field': 'description',
+                        //     'name': '描述',
+                        // },
                     ],
                     //显示的筛选条件
                     base_list : [],
@@ -125,18 +125,20 @@
                 },
                 mounted:function() {
                     this.catid = this.getUrlQuery('catid')
-                    this.getContentList()
+                    this.getListParam()
+                    // this.getContentList()
                 },
                 methods: {
                     //获取显示的字段
-                    getDisplaySettin: function () {
+                    getListParam: function () {
                         var that = this;
-                        that.httpPost("{:api_url('/cms/content/list')}", {
-                            catid : this.catid,
-                            action : "getDisplaySettin"
+                        that.httpGet("{:api_url('/cms/content/content_list')}", {
+                            catid: this.catid,
+                            _action: "getListParam"
                         }, function (res) {
                             that.field_list = res.data.field_list;
-                            that.base_list = res.data.base_list;
+                            // that.base_list = res.data.base_list;
+                            that.getContentList()
                         })
                     },
                     // 获取列表信息
@@ -160,7 +162,7 @@
                             limit: this.limit,
                             where: where,
                         }
-                        this.httpGet("{:api_url('/cms/content/content_list_operate')}", data, function (res) {
+                        this.httpGet("{:api_url('/cms/content/content_list')}", data, function (res) {
                             if (res.status) {
                                 that.list = res.data.items;
                                 that.page = res.data.page;
@@ -208,7 +210,7 @@
                         this.getContentList();
                     },
                     
-                    //详情
+                    // 添加、编辑
                     editContent: function (id) {
                         var that = this;
                         var url = "{:api_url('/cms/content/content_edit')}";

@@ -3,6 +3,7 @@
 namespace app\cms\controller;
 
 use app\cms\model\ContentCategoryModel;
+use app\cms\model\ContentModelFieldModel;
 use app\cms\model\ContentModelModel;
 use app\cms\model\model\ModelField;
 use app\cms\service\ContentCategoryService;
@@ -74,10 +75,43 @@ class Content extends AdminController
      */
     function content_list(){
         $catid = input('catid','','trim');
+        $action = input('_action','','trim');
+
         $contentCategory = ContentCategoryService::getContentCategory($catid)['data'];
+        $contentModel = ContentModelService::getModel($contentCategory['modelid'])['data'];
+
+        // 获取列表页参数
+        if($this->request->isGet() && $action == 'getListParam'){
+            $fieldModel = new ContentModelFieldModel();
+            $field_list = $fieldModel->where([
+                ['modelid', '=', $contentCategory['modelid']],
+                ['enable_list_show', '=', 1]
+            ])->field('field,name,form_type')->select()->toArray();
+            return json(self::createReturn(true, [
+                'field_list' => $field_list
+            ]));
+        }
+
+        //获取内容列表
+        if($action === 'getContentList'){
+            $page = input('page', 1, 'intval');
+            $limit = input('limit', 15, 'intval');
+            $_where = input('where', []);;
+            $where = [];
+            foreach ($_where as $item) {
+                $value = $item['value'];
+                if (strtolower($item['operator']) == 'like') {
+                    $value = '%'.$value.'%';
+                }
+                $where [] = [$item['field'], $item['operator'], $value];
+            }
+            $res = ContentService::getContentList($catid, $where, $page, $limit);
+            return json($res);
+        }
+
+        // 选择模板
         $list_customtemplate = $contentCategory['list_customtemplate'];
         if(empty($list_customtemplate)){
-            $contentModel = ContentModelService::getModel($contentCategory['modelid'])['data'];
             $list_customtemplate = $contentModel['list_customtemplate'];
             if(empty($list_customtemplate)){
                 $list_customtemplate = 'content_list';
@@ -93,42 +127,17 @@ class Content extends AdminController
     function content_list_operate(){
         $action = input('_action','','trim');
         $catid = input('catid','','trim');
-        if($action === 'getContentList'){
-            //获取列表信息
-            $page = input('page', 1, 'intval');
-            $limit = input('limit', 15, 'intval');
-            $_where = input('where', []);;
-            $where = [];
-            foreach ($_where as $item) {
-                $value = $item['value'];
-                if (strtolower($item['operator']) == 'like') {
-                    $value = '%'.$value.'%';
-                }
-                $where [] = [$item['field'], $item['operator'], $value];
-            }
-            $res = ContentService::getContentList($catid, $where, $page, $limit);
-            return json($res);
-        }
-        if($action === 'addContent'){
-            // 获取列表
-        }
-        if($action === 'editContent'){
-            // 获取列表
-        }
         if ($action === 'deleteContent') {
             // 删除内容
             $id = input('id', '', 'trim');
             $res = ContentService::deleteContent($catid, $id);
             return json($res);
         }
-
     }
 
     function content_add(){
         return $this->content_edit();
     }
-
-
 
     function content_edit(){
         $catid = input('catid','','trim');

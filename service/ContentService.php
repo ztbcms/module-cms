@@ -297,6 +297,30 @@ class ContentService extends BaseService
         $total_page = ceil($total / $limit);
         $lists = Db::table($contentModel['table'])->where($where)->limit($offset, $limit)->order($order)->select()->toArray();
 
+        $fieldList = ContentModelFieldService::getModelFieldList($contentModel['modelid'])['data'];
+        $fieldMap = ArrayHelper::arrayToMap($fieldList, 'field');
+
+        foreach ($lists as &$result) {
+            foreach ($result as $field => $val) {
+                if (isset($fieldMap[$field])) {
+                    switch ($fieldMap[$field]['form_type']) {
+                        case 'images':
+                        case 'files':
+                        case 'videos':
+                            $result[$field] = unserialize($val);
+                            if ($result[$field] === false) {
+                                $result[$field] = [];
+                            }
+                            break;
+                        case 'datetime':
+                            $result[$field] = date($fieldMap[$field]['setting']['format'], $val);
+                            break;
+                    }
+                }
+            }
+        }
+
+
         return self::createReturn(true, [
             'items'      => $lists,
             'page'       => $page,
@@ -344,7 +368,6 @@ class ContentService extends BaseService
                         break;
                     default:
                         $content[$key] = $val;
-
                 }
             }
         }
