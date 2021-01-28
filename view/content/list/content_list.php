@@ -27,6 +27,24 @@
                                 align="center"
                                 :label="item.name"
                                 min-width="180">
+                            <template slot-scope="scope">
+                                <template v-if="item.form_type == 'image'">
+                                    <list-item-image v-model="scope.row[item.field]" :config="item"></list-item-image>
+                                </template>
+                                <template v-else-if="item.form_type == 'images'">
+                                    <list-item-images v-model="scope.row[item.field]" :config="item"></list-item-images>
+                                </template>
+                                <template v-else-if="item.form_type == 'video'">
+                                    <list-item-video v-model="scope.row[item.field]" :config="item"></list-item-video>
+                                </template>
+                                <template v-else-if="item.form_type == 'videos'">
+                                    <list-item-videos v-model="scope.row[item.field]" :config="item"></list-item-videos>
+                                </template>
+                                <template v-else>
+                                    {{ scope.row[item.field] }}
+                                </template>
+
+                            </template>
                         </el-table-column>
                     </template>
 
@@ -68,6 +86,17 @@
             padding: 10px;
         }
     </style>
+
+    <!--image-->
+    {include file="../app/cms/view/common/fields/image/list_item.inc.php"}
+    <!--images-->
+    {include file="../app/cms/view/common/fields/images/list_item.inc.php"}
+    <!--video-->
+    {include file="../app/cms/view/common/fields/video/list_item.inc.php"}
+    <!--videos-->
+    {include file="../app/cms/view/common/fields/videos/list_item.inc.php"}
+
+
     <script>
         $(document).ready(function () {
             new Vue({
@@ -79,18 +108,6 @@
                         // {
                         //     'field': 'id',
                         //     'name': 'ID',
-                        // },
-                        // {
-                        //     'field': 'title',
-                        //     'name': '标题',
-                        // },
-                        // {
-                        //     'field': 'keywords',
-                        //     'name': '关键字',
-                        // },
-                        // {
-                        //     'field': 'description',
-                        //     'name': '描述',
                         // },
                     ],
                     //显示的筛选条件
