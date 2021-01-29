@@ -35,7 +35,12 @@
                         return {};
                     }
                 },
-                categoryList: [] // 栏目列表
+                categoryList: { // 栏目列表
+                    type: Array,
+                    default: function () {
+                        return [];
+                    }
+                }
             },
             watch: {
                 value: function(){
@@ -49,8 +54,7 @@
             data: function () {
                 return {
                     field_value: '',
-                    name: '',
-
+                    name: ''
                 }
             },
             mounted: function () {

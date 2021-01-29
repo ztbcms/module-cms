@@ -130,7 +130,6 @@
                         id: ''
                     },
                     categoryList: []
-
                 }
             },
             computed: {

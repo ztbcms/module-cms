@@ -442,7 +442,11 @@ class ContentService extends BaseService
                         }
                         break;
                     case 'datetime':
-                        $result[$field] = date($fieldMap[$field]['setting']['format'], $val);
+                        if (isset($fieldMap[$field]['setting']) && isset($fieldMap[$field]['setting']['format'])) {
+                            $result[$field] = date($fieldMap[$field]['setting']['format'], $val);
+                        } else {
+                            $result[$field] = date('Y-m-d H:i:s', $val);
+                        }
                         break;
                 }
             }
