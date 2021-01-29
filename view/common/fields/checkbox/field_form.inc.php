@@ -59,7 +59,7 @@
             },
             data: function () {
                 return {
-                    field_value: '',
+                    field_value: [],
                     name: '',
                     options: '',
 
@@ -67,7 +67,6 @@
             },
             mounted: function () {
                 this.name = this.config.name || ''
-                this.field_value = this.config.default || []
                 this.options = this.config.setting.options || ''
                 this.syncVModel()
             },

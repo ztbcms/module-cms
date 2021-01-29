@@ -349,7 +349,6 @@ class ContentService extends BaseService
 
         $id = $data['id'] ?? null;
         unset($data['id']);
-
         $model = ContentModelService::getModelByCatid($data['catid'])['data'];
         $fieldList = ContentModelFieldService::getModelFieldList($model['modelid'])['data'];
         $fieldMap = ArrayHelper::arrayToMap($fieldList, 'field');
@@ -366,6 +365,9 @@ class ContentService extends BaseService
                         } else {
                             $content[$key] = serialize([]);
                         }
+                        break;
+                    case 'checkbox':
+                        $content[$key] = join(',', $val);
                         break;
                     case 'datetime':
                         $content[$key] = strtotime($val);
@@ -439,6 +441,13 @@ class ContentService extends BaseService
                         $result[$field] = unserialize($val);
                         if ($result[$field] === false) {
                             $result[$field] = [];
+                        }
+                        break;
+                    case 'checkbox':
+                        if(empty($val)){
+                            $result[$field] = [];
+                        } else {
+                            $result[$field] = explode(',', $val);
                         }
                         break;
                     case 'datetime':
