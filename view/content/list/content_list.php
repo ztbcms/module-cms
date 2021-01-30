@@ -40,6 +40,9 @@
                                 <template v-else-if="item.form_type == 'videos'">
                                     <list-item-videos v-model="scope.row[item.field]" :config="item"></list-item-videos>
                                 </template>
+                                <template v-else-if="item.form_type == 'checkbox'">
+                                    <list-item-checkbox v-model="scope.row[item.field]" :config="item"></list-item-checkbox>
+                                </template>
                                 <template v-else>
                                     {{ scope.row[item.field] }}
                                 </template>
@@ -86,7 +89,6 @@
             padding: 10px;
         }
     </style>
-
     <!--image-->
     {include file="../app/cms/view/common/fields/image/list_item.inc.php"}
     <!--images-->
@@ -95,6 +97,8 @@
     {include file="../app/cms/view/common/fields/video/list_item.inc.php"}
     <!--videos-->
     {include file="../app/cms/view/common/fields/videos/list_item.inc.php"}
+    <!--checkbox-->
+    {include file="../app/cms/view/common/fields/checkbox/list_item.inc.php"}
 
 
     <script>

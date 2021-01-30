@@ -278,6 +278,8 @@ class ContentService extends BaseService
 
 
     /**
+     * 获取内容列表
+     *
      * @param $catid
      * @param  array  $where
      * @param  int  $page
@@ -312,8 +314,50 @@ class ContentService extends BaseService
                                 $result[$field] = [];
                             }
                             break;
+                        case 'checkbox':
+                            $optionMap = [];
+                            if (isset($fieldMap[$field]['setting']) && isset($fieldMap[$field]['setting']['options'])) {
+                                $options = $fieldMap[$field]['setting']['options'];
+                                $options = explode("\n", $options);
+                                foreach ($options as $option) {
+                                    $arr = explode('|', $option);
+                                    if (!empty($arr[0])) {
+                                        $optionMap[$arr[1]] = $arr[0];
+                                    }
+                                }
+                            }
+                            $_result = [];
+                            $val_arr = explode(',', $val);
+                            foreach ($val_arr as $val_item) {
+                                if (!empty($val_item) && isset($optionMap[$val_item])) {
+                                    $_result  [] = $optionMap[$val_item];
+                                } else {
+                                    $_result [] = $val;
+                                }
+                            }
+                            $result[$field] = $_result;
+                            break;
+                        case 'select':
+                        case 'radio':
+                            $optionMap = [];
+                            if (isset($fieldMap[$field]['setting']) && isset($fieldMap[$field]['setting']['options'])) {
+                                $options = $fieldMap[$field]['setting']['options'];
+                                $options = explode("\n", $options);
+                                foreach ($options as $option) {
+                                    $arr = explode('|', $option);
+                                    if (!empty($arr[0])) {
+                                        $optionMap[$arr[1]] = $arr[0];
+                                    }
+                                }
+                            }
+                            if (isset($optionMap[$val])) {
+                                $result[$field] = $optionMap[$val];
+                            } else {
+                                $result[$field] = $val;
+                            }
+                            break;
                         case 'datetime':
-                            if(isset($fieldMap[$field]['setting']) && isset($fieldMap[$field]['setting']['format'])){
+                            if (isset($fieldMap[$field]['setting']) && isset($fieldMap[$field]['setting']['format'])) {
                                 $result[$field] = date($fieldMap[$field]['setting']['format'], $val);
                             } else {
                                 $result[$field] = date('Y-m-d H:i:s', $val);
@@ -336,6 +380,7 @@ class ContentService extends BaseService
 
     /**
      * 新增或编辑内容
+     *
      * @param $data
      *
      * @return array
@@ -360,7 +405,7 @@ class ContentService extends BaseService
                     case 'videos':
                     case 'files':
                     case 'images':
-                        if(is_array($val)){
+                        if (is_array($val)) {
                             $content[$key] = serialize($val);
                         } else {
                             $content[$key] = serialize([]);
@@ -415,6 +460,7 @@ class ContentService extends BaseService
 
     /**
      * 获取详情
+     *
      * @param $catid
      * @param $id
      *
@@ -444,7 +490,7 @@ class ContentService extends BaseService
                         }
                         break;
                     case 'checkbox':
-                        if(empty($val)){
+                        if (empty($val)) {
                             $result[$field] = [];
                         } else {
                             $result[$field] = explode(',', $val);
