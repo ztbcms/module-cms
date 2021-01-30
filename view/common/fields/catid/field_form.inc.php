@@ -57,11 +57,11 @@
                     name: ''
                 }
             },
-            mounted: function () {
+            created: function (){
                 this.name = this.config.name || ''
-                this.field_value = this.config.default || ''
-                this.syncVModel()
+                this.field_value = this.value
             },
+            mounted: function () {},
             methods: {
                 // 向父组件更新绑定值
                 syncVModel: function () {
