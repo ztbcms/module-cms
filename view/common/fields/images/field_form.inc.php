@@ -120,7 +120,7 @@
                         title: '',
                         closeBtn: false,
                         content: "{:api_url('common/upload.panel/imageUpload')}?callback="+this.upload_callback,
-                        area: ['670px', '550px'],
+                        area: ['720px', '550px'],
                     })
                 },
                 // 图片回调
