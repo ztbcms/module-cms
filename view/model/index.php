@@ -11,19 +11,6 @@
                         模型导入
                     </el-button>
 
-                    <el-button @click="searchField" size="small" type="primary">
-                        手动填写表名导出字典
-                    </el-button>
-                    <el-button @click="exportAllField" size="small" type="primary">
-                        导出全部模型数据字典
-                    </el-button>
-
-
-                    <el-alert style="margin-top: 20px;"
-                            type="warning">
-                        <p>使用提示 ：</p>
-                        <p>1.当模块禁用的时候无法对字段管理进行删除等操作</p>
-                    </el-alert>
                 </div>
 
                 <div>
@@ -33,7 +20,7 @@
                         highlight-current-row
                         style="width: 100%;"
                     >
-                        <el-table-column label="Model ID" align="center">
+                        <el-table-column label="ID" align="center" width="100">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.modelid }}</span>
                             </template>
@@ -57,26 +44,12 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column label="模块状态" width="" align="center">
-                            <template slot-scope="{row}">
-                                <span v-if="row.disabled == '1'">
-                                    <i @click="changeStatus(row.modelid,row.disabled)" class="el-icon-error" style="color: red;font-size: 24px;"></i>
-                                </span>
-                                <span v-else>
-                                    <i @click="changeStatus(row.modelid,row.disabled)" class="el-icon-success" style="color: green;font-size: 24px;"></i>
-                                </span>
-                            </template>
-                        </el-table-column>
-
                         <el-table-column label="管理操作" align="center" width="400" class-name="small-padding fixed-width">
                             <template slot-scope="scope">
 
                                 <el-button type="text" size="mini" @click="edit(scope.row.modelid)">修改</el-button>
 
-                                <el-button type="text" size="mini" @click="modelField(scope.row.modelid)">字段管理</el-button>
-
-                                <el-button type="text" style="" size="mini" @click="exportDictionary(scope.row.modelid)">导出数据字典
-                                </el-button>
+                                <el-button type="text" size="mini" @click="modelField(scope.row)">字段管理</el-button>
 
                                 <el-button type="text" size="mini" @click="exportModel(scope.row.modelid)">导出模型
                                 </el-button>
@@ -139,29 +112,12 @@
                         }
                     })
                 },
-                // 查询字段
-                searchField:function() {
-                    window.location.href = "{:api_url('/cms/FieldExport/exportTableFields')}"
-                },
-                // 导出全部模型数据字典
-                exportAllField:function() {
-                    var url = "{:api_url('/cms/FieldExport/exportModelFields')}"
-                    layer.open({
-                        type: 2,
-                        title: '数据字典',
-                        content: url,
-                        area: ['100%', '100%'],
-                    })
-                },
                 // 字段管理
-                modelField:function(modelid) {
+                modelField:function(model) {
+                    var modelid = model.modelid
+                    var name = model.name
                     var url = "{:api_url('/cms/Field/index')}" + '?modelid=' +  modelid
-                    layer.open({
-                        type: 2,
-                        title: '字段管理',
-                        content: url,
-                        area: ['100%', '100%'],
-                    })
+                    Ztbcms.openNewIframeByUrl(name+'-字段管理', url)
                 },
                 // 添加模型
                 add: function () {
@@ -187,16 +143,6 @@
                         end: function () {  //回调函数
                             that.fetchData()
                         }
-                    })
-                },
-                // 导出数据字典
-                exportDictionary: function (modelid) {
-                    var url = "{:api_url('/cms/FieldExport/exportModelFields')}" + '?modelid=' + modelid
-                    layer.open({
-                        type: 2,
-                        title: '导出数据字典',
-                        content: url,
-                        area: ['100%', '100%'],
                     })
                 },
                 // 导出模型 下载

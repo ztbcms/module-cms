@@ -3,10 +3,10 @@
         <el-col :sm="24" :md="24">
 
             <div style="margin-top: 10px">
-                <div class="h_a" style="font-weight: bold;font-size: 26px;">字段信息</div>
-                <div class="prompt_text" style="font-weight: bold;">
-                    <p>模型名称: {{ model_info['name'] }}</p>
-                    <p>模型表名: {{ model_info['table'] }}</p>
+                <h3>字段管理</h3>
+                <div>
+                    <p><strong>模型名称</strong>: {{ model_info['name'] }}</p>
+                    <p><strong>模型表名</strong>: {{ model_info['table'] }}</p>
                 </div>
             </div>
 

@@ -224,9 +224,9 @@
                             layer.msg(res.msg);
                             if (res.status) {
                                 //添加成功
-                                if (window !== window.parent) {
+                                if (window !== window.parent && window.parent.layer) {
                                     setTimeout(function () {
-                                        location.href = res.url;
+                                        window.parent.layer.closeAll()
                                     }, 1000);
                                 }
                             }
