@@ -1,24 +1,24 @@
-<script type="text/x-template" id="field-form-images">
-    <div class="field-form-images">
+<script type="text/x-template" id="field-form-file">
+    <div class="field-form-file">
         <el-form-item :label="name">
             <div>
                 <template v-for="(file, index) in uploadedList">
                     <div class="imgListItem">
-                        <img :src="file.fileurl" style="width: 128px;height: 128px;">
+                        <img src="/statics/admin/upload/file.png" style="width: 80px;height: 80px;">
                         <div class="deleteMask" >
-                            <span style="line-height: 128px;font-size: 22px" class="el-icon-delete" @click="deleteImageItem(index)"></span>
-                            <span style="line-height: 128px;font-size: 22px" class="el-icon-zoom-in" @click="previewImageItem(index)"></span>
+                            <span style="line-height: 80px;font-size: 22px" class="el-icon-delete" @click="deleteVideoItem(index)"></span>
+                            <span style="line-height: 80px;font-size: 22px" class="el-icon-zoom-in" @click="previewVideoItem(index)"></span>
                         </div>
                     </div>
                 </template>
             </div>
-            <el-button type="primary" @click="gotoUploadImage(0)" size="mini">上传</el-button>
+            <el-button type="primary" @click="gotoUploadPanel(0)" size="mini">上传</el-button>
         </el-form-item>
     </div>
 </script>
 <style>
-    .field-form-images .imgListItem {
-        height: 128px;
+    .field-form-file .imgListItem {
+        height: 80px;
         border: 1px dashed #d9d9d9;
         border-radius: 6px;
         display: inline-flex;
@@ -29,12 +29,12 @@
         vertical-align: top;
     }
 
-    .field-form-images .deleteMask {
+    .field-form-file .deleteMask {
         position: absolute;
         top: 0;
         left: 0;
-        width: 128px;
-        height: 128px;
+        width: 80px;
+        height: 80px;
         text-align: center;
         background-color: rgba(0, 0, 0, 0.6);
         color: #fff;
@@ -42,14 +42,14 @@
         opacity: 0;
     }
 
-    .field-form-images .deleteMask:hover {
+    .field-form-file .deleteMask:hover {
         opacity: 1;
     }
 </style>
 <script>
     $(function () {
-        Vue.component('field-form-images', {
-            template: '#field-form-images',
+        Vue.component('field-form-file', {
+            template: '#field-form-file',
             model: {
                 // 指定接收 v-model 值/修改事件
                 prop: 'value',
@@ -67,77 +67,67 @@
             watch: {
                 value: function(){
                     this.field_value = this.value
-                    var result = [];
-                    for (var i = 0; i < this.value.length; i++) {
-                        result.push({
-                            fileurl: this.value[i]
-                        })
+                    if(this.value){
+                        this.uploadedList = [{'fileurl': this.value}]
                     }
-                    this.uploadedList = result
                 },
                 field_value: function(val){
                     this.syncVModel()
                 }
             },
-            computed: {
-            },
+            computed: {},
             data: function () {
                 return {
-                    field_value: [],
+                    field_value: '',
                     name: '',
                     fieldid: '',
                     options: '',
-                    upload_callback: 'UPLOAD_IMAGE_',
+                    upload_callback: 'UPLOAD_VIDEO_',
                     uploadedList: []
                 }
             },
             mounted: function () {
-
                 this.name = this.config.name || ''
                 this.fieldid = this.config.fieldid || ''
-                if(this.config.default ){
-                    this.field_value = [this.config.default]
-                } else {
-                    this.field_value = []
-                }
+                this.field_value = this.config.default || ''
                 this.options = this.config.setting.options || ''
                 this.syncVModel()
 
                 this.upload_callback = this.upload_callback + this.fieldid
-                window.addEventListener(this.upload_callback, this.onUploadedImage.bind(this));
+                window.addEventListener(this.upload_callback, this.onUploadedCallback.bind(this));
             },
             beforeDestroy: function(){
-                window.removeEventListener(this.upload_callback, this.onUploadedImage.bind(this));
+                window.removeEventListener(this.upload_callback, this.onUploadedCallback.bind(this));
             },
             methods: {
                 // 向父组件更新绑定值
                 syncVModel: function () {
                     this.$emit('change', this.field_value)
                 },
-                gotoUploadImage: function () {
+                gotoUploadPanel: function () {
                     layer.open({
                         type: 2,
                         title: '',
                         closeBtn: false,
-                        content: "{:api_url('common/upload.panel/imageUpload')}?callback="+this.upload_callback,
+                        content: "{:api_url('common/upload.panel/videoUpload')}?max_upload=1&callback="+this.upload_callback,
                         area: ['720px', '550px'],
                     })
                 },
-                // 图片回调
-                onUploadedImage: function (event) {
+                // 上传回调
+                onUploadedCallback: function (event) {
                     var files = event.detail.files;
                     if (files && files.length > 0) {
-                        for (var i = 0; i < files.length; i++) {
-                            this.uploadedList.push(files[i])
-                        }
+                        this.uploadedList = [files[0]]
+                        this.field_value = files[0]['fileurl']
                     }
                 },
                 // 删除
-                deleteImageItem: function (index) {
+                deleteVideoItem: function (index) {
                     this.uploadedList.splice(index, 1)
+                    this.field_value = ''
                 },
                 // 预览
-                previewImageItem: function (index) {
+                previewVideoItem: function (index) {
                     window.open(this.uploadedList[index]['fileurl'])
                 }
             }

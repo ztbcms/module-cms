@@ -325,24 +325,24 @@ class ContentModelFieldService extends BaseService
                 ]
             ],
             //
-//            [
-//                'name'          => '单文件',
-//                'type'          => 'file',
-//                'sql_type'      => 'varchar',
-//                'length'        => 512,
-//                'default_value' => '',
-//                'setting'       => []
-//            ],
-//            [
-//                'name'          => '多文件',
-//                'type'          => 'files',
-//                'sql_type'      => 'varchar',
-//                'length'        => 1024,
-//                'default_value' => '',
-//                'setting'       => [
-//                    'max_amount' => 0, // 最大个数
-//                ]
-//            ],
+            [
+                'name'          => '单文件',
+                'type'          => 'file',
+                'sql_type'      => 'varchar',
+                'length'        => 512,
+                'default_value' => '',
+                'setting'       => []
+            ],
+            [
+                'name'          => '多文件',
+                'type'          => 'files',
+                'sql_type'      => 'varchar',
+                'length'        => 1024,
+                'default_value' => '',
+                'setting'       => [
+                    'max_amount' => 0, // 最大个数
+                ]
+            ],
             [
                 'name'          => '单选',
                 'type'          => 'radio',

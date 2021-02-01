@@ -72,6 +72,16 @@
                                 </field-form-catid>
                             </div>
 
+                            <div v-if="item.form_type === 'file'">
+                                <field-form-file v-model="formData[item.field]" :config="item" :category-list="categoryList">
+                                </field-form-file>
+                            </div>
+
+                            <div v-if="item.form_type === 'files'">
+                                <field-form-files v-model="formData[item.field]" :config="item" :category-list="categoryList">
+                                </field-form-files>
+                            </div>
+
 
                         </div>
 
@@ -113,6 +123,10 @@
 {include file="../app/cms/view/common/fields/editor/field_form.inc.php"}
 <!--catid-->
 {include file="../app/cms/view/common/fields/catid/field_form.inc.php"}
+<!--file-->
+{include file="../app/cms/view/common/fields/file/field_form.inc.php"}
+<!--files-->
+{include file="../app/cms/view/common/fields/files/field_form.inc.php"}
 
 
 <script>

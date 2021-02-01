@@ -12,7 +12,7 @@
                     </div>
                 </template>
             </div>
-            <el-button type="primary" @click="gotoUploadImage(0)">上传图片</el-button>
+            <el-button type="primary" @click="gotoUploadImage(0)" size="mini">上传</el-button>
         </el-form-item>
     </div>
 </script>
