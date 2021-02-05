@@ -135,10 +135,22 @@ class Content extends AdminController
         }
     }
 
+    /**
+     * @return \think\response\Json|\think\response\View
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     function content_add(){
         return $this->content_edit();
     }
 
+    /**
+     * @return \think\response\Json|\think\response\View
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\DbException
+     * @throws \think\db\exception\ModelNotFoundException
+     */
     function content_edit(){
         $catid = input('catid','','trim');
         $action = input('_action','','trim');

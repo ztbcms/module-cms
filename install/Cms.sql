@@ -67,6 +67,7 @@ CREATE TABLE `cms_content_model` (
   `create_time` int(11) NOT NULL,
   `update_time` int(11) NOT NULL,
   `type` int(11) DEFAULT NULL,
+  `primary_key` varchar(64) NOT NULL DEFAULT 'id' COMMENT '主键字段',
   PRIMARY KEY (`modelid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='内容模型列表';
 
